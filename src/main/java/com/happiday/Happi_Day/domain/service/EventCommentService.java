@@ -65,7 +65,9 @@ public class EventCommentService {
         EventComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_COMMENT_NOT_FOUND));
 
-        if(!user.getUsername().equals(username)) throw new IllegalArgumentException("사용자 정보가 일치하지 않습니다.");
+        if (!user.getUsername().equals(username)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         comment.update(request.toEntity());
         commentRepository.save(comment);
@@ -85,7 +87,9 @@ public class EventCommentService {
         EventComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_COMMENT_NOT_FOUND));
 
-        if (!user.getUsername().equals(username)) throw new IllegalArgumentException("사용자 정보가 일치하지 않습니다.");
+        if (!user.getUsername().equals(username)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         commentRepository.delete(comment);
 
