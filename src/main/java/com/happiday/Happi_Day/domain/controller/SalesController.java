@@ -1,9 +1,6 @@
 package com.happiday.Happi_Day.domain.controller;
 
-import com.happiday.Happi_Day.domain.entity.product.dto.ReadListSalesDto;
-import com.happiday.Happi_Day.domain.entity.product.dto.ReadOneSalesDto;
-import com.happiday.Happi_Day.domain.entity.product.dto.UpdateSalesDto;
-import com.happiday.Happi_Day.domain.entity.product.dto.WriteSalesDto;
+import com.happiday.Happi_Day.domain.entity.product.dto.*;
 import com.happiday.Happi_Day.domain.service.SalesService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;

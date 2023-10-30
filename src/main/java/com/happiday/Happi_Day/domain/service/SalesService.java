@@ -127,7 +127,6 @@ public class SalesService {
         // user 확인
         if(!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
-        // TODO 이미지 저장예정
         if(thumbnailImage != null && !thumbnailImage.isEmpty()){
             if(sales.getThumbnailImage() != null && !sales.getThumbnailImage().isEmpty()){
                 try{

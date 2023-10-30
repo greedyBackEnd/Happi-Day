@@ -9,7 +9,6 @@ import java.util.List;
 @Data
 @Builder
 public class ReadOneSalesDto {
-    // TODO 이미지 추가예정
     private Long id;
     private String salesCategory;
     private String user;
