@@ -26,22 +26,27 @@ export default {
             receiver: '',
             socket: null,
             messages: [],
-            messageInput: ""
+            messageInput: "",
+            token: ''
         };
     },
     created() {
         this.roomId = localStorage.getItem('roomId');
         this.receiver = localStorage.getItem('receiver');
+        this.token = localStorage.getItem('accessToken');
         this.initializeWebSocket();
     },
     methods: {
-        initializeWebSocket() {
-            var socket = new SockJS("/ws");
-            this.stompClient = Stomp.over(socket);
-            var _this = this;
-            _this.token = localStorage.getItem('accessToken');
+        async initializeWebSocket() {
+            var headers = {
+                'Authorization': 'Bearer ' + this.token
+            };
 
-            _this.stompClient.connect({ token: _this.token }, function(frame) {
+            var _this = this
+            var socket = new SockJS("/ws");
+            _this.stompClient = Stomp.over(socket);
+
+            _this.stompClient.connect(headers, function(frame) {
                 console.log('WebSocket 연결 성공'); // 웹소켓 연결이 성공한 경우 콘솔에 메시지 출력
                 _this.stompClient.subscribe(`/sub/chat/room/${_this.roomId}`, function(message) {
                     var recv = JSON.parse(message.body);
