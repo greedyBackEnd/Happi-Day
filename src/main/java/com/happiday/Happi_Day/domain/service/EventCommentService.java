@@ -9,12 +9,12 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.EventCommentRepository;
 import com.happiday.Happi_Day.domain.repository.EventRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -30,9 +30,9 @@ public class EventCommentService {
     @Transactional
     public EventCommentResponseDto createComment(Long eventId, EventCommentCreateDto request, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
         EventComment comment = EventComment.builder()
                 .user(user)
@@ -47,7 +47,7 @@ public class EventCommentService {
 
     public List<EventCommentResponseDto> readComments(Long eventId) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
         List<EventComment> commentList = commentRepository.findAllByEvent(event);
 
         return commentList.stream().map(EventCommentResponseDto::fromEntity).toList();
@@ -57,15 +57,17 @@ public class EventCommentService {
     public EventCommentResponseDto updateComment(Long eventId, Long commentId, EventCommentUpdateDto request, String username) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
         EventComment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_COMMENT_NOT_FOUND));
 
-        if(!user.getUsername().equals(username)) throw new IllegalArgumentException("사용자 정보가 일치하지 않습니다.");
+        if (!user.getUsername().equals(username)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         comment.update(request.toEntity());
         commentRepository.save(comment);
@@ -77,15 +79,17 @@ public class EventCommentService {
     public void deleteComment(Long eventId, Long commentId, String username) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
         EventComment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_COMMENT_NOT_FOUND));
 
-        if (!user.getUsername().equals(username)) throw new IllegalArgumentException("사용자 정보가 일치하지 않습니다.");
+        if (!user.getUsername().equals(username)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         commentRepository.delete(comment);
 

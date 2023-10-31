@@ -26,6 +26,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(authHttp -> authHttp
                         .requestMatchers("/api/v1/auth/signup", "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/events/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/event/detail/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(

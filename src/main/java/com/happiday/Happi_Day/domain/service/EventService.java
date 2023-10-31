@@ -12,14 +12,14 @@ import com.happiday.Happi_Day.domain.repository.ArtistRepository;
 import com.happiday.Happi_Day.domain.repository.EventRepository;
 import com.happiday.Happi_Day.domain.repository.TeamRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class EventService {
             EventCreateDto request, MultipartFile thumbnailFile, MultipartFile imageFile, String username) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // TODO - default 이미지 추가
 //        if (thumbnailFile == null || thumbnailFile.isEmpty()) {
@@ -125,21 +125,21 @@ public class EventService {
     }
 
     public EventResponseDto readEvent(Long eventId) {
-        log.info("이벤트 1 조회");
+        log.info("이벤트 단일 조회");
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
         return EventResponseDto.fromEntity(event);
     }
 
     @Transactional
     public EventResponseDto updateEvent(Long eventId, EventUpdateDto request, MultipartFile thumbnailFile, MultipartFile imageFile, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (!user.getUsername().equals(username)) throw new IllegalArgumentException("사용자 정보가 일치하지 않습니다.");
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
         // 이미지 업로드 추가
         if (thumbnailFile != null && !thumbnailFile.isEmpty()) {
@@ -206,22 +206,22 @@ public class EventService {
     @Transactional
     public void deleteEvent(Long eventId, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if(!user.getUsername().equals(username)) throw new IllegalArgumentException("사용자 정보가 일치하지 않습니다.");
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
         eventRepository.delete(event);
     }
 
     @Transactional
     public String likeEvent(Long eventId, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
         boolean isLiked = event.getLikes().contains(user);
 
@@ -246,10 +246,10 @@ public class EventService {
     public String joinEvent(Long eventId, String username) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
         boolean isJoined = event.getJoinList().contains(user);
 
