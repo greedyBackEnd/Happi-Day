@@ -46,6 +46,9 @@ public class Event extends BaseEntity {
     @Column(nullable = false)
     private String location;
 
+    @Column(nullable = false)
+    private String address;
+
     @Setter
     private String thumbnailUrl;
 
