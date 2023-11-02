@@ -22,11 +22,12 @@ public class EventCreateDto {
     public EventCreateDto() {
     }
 
-    public EventCreateDto(String title, LocalDateTime startTime, LocalDateTime endTime, String description, String location, List<String> artists, List<String> teams) {
+    public EventCreateDto(String title, LocalDateTime startTime, LocalDateTime endTime, String description, String address, String location, List<String> artists, List<String> teams) {
         this.title = title;
         this.startTime = startTime;
         this.endTime = endTime;
         this.description = description;
+        this.address = address;
         this.location = location;
         this.artists = artists;
         this.teams = teams;
@@ -43,6 +44,9 @@ public class EventCreateDto {
 
     @NotBlank(message = "내용을 입력해주세요.")
     private String description;
+
+    @NotBlank(message = "주소를 입력해주세요.")
+    private String address;
 
     @NotBlank(message = "장소를 입력해주세요.")
     private String location;

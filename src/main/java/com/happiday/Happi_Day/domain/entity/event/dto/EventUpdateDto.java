@@ -18,11 +18,12 @@ public class EventUpdateDto {
 
     public EventUpdateDto() {
     }
-    public EventUpdateDto(String title, LocalDateTime startTime, LocalDateTime endTime, String description, String location, String thumbnailUrl, String imageUrl, List<String> artists, List<String> teams) {
+    public EventUpdateDto(String title, LocalDateTime startTime, LocalDateTime endTime, String description, String address, String location, String thumbnailUrl, String imageUrl, List<String> artists, List<String> teams) {
         this.title = title;
         this.startTime = startTime;
         this.endTime = endTime;
         this.description = description;
+        this.address = address;
         this.location = location;
         this.thumbnailUrl = thumbnailUrl;
         this.imageUrl = imageUrl;
@@ -37,6 +38,8 @@ public class EventUpdateDto {
     private LocalDateTime endTime;
 
     private String description;
+
+    private String address;
 
     private String location;
 

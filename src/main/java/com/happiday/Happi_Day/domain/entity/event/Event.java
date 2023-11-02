@@ -107,6 +107,9 @@ public class Event extends BaseEntity {
         if (updateEvent.getDescription() != null && !updateEvent.getDescription().isEmpty()) {
             this.description = updateEvent.getDescription();
         }
+        if (updateEvent.getAddress() != null) {
+            this.address = updateEvent.getAddress();
+        }
         if (updateEvent.getLocation() != null) {
             this.location = updateEvent.getLocation();
         }
