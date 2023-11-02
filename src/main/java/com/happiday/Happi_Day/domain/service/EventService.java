@@ -44,16 +44,16 @@ public class EventService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // TODO - default 이미지 추가
-//        if (thumbnailFile == null || thumbnailFile.isEmpty()) {
-//            thumbnailFile = defaultThumbnailUrl;
-//        }
-//        if (imageFile == null || imageFile.isEmpty()) {
-//            imageFile = defaultImageUrl;
-//        }
+        String thumbnailUrl;
+
+        if (thumbnailFile == null || thumbnailFile.isEmpty()) {
+            thumbnailUrl = fileUtils.defaultThumbnail(thumbnailFile);
+
+        } else {
+            thumbnailUrl = fileUtils.uploadFile(thumbnailFile);
+        }
 
         String imageUrl = fileUtils.uploadFile(imageFile);
-        String thumbnailUrl = fileUtils.uploadFile(thumbnailFile);
 
         // Artist Entity에 없는 Artist 처리
         List<String> artistNameList = request.getArtists();
@@ -97,6 +97,7 @@ public class EventService {
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
                 .description(request.getDescription())
+                .address(request.getAddress())
                 .location(request.getLocation())
                 .build();
 
@@ -195,6 +196,7 @@ public class EventService {
                 .endTime(request.getEndTime())
                 .description(request.getDescription())
                 .location(request.getLocation())
+                .address(request.getAddress())
                 .ectArtists(ectArtists.isEmpty() ? event.getEctArtists() : ectArtist)
                 .ectTeams(ectTeams.isEmpty() ? event.getEctTeams() : ectTeam)
                 .build());
