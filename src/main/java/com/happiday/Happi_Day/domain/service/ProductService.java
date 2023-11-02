@@ -32,7 +32,7 @@ public class ProductService {
         // user 확인
         if(!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
-        Product newProduct = Product.createProduct(productDto.getName(),productDto.getPrice(),sales);
+        Product newProduct = Product.createProduct(productDto.getName(),productDto.getPrice(),sales, productDto.getStock());
         productRepository.save(newProduct);
         return ReadProductDto.fromEntity(newProduct);
     }

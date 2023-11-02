@@ -9,5 +9,6 @@ import lombok.Setter;
 @Setter
 public class CreateProductDto {
     private String name;
-    private int price;
+    private Integer price;
+    private Integer stock;
 }
