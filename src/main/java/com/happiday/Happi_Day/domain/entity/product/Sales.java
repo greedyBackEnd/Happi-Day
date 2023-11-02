@@ -49,6 +49,9 @@ public class Sales extends BaseEntity {
     @ElementCollection
     private List<String> imageUrl = new ArrayList<>();
 
+    @Column(nullable = false)
+    private String account;
+
     // 상품
     @OneToMany(mappedBy = "sales")
     private List<Product> products = new ArrayList<>();

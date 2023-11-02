@@ -10,7 +10,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -36,15 +38,15 @@ public class Order {
     @Column(nullable = false)
     private String address;
 
-    @ManyToMany
-    @JoinTable(
-            name = "order_products",
-            joinColumns = @JoinColumn(name="order_id"),
-            inverseJoinColumns = @JoinColumn(name="product_id")
-    )
-    private List<Product> products = new ArrayList<>();
+//    @ManyToMany
+//    @JoinTable(
+//            name = "order_products",
+//            joinColumns = @JoinColumn(name="order_id"),
+//            inverseJoinColumns = @JoinColumn(name="product_id")
+//    )
+//    private List<Product> products = new ArrayList<>();
 
-    private Integer price;
+    private Integer totalPrice;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -57,4 +59,8 @@ public class Order {
         this.orderStatus = orderStatus;
         return orderStatus.getValue();
     }
+
+    // orderedProduct 매핑
+    @OneToMany(mappedBy = "order")
+    private List<OrderedProduct> OrderedProducts = new ArrayList<>();
 }

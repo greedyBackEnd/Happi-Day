@@ -33,18 +33,25 @@ public class Product {
     private Integer price;
 
     @Column(nullable = false)
+    private Integer stock;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ProductStatus productStatus;
 
-    @ManyToMany(mappedBy = "products")
-    private List<Order> orders = new ArrayList<>();
+//    @ManyToMany(mappedBy = "products")
+//    private List<Order> orders = new ArrayList<>();
 
-    public static Product createProduct(String key, int value, Sales newSales){
+    @OneToMany(mappedBy = "product")
+    private List<OrderedProduct> orderedProducts = new ArrayList<>();
+
+    public static Product createProduct(String key, int value, Sales newSales, int stock){
         Product newProduct = Product.builder()
                 .sales(newSales)
                 .productStatus(ProductStatus.ON_SALE)
                 .name(key)
                 .price(value)
+                .stock(stock)
                 .build();
         return newProduct;
     }
@@ -53,5 +60,6 @@ public class Product {
         if(product.getName() != null) this.name = product.getName();
         if(product.getPrice() != null) this.price = product.getPrice();
         if(product.getProductStatus() != null) this.productStatus = product.getProductStatus();
+        if(product.getStock() != null) this.stock = product.getStock();
     }
 }
