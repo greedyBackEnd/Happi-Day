@@ -50,6 +50,7 @@ public class SalesService {
                 .products(productList)
                 .salesLikesUsers(new ArrayList<>())
                 .imageUrl(new ArrayList<>())
+                .account(dto.getAccount())
                 .build();
 
         // 이미지 저장
@@ -66,24 +67,24 @@ public class SalesService {
         }
 
         Sales newSalesArticle = salesRepository.save(newSales);
-
+//        List<ReadProductDto> products = new ArrayList<>();
         // products 저장
-        dto.getProducts().forEach((key, value)->{
-            Product newProduct = Product.createProduct(key, value, newSalesArticle);
-            productList.add(newProduct);
-            productRepository.save(newProduct);
-        });
+//        dto.getProducts().forEach((key, value)->{
+//            Product newProduct = Product.createProduct(key, value, newSalesArticle);
+//            productList.add(newProduct);
+//            productRepository.save(newProduct);
+//        });
+//
+//        // 판매글에 products 등록
+//        newSales.updateProduct(productList);
+//        salesRepository.save(newSales);
+//
+//        List<ReadProductDto> dtoList = new ArrayList<>();
+//        for (Product product: newSales.getProducts()) {
+//            dtoList.add(ReadProductDto.fromEntity(product));
+//        }
 
-        // 판매글에 products 등록
-        newSales.updateProduct(productList);
-        salesRepository.save(newSales);
-
-        List<ReadProductDto> dtoList = new ArrayList<>();
-        for (Product product: newSales.getProducts()) {
-            dtoList.add(ReadProductDto.fromEntity(product));
-        }
-
-        ReadOneSalesDto response = ReadOneSalesDto.fromEntity(newSales,dtoList);
+        ReadOneSalesDto response = ReadOneSalesDto.fromEntity(newSales,new ArrayList<>());
         return response;
     }
 

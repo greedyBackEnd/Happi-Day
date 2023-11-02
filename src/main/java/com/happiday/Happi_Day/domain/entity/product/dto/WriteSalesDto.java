@@ -15,12 +15,14 @@ public class WriteSalesDto {
     private String description;
     private String artists;
     private Map<String, Integer> products;
+    private String account;
 
     // TODO artist 추가예정
     public Sales toEntity(){
         return Sales.builder()
                 .name(name)
                 .description(description)
+                .account(account)
                 .build();
     }
 }

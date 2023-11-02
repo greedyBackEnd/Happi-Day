@@ -56,9 +56,9 @@ public class OrderService {
                 .sales(sales)
                 .orderStatus(OrderStatus.ORDER_COMPLETED)
                 .orderedAt(LocalDateTime.now())
-                .products(productList)
+//                .products(productList)
                 .address(orderRequest.getAddress())
-                .price(price)
+                .totalPrice(price)
                 .build();
 
         orderRepository.save(newOrder);

@@ -22,17 +22,17 @@ public class ReadOneOrderDto {
     private OrderStatus orderStatus;
 
     public static ReadOneOrderDto fromEntity(Sales sales, Order order, User user){
-        List<String> productList = new ArrayList<>();
-        for (Product product: order.getProducts()) {
-            productList.add(product.getName());
-        }
+//        List<String> productList = new ArrayList<>();
+//        for (Product product: order.getProducts()) {
+//            productList.add(product.getName());
+//        }
 
         return ReadOneOrderDto.builder()
                 .id(order.getId())
                 .userId(user.getId())
                 .salesId(sales.getId())
-                .products(productList)
-                .price(order.getPrice())
+//                .products(productList)
+                .price(order.getTotalPrice())
                 .orderStatus(order.getOrderStatus())
                 .build();
     }
