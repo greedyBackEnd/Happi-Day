@@ -2,12 +2,16 @@ package com.happiday.Happi_Day.domain.controller;
 
 import com.happiday.Happi_Day.domain.entity.product.dto.OrderRequestDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadOneOrderDto;
+import com.happiday.Happi_Day.domain.entity.product.dto.ReadOrderListForSalesDto;
 import com.happiday.Happi_Day.domain.service.OrderService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Security;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/sales")
@@ -32,6 +36,15 @@ public class OrderController {
             @PathVariable("orderId") Long orderId){
         String username = SecurityUtils.getCurrentUsername();
         ReadOneOrderDto responseDto = orderService.orderOneOrder(salesId, orderId, username);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    // 판매글 주문 목록 조회
+    @GetMapping("{salesId}/order")
+    public ResponseEntity<List<ReadOrderListForSalesDto>> readOrderListForSales(
+            @PathVariable("salesId") Long salesId){
+        String username = SecurityUtils.getCurrentUsername();
+        List<ReadOrderListForSalesDto> responseDto = orderService.orderListForSales(salesId, username);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 

@@ -31,20 +31,12 @@ public class Order {
     private User user;
 
     // 판매글 id
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="sales_id")
     private Sales sales;
 
     @Column(nullable = false)
     private String address;
-
-//    @ManyToMany
-//    @JoinTable(
-//            name = "order_products",
-//            joinColumns = @JoinColumn(name="order_id"),
-//            inverseJoinColumns = @JoinColumn(name="product_id")
-//    )
-//    private List<Product> products = new ArrayList<>();
 
     private Integer totalPrice;
 
@@ -55,12 +47,20 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime orderedAt;
 
+    // orderedProduct 매핑
+    @OneToMany(mappedBy = "order")
+    private List<OrderedProduct> orderedProducts = new ArrayList<>();
+
     public String updateStatus(OrderStatus orderStatus){
         this.orderStatus = orderStatus;
         return orderStatus.getValue();
     }
 
-    // orderedProduct 매핑
-    @OneToMany(mappedBy = "order")
-    private List<OrderedProduct> OrderedProducts = new ArrayList<>();
+    public void updateTotalPrice(Integer totalPrice){
+        this.totalPrice = totalPrice;
+    }
+
+    public void updateOrderedProduct(OrderedProduct orderedProduct){
+        this.orderedProducts.add(orderedProduct);
+    }
 }

@@ -57,8 +57,8 @@ public class Sales extends BaseEntity {
     private List<Product> products = new ArrayList<>();
 
     // 주문 매핑
-    @OneToOne(mappedBy = "sales")
-    private Order order;
+    @OneToMany(mappedBy = "sales")
+    private List<Order> orders = new ArrayList<>();
 
     // 판매글 찜하기
     @ManyToMany(mappedBy = "salesLikes")

@@ -66,23 +66,7 @@ public class SalesService {
             newSales.setImageUrl(imageList);
         }
 
-        Sales newSalesArticle = salesRepository.save(newSales);
-//        List<ReadProductDto> products = new ArrayList<>();
-        // products 저장
-//        dto.getProducts().forEach((key, value)->{
-//            Product newProduct = Product.createProduct(key, value, newSalesArticle);
-//            productList.add(newProduct);
-//            productRepository.save(newProduct);
-//        });
-//
-//        // 판매글에 products 등록
-//        newSales.updateProduct(productList);
-//        salesRepository.save(newSales);
-//
-//        List<ReadProductDto> dtoList = new ArrayList<>();
-//        for (Product product: newSales.getProducts()) {
-//            dtoList.add(ReadProductDto.fromEntity(product));
-//        }
+        salesRepository.save(newSales);
 
         ReadOneSalesDto response = ReadOneSalesDto.fromEntity(newSales,new ArrayList<>());
         return response;
@@ -163,7 +147,6 @@ public class SalesService {
         // TODO 아티스트 추가예정
 
         sales.updateSales(dto.toEntity());
-//        salesRepository.save(sales);
 
         List<ReadProductDto> dtoList = new ArrayList<>();
         for (Product product: sales.getProducts()) {

@@ -1,39 +1,41 @@
 package com.happiday.Happi_Day.domain.entity.product.dto;
 
-import com.happiday.Happi_Day.domain.entity.product.Order;
-import com.happiday.Happi_Day.domain.entity.product.OrderStatus;
-import com.happiday.Happi_Day.domain.entity.product.Product;
-import com.happiday.Happi_Day.domain.entity.product.Sales;
+import com.happiday.Happi_Day.domain.entity.product.*;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 @Builder
 @Getter
 public class ReadOneOrderDto {
     private Long id;
-    private Long userId;
+    private String username;
     private Long salesId;
-    private List<String> products;
+    private Map<String, Integer> orderedProducts;
     private Integer price;
     private OrderStatus orderStatus;
+    private String address;
+    private String orderAt;
 
     public static ReadOneOrderDto fromEntity(Sales sales, Order order, User user){
-//        List<String> productList = new ArrayList<>();
-//        for (Product product: order.getProducts()) {
-//            productList.add(product.getName());
-//        }
+        Map<String, Integer> productList = new HashMap<>();
+        for (OrderedProduct orderedProduct: order.getOrderedProducts()) {
+            productList.put(orderedProduct.getProduct().getName(),orderedProduct.getQuantity());
+        }
 
         return ReadOneOrderDto.builder()
                 .id(order.getId())
-                .userId(user.getId())
+                .username(user.getNickname())
                 .salesId(sales.getId())
-//                .products(productList)
+                .orderAt(order.getOrderedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .price(order.getTotalPrice())
+                .orderedProducts(productList)
                 .orderStatus(order.getOrderStatus())
+                .address(order.getAddress())
                 .build();
     }
 }

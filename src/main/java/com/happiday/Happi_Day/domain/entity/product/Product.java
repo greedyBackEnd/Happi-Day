@@ -62,4 +62,8 @@ public class Product {
         if(product.getProductStatus() != null) this.productStatus = product.getProductStatus();
         if(product.getStock() != null) this.stock = product.getStock();
     }
+
+    public void updateStock(Integer stock){
+        this.stock = stock;
+    }
 }
