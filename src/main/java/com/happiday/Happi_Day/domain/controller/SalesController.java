@@ -3,6 +3,7 @@ package com.happiday.Happi_Day.domain.controller;
 import com.happiday.Happi_Day.domain.entity.product.dto.*;
 import com.happiday.Happi_Day.domain.service.SalesService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,7 +23,7 @@ public class SalesController {
     @PostMapping(value = "/{categoryId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ReadOneSalesDto> createSales(
             @PathVariable("categoryId") Long id,
-            @RequestPart(name = "sale") WriteSalesDto requestDto,
+            @Valid @RequestPart(name = "sale") WriteSalesDto requestDto,
             @RequestPart(name = "thumbnailImage", required = false) MultipartFile thumbnailImage,
             @RequestPart(name = "imageFile", required = false) List<MultipartFile> imageFile) {
         String username = SecurityUtils.getCurrentUsername();

@@ -5,7 +5,9 @@ import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadListArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadOneArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.WriteArticleDto;
+import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.board.BoardCategory;
+import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.utils.FileUtils;
@@ -17,12 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -32,34 +31,55 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final BoardCategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final ArtistRepository artistRepository;
+    private final TeamRepository teamRepository;
     private final FileUtils fileUtils;
 
     @Transactional
-    public ReadOneArticleDto writeArticle(Long categoryId, WriteArticleDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFileList, String username){
+    public ReadOneArticleDto writeArticle(Long categoryId, WriteArticleDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFileList, String username) {
         // user 확인
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        // 아티스트 목록
-        List<String> artistList = Arrays.asList(dto.getArtists().replace(" ", "").split("#"));
-        // 팀 목록
-        List<String> teamList = Arrays.asList(dto.getTeams().replace(" ", "").split("#"));
-
         // 해시태그
-        List<String> hashtags = Arrays.asList(dto.getHashtag().replace(" ", "").split("#"));
         List<Hashtag> hashtagList = new ArrayList<>();
-        for (String hashtag : hashtags) {
+        for (String hashtag : dto.getHashtag()) {
             Hashtag newHashtag = Hashtag.builder()
                     .tag(hashtag)
                     .build();
             hashtagList.add(newHashtag);
         }
 
+        // 아티스트
+        List<Artist> artists = new ArrayList<>();
+        List<String> ectArtists = new ArrayList<>();
+        for (String artist : dto.getArtists()) {
+            Optional<Artist> existingArtist = artistRepository.findByName(artist);
+            if (existingArtist.isPresent()) {
+                artists.add(existingArtist.get());
+            } else {
+                ectArtists.add(artist);
+            }
+        }
+        String ectArtist = String.join(", ", ectArtists);
+
+        // 팀
+        List<Team> teams = new ArrayList<>();
+        List<String> ectTeams = new ArrayList<>();
+        for (String team : dto.getTeams()) {
+            Optional<Team> existingTeam = teamRepository.findByName(team);
+            if (existingTeam.isPresent()) {
+                teams.add(existingTeam.get());
+            } else {
+                ectTeams.add(team);
+            }
+        }
+        String ectTeam = String.join(", ", ectTeams);
+
         // 카테고리
         BoardCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        // TODO 정보 저장 : 아티스트 리스트, 팀 리스트 추가예정
         Article newArticle = Article.builder()
                 .user(user)
                 .category(category)
@@ -67,19 +87,32 @@ public class ArticleService {
                 .content(dto.getContent())
                 .eventAddress(dto.getEventAddress())
                 .hashtags(hashtagList)
+                .artists(artists)
+                .teams(teams)
                 .likeUsers(new ArrayList<>())
                 .comments(new ArrayList<>())
                 .imageUrl(new ArrayList<>())
                 .build();
 
+        if (!ectArtists.isEmpty()) {
+            newArticle = newArticle.toBuilder()
+                    .ectArtists(ectArtist)
+                    .build();
+        }
+        if (!ectTeams.isEmpty()) {
+            newArticle = newArticle.toBuilder()
+                    .ectTeams(ectTeam)
+                    .build();
+        }
+
         // 이미지 저장
-        if(thumbnailImage != null && !thumbnailImage.isEmpty()){
+        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
             String saveThumbnailUrl = fileUtils.uploadFile(thumbnailImage);
             newArticle.setThumbnailImage(saveThumbnailUrl);
         }
-        if(imageFileList != null && !imageFileList.isEmpty()){
+        if (imageFileList != null && !imageFileList.isEmpty()) {
             List<String> imageList = new ArrayList<>();
-            for (MultipartFile image:imageFileList) {
+            for (MultipartFile image : imageFileList) {
                 String imageUrl = fileUtils.uploadFile(image);
                 imageList.add(imageUrl);
             }
@@ -93,7 +126,6 @@ public class ArticleService {
 
 
     // 글 상세 조회
-    // TODO user, 댓글, 좋아요, 스크랩 정보 추가 예정
     public ReadOneArticleDto readOne(Long articleId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -108,42 +140,64 @@ public class ArticleService {
 
         List<Article> articles = articleRepository.findAllByCategory(category);
         List<ReadListArticleDto> newList = new ArrayList<>();
-        for (Article article: articles) {
+        for (Article article : articles) {
             newList.add(ReadListArticleDto.fromEntity(article));
         }
-        // TODO 필터 적용 추가 예정
 
         return newList;
     }
 
     // 글 수정
     @Transactional
-    public ReadOneArticleDto updateArticle(Long articleId, WriteArticleDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFileList){
+    public ReadOneArticleDto updateArticle(Long articleId, WriteArticleDto dto, String username, MultipartFile thumbnailImage, List<MultipartFile> imageFileList) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        // 아티스트 목록
-        List<String> artistList = Arrays.asList(dto.getArtists().replace(" ", "").split("#"));
-        // 팀 목록
-        List<String> teamList = Arrays.asList(dto.getTeams().replace(" ", "").split("#"));
+        if (!user.equals(article.getUser())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
-        // 해시태그
-        List<String> hashtags = Arrays.asList(dto.getHashtag().replace(" ", "").split("#"));
         List<Hashtag> hashtagList = new ArrayList<>();
-        for (String hashtag : hashtags) {
+        for (String hashtag : dto.getHashtag()) {
             Hashtag newHashtag = Hashtag.builder()
                     .tag(hashtag)
                     .build();
             hashtagList.add(newHashtag);
         }
 
+        // 아티스트
+        List<Artist> artists = new ArrayList<>();
+        List<String> ectArtists = new ArrayList<>();
+        for (String artist : dto.getArtists()) {
+            Optional<Artist> existingArtist = artistRepository.findByName(artist);
+            if (existingArtist.isPresent()) {
+                artists.add(existingArtist.get());
+            } else {
+                ectArtists.add(artist);
+            }
+        }
+        String ectArtist = String.join(", ", ectArtists);
+
+        // 팀
+        List<Team> teams = new ArrayList<>();
+        List<String> ectTeams = new ArrayList<>();
+        for (String team : dto.getTeams()) {
+            Optional<Team> existingTeam = teamRepository.findByName(team);
+            if (existingTeam.isPresent()) {
+                teams.add(existingTeam.get());
+            } else {
+                ectTeams.add(team);
+            }
+        }
+        String ectTeam = String.join(", ", ectTeams);
+
         // 썸네일 이미지 저장
-        if(thumbnailImage != null && !thumbnailImage.isEmpty()){
-            if(article.getThumbnailUrl() != null && !article.getThumbnailUrl().isEmpty()){
-                try{
+        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
+            if (article.getThumbnailUrl() != null && !article.getThumbnailUrl().isEmpty()) {
+                try {
                     fileUtils.deleteFile(article.getThumbnailUrl());
                     log.info("썸네일 이미지 삭제완료");
-                }catch(Exception e){
+                } catch (Exception e) {
                     log.error("이미지 삭제 실패");
                 }
             }
@@ -151,39 +205,53 @@ public class ArticleService {
             article.setThumbnailImage(thumbnailImageUrl);
         }
 
-        if(imageFileList != null && !imageFileList.isEmpty()){
-            if(article.getImageUrl() != null && !article.getImageUrl().isEmpty()){
-                try{
-                    for (String url: article.getImageUrl()) {
+        if (imageFileList != null && !imageFileList.isEmpty()) {
+            if (article.getImageUrl() != null && !article.getImageUrl().isEmpty()) {
+                try {
+                    for (String url : article.getImageUrl()) {
                         fileUtils.deleteFile(url);
                         log.info("글 이미지 삭제 완료");
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     log.error("이미지 삭제 실패");
                 }
             }
             List<String> imageList = new ArrayList<>();
-            for (MultipartFile image:imageFileList) {
+            for (MultipartFile image : imageFileList) {
                 String imageUrl = fileUtils.uploadFile(image);
                 imageList.add(imageUrl);
             }
             article.setImageUrl(imageList);
         }
 
-        // TODO 아티스트 리스트, 팀 리스트 추가예정
-        article.update(dto.toEntity());
+        article.update(Article.builder()
+                .user(user)
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .eventAddress(dto.getEventAddress())
+                .artists(artists)
+                .teams(teams)
+                .hashtags(hashtagList)
+                .ectArtists(ectArtist.isEmpty() ? article.getEctArtists() : ectArtist)
+                .ectTeams(ectTeam.isEmpty() ? article.getEctTeams() : ectTeam)
+                .build()
+        );
         articleRepository.save(article);
 
         return ReadOneArticleDto.fromEntity(article);
     }
 
     @Transactional
-    public void deleteArticle(Long articleId) {
+    public void deleteArticle(Long articleId, String username) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!user.equals(article.getUser())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
         // 이미지 삭제
-        for (String imageUrl: article.getImageUrl()) {
+        for (String imageUrl : article.getImageUrl()) {
             fileUtils.deleteFile(imageUrl);
         }
         fileUtils.deleteFile(article.getThumbnailUrl());
@@ -192,7 +260,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public String likeArticle(Long articleId, String username){
+    public String likeArticle(Long articleId, String username) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -200,14 +268,14 @@ public class ArticleService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         String response = "";
-        if(article.getLikeUsers().contains(user)){
+        if (article.getLikeUsers().contains(user)) {
             article.getLikeUsers().remove(user);
             user.getArticleLikes().remove(article);
-            response = "좋아요가 취소되었습니다. 현재 좋아요 수 : "+article.getLikeUsers().size();
-        }else{
+            response = "좋아요가 취소되었습니다. 현재 좋아요 수 : " + article.getLikeUsers().size();
+        } else {
             article.getLikeUsers().add(user);
             user.getArticleLikes().add(article);
-            response = "좋아요를 눌렀습니다. 현재 좋아요 수 : "+article.getLikeUsers().size();
+            response = "좋아요를 눌렀습니다. 현재 좋아요 수 : " + article.getLikeUsers().size();
         }
 
         articleRepository.save(article);
