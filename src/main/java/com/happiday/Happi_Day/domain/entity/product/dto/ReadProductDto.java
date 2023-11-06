@@ -11,6 +11,7 @@ public class ReadProductDto {
     private String name;
     private int price;
     private String productStatus;
+    private Integer stock;
 
     public static ReadProductDto fromEntity(Product product){
         ReadProductDto dto = ReadProductDto.builder()
@@ -18,6 +19,7 @@ public class ReadProductDto {
                 .name(product.getName())
                 .price(product.getPrice())
                 .productStatus(product.getProductStatus().getValue())
+                .stock(product.getStock())
                 .build();
         return dto;
     }

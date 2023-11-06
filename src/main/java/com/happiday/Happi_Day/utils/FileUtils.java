@@ -75,4 +75,11 @@ public class FileUtils {
             throw new CustomException(ErrorCode.FILE_INVALID_EXTENSION);
         }
     }
+
+
+    public String defaultThumbnail(MultipartFile multipartFile) {
+        String defaultThumbnailKey = "default-thumbnail.jpg"; // 기본 이미지 파일 이름
+        return amazonS3.getUrl(bucket, defaultThumbnailKey).toString();
+    }
+
 }

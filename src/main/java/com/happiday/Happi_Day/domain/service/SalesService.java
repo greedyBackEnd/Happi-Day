@@ -1,12 +1,13 @@
 package com.happiday.Happi_Day.domain.service;
 
+import com.happiday.Happi_Day.domain.entity.article.Article;
+import com.happiday.Happi_Day.domain.entity.article.Hashtag;
+import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.product.*;
 import com.happiday.Happi_Day.domain.entity.product.dto.*;
+import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
-import com.happiday.Happi_Day.domain.repository.ProductRepository;
-import com.happiday.Happi_Day.domain.repository.SalesCategoryRepository;
-import com.happiday.Happi_Day.domain.repository.SalesRepository;
-import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -28,6 +30,8 @@ public class SalesService {
     private final SalesCategoryRepository salesCategoryRepository;
     private final SalesRepository salesRepository;
     private final ProductRepository productRepository;
+    private final ArtistRepository artistRepository;
+    private final TeamRepository teamRepository;
     private final FileUtils fileUtils;
 
     @Transactional
@@ -41,6 +45,41 @@ public class SalesService {
 
         List<Product> productList = new ArrayList<>();
 
+        // 해시태그
+        List<Hashtag> hashtagList = new ArrayList<>();
+        for (String hashtag: dto.getHashtag()) {
+            Hashtag newHashtag = Hashtag.builder()
+                    .tag(hashtag)
+                    .build();
+            hashtagList.add(newHashtag);
+        }
+
+        // 아티스트
+        List<Artist> artists = new ArrayList<>();
+        List<String> ectArtists = new ArrayList<>();
+        for (String artist: dto.getArtists()) {
+            Optional<Artist> existingArtist = artistRepository.findByName(artist);
+            if(existingArtist.isPresent()){
+                artists.add(existingArtist.get());
+            }else{
+                ectArtists.add(artist);
+            }
+        }
+        String ectArtist = String.join(", ", ectArtists);
+
+        // 팀
+        List<Team> teams = new ArrayList<>();
+        List<String> ectTeams = new ArrayList<>();
+        for (String team : dto.getTeams()) {
+            Optional<Team> existingTeam = teamRepository.findByName(team);
+            if (existingTeam.isPresent()) {
+                teams.add(existingTeam.get());
+            } else {
+                ectTeams.add(team);
+            }
+        }
+        String ectTeam = String.join(", ", ectTeams);
+
         Sales newSales = Sales.builder()
                 .users(user)
                 .salesStatus(SalesStatus.ON_SALE)
@@ -48,9 +87,24 @@ public class SalesService {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .products(productList)
+                .hashtags(hashtagList)
+                .artists(artists)
+                .teams(teams)
                 .salesLikesUsers(new ArrayList<>())
                 .imageUrl(new ArrayList<>())
+                .account(dto.getAccount())
                 .build();
+
+        if(!ectArtists.isEmpty()){
+            newSales = newSales.toBuilder()
+                    .ectArtists(ectArtist)
+                    .build();
+        }
+        if(!ectTeams.isEmpty()){
+            newSales = newSales.toBuilder()
+                    .ectTeams(ectTeam)
+                    .build();
+        }
 
         // 이미지 저장
         if(thumbnailImage != null && !thumbnailImage.isEmpty()){
@@ -65,25 +119,8 @@ public class SalesService {
             newSales.setImageUrl(imageList);
         }
 
-        Sales newSalesArticle = salesRepository.save(newSales);
-
-        // products 저장
-        dto.getProducts().forEach((key, value)->{
-            Product newProduct = Product.createProduct(key, value, newSalesArticle);
-            productList.add(newProduct);
-            productRepository.save(newProduct);
-        });
-
-        // 판매글에 products 등록
-        newSales.updateProduct(productList);
         salesRepository.save(newSales);
-
-        List<ReadProductDto> dtoList = new ArrayList<>();
-        for (Product product: newSales.getProducts()) {
-            dtoList.add(ReadProductDto.fromEntity(product));
-        }
-
-        ReadOneSalesDto response = ReadOneSalesDto.fromEntity(newSales,dtoList);
+        ReadOneSalesDto response = ReadOneSalesDto.fromEntity(newSales,new ArrayList<>());
         return response;
     }
 
@@ -127,7 +164,40 @@ public class SalesService {
         // user 확인
         if(!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
-        // TODO 이미지 저장예정
+        List<Hashtag> hashtagList = new ArrayList<>();
+        for (String hashtag : dto.getHashtag()) {
+            Hashtag newHashtag = Hashtag.builder()
+                    .tag(hashtag)
+                    .build();
+            hashtagList.add(newHashtag);
+        }
+
+        // 아티스트
+        List<Artist> artists = new ArrayList<>();
+        List<String> ectArtists = new ArrayList<>();
+        for (String artist : dto.getArtists()) {
+            Optional<Artist> existingArtist = artistRepository.findByName(artist);
+            if (existingArtist.isPresent()) {
+                artists.add(existingArtist.get());
+            } else {
+                ectArtists.add(artist);
+            }
+        }
+        String ectArtist = String.join(", ", ectArtists);
+
+        // 팀
+        List<Team> teams = new ArrayList<>();
+        List<String> ectTeams = new ArrayList<>();
+        for (String team : dto.getTeams()) {
+            Optional<Team> existingTeam = teamRepository.findByName(team);
+            if (existingTeam.isPresent()) {
+                teams.add(existingTeam.get());
+            } else {
+                ectTeams.add(team);
+            }
+        }
+        String ectTeam = String.join(", ", ectTeams);
+
         if(thumbnailImage != null && !thumbnailImage.isEmpty()){
             if(sales.getThumbnailImage() != null && !sales.getThumbnailImage().isEmpty()){
                 try{
@@ -160,10 +230,20 @@ public class SalesService {
             sales.setImageUrl(imageList);
         }
 
-        // TODO 아티스트 추가예정
+        sales.updateSales(Sales.builder()
+                .users(user)
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .salesStatus(SalesStatus.valueOf(dto.getStatus()))
+                .artists(artists)
+                .teams(teams)
+                .hashtags(hashtagList)
+                .ectArtists(ectArtist.isEmpty() ? sales.getEctArtists() : ectArtist)
+                .ectTeams(ectTeam.isEmpty() ? sales.getEctTeams() : ectTeam)
+                .build()
+        );
 
-        sales.updateSales(dto.toEntity());
-//        salesRepository.save(sales);
+        salesRepository.save(sales);
 
         List<ReadProductDto> dtoList = new ArrayList<>();
         for (Product product: sales.getProducts()) {
@@ -212,7 +292,6 @@ public class SalesService {
             user.getSalesLikes().add(sales);
             resposne = "찜하기를 눌렀습니다. 현재 찜하기 수 : "+sales.getSalesLikesUsers().size();
         }
-//        salesRepository.save(sales)
         return resposne;
     }
 }

@@ -1,20 +1,25 @@
 package com.happiday.Happi_Day.domain.entity.article.dto;
 
 import com.happiday.Happi_Day.domain.entity.article.Article;
-import com.happiday.Happi_Day.domain.entity.board.BoardCategory;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
 public class WriteArticleDto {
+    @NotBlank(message="제목을 입력해주세요.")
     private String title;
+
+    @NotBlank(message = "내용을 입력해주세요.")
     private String content;
-    private String artists;
-    private String teams;
+
+    private List<String> artists;
+    private List<String> teams;
     private String eventAddress;
-    private String hashtag;
+    private List<String> hashtag;
 
     public Article toEntity(){
         return Article.builder()

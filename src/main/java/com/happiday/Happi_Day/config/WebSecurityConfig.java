@@ -58,7 +58,6 @@ public class WebSecurityConfig {
                         .permitAll()
                         .anyRequest().authenticated()
                 )
-//                .addFilterBefore(jwtTokenFilter, AuthorizationFilter.class)
         ;
         return http.build();
     }

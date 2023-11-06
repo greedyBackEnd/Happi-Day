@@ -29,7 +29,11 @@ public class EventResponseDto {
 
     private String description;
 
+    private String address;
+
     private String location;
+
+    private String thumbnailUrl;
 
     private String imageUrl;
 
@@ -65,7 +69,9 @@ public class EventResponseDto {
                 .startTime(event.getStartTime())
                 .endTime(event.getEndTime())
                 .description(event.getDescription())
+                .address(event.getAddress())
                 .location(event.getLocation())
+                .thumbnailUrl(event.getThumbnailUrl())
                 .imageUrl(event.getImageUrl())
                 .artists(allArtists)
                 .teams(allTeams)
