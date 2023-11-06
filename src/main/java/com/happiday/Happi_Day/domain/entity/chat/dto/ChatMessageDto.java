@@ -1,22 +1,39 @@
 package com.happiday.Happi_Day.domain.entity.chat.dto;
 
+import com.happiday.Happi_Day.domain.entity.chat.ChatMessage;
+import com.happiday.Happi_Day.domain.entity.chat.ChatRoom;
+import com.happiday.Happi_Day.domain.entity.user.User;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class ChatMessageDto implements Serializable {
+public class ChatMessageDto {
 
-    // 메시지 타입 : 입장, 채팅
-    public enum MessageType {
-        ENTER, TALK
+    private Long id;
+    private Long roomId;
+    private String sender;
+    private String content;
+    private LocalDateTime timestamp;
+
+    public static ChatMessageDto fromEntity(ChatMessage entity) {
+        ChatMessageDto dto = new ChatMessageDto();
+        dto.setId(entity.getId());
+        dto.setRoomId(entity.getChatRoom().getId());
+        dto.setSender(entity.getSender().getNickname());
+        dto.setContent(entity.getContent());
+        dto.setTimestamp(entity.getCreatedAt());
+        return dto;
     }
 
-    private MessageType type; // 메시지 타입
-    private Long roomId; // 방번호
-    private String sender; // 메시지 보낸사람
-    private String message; // 메시지
+    public ChatMessage newEntity(User user, ChatRoom chatRoom) {
+        return ChatMessage.builder()
+                .sender(user)
+                .chatRoom(chatRoom)
+                .content(content)
+                .build();
+    }
 }
 

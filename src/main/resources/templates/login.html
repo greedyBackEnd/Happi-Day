@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HAPPIDAY</title>
+</head>
+<body>
+<h3>로그인</h3>
+<form id="login-form">
+  <p><label for="username-input">이메일: </label><input type="text" id="username-input" placeholder="이메일"></p>
+  <p><label for="password-input">비밀번호: </label><input type="password" id="password-input" placeholder="비밀번호"></p>
+  <p><input type="submit" value="로그인"></p>
+</form>
+<a href="/views/home">홈</a>&nbsp;<a href="/views/register">회원가입</a>
+
+<script>
+  const fetchLoggedIn = function () {
+      if (!getJwt())
+          return new Promise(resolve => {
+              resolve(false)
+          })
+      else return fetch("/api/v1/users/info", {
+          headers: {
+              'Authorization': `Bearer ${getJwt()}`
+          }
+      }).then(response => {
+          if (response.ok) return response.json()
+          else return false
+      })
+  }
+  const getJwt = () => localStorage.getItem('token')
+
+  fetchLoggedIn().then(userInfo => {
+    if (userInfo) {
+      location.href = "/"
+    }
+  })
+  document.getElementById('login-form').addEventListener('submit', e => {
+    e.preventDefault()
+    const data = {
+      username: document.getElementById('username-input').value,
+      password: document.getElementById('password-input').value
+    }
+    fetch('/api/v1/auth/login', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }).then(response => {
+      if (response.ok) return response.json()
+      else throw new Error(response.status.toString())
+    }).then(bodyJson => {
+      localStorage.setItem('token', bodyJson.token)
+      alert('로그인 성공')
+      location.href = "/"
+    }).catch(e => {
+      console.log(e.message)
+      alert(e.message)
+    })
+  })
+</script>
+</body>
+</html>

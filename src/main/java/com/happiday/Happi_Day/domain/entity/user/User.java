@@ -11,8 +11,9 @@ import com.happiday.Happi_Day.domain.entity.product.Order;
 import com.happiday.Happi_Day.domain.entity.product.Sales;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +28,6 @@ import java.util.List;
 @Table(name = "user")
 @EntityListeners(value = AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-// 유저
 public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

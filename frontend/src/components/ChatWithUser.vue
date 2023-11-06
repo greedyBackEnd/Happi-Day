@@ -48,7 +48,7 @@ export default {
 
             _this.stompClient.connect(headers, function(frame) {
                 console.log('WebSocket 연결 성공'); // 웹소켓 연결이 성공한 경우 콘솔에 메시지 출력
-                _this.stompClient.subscribe(`/sub/chat/room/${_this.roomId}`, function(message) {
+                _this.stompClient.subscribe(`/sub/chat/room/${this.roomId}`, function(message) {
                     var recv = JSON.parse(message.body);
                     _this.recvMessage(recv);
                 });

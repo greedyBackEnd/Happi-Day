@@ -2,11 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Home</title>
+    <title>HAPPIDAY</title>
 </head>
 <body>
-this is home.
-<br>
-우유가 넘어지면 아야입니다. 그래서 우유는 마음이 아야
+<h1>HAPPIDAY</h1>
+<div id="user-container">
+</div>
+<script src="/static/assets/js/user.js"></script>
+<script>
+    createUserElem().then(userElem => {
+        console.log(userElem)
+        document.querySelector('body').replaceChild(userElem, document.getElementById('user-container'))
+    })
+</script>
 </body>
+
 </html>

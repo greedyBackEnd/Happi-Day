@@ -1,4 +1,4 @@
-package com.happiday.Happi_Day.domain.repository.chat;
+package com.happiday.Happi_Day.domain.repository;
 
 import com.happiday.Happi_Day.domain.entity.chat.ChatRoom;
 import com.happiday.Happi_Day.domain.entity.user.User;

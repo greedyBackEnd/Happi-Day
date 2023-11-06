@@ -12,4 +12,19 @@ public class HomeController {
     public String home() {
         return "index";
     }
+
+    @GetMapping("views/login")
+    public String login() {
+        return "login";
+    }
+
+    @GetMapping("views/register")
+    public String register() {
+        return "register";
+    }
+
+    @GetMapping("views/chat")
+    public String chat() {
+        return "chat";
+    }
 }
