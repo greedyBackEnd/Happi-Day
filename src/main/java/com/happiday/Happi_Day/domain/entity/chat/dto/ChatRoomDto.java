@@ -1,17 +1,23 @@
 package com.happiday.Happi_Day.domain.entity.chat.dto;
 
+import com.happiday.Happi_Day.domain.entity.chat.ChatRoom;
+import com.happiday.Happi_Day.domain.entity.user.User;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-
-import java.io.Serializable;
 
 @Getter
-@Setter
-public class ChatRoomDto implements Serializable {
+@Builder
+public class ChatRoomDto{
 
-    private static final long serialVersionUID = 6494678977089006639L;
+    private Long id;
+    private String sender;
+    private String receiver;
 
-    private String roomId;
-    private String nickname;
-
+    public ChatRoom fromEntity(ChatRoom chatRoom, User sender, User receiver) {
+        return ChatRoom.builder()
+                .id(chatRoom.getId())
+                .sender(sender)
+                .receiver(receiver)
+                .build();
+    }
 }

@@ -1,18 +1,15 @@
 package com.happiday.Happi_Day.domain.entity.user;
 
-import com.happiday.Happi_Day.domain.entity.user.dto.UserRegisterDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 @Builder
@@ -67,7 +64,7 @@ public class CustomUserDetails implements UserDetails {
 
     public static CustomUserDetails fromEntity(User entity) {
         return CustomUserDetails.builder()
-//                .id(entity.getId())
+                .id(entity.getId())
                 .username(entity.getUsername())
                 .password(entity.getPassword())
                 .nickname(entity.getNickname())

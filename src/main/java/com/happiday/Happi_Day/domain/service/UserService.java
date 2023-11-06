@@ -4,10 +4,10 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserResponseDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserUpdateDto;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService{
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
@@ -31,6 +31,13 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         user.update(dto.toEntity(), passwordEncoder);
         userRepository.save(user);
+        return UserResponseDto.fromEntity(user);
+    }
+
+    public UserResponseDto myInfo() {
+        String username = SecurityUtils.getCurrentUsername();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return UserResponseDto.fromEntity(user);
     }
 

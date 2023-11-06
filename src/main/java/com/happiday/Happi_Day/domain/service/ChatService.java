@@ -1,64 +1,50 @@
 package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.chat.ChatRoom;
+import com.happiday.Happi_Day.domain.entity.chat.dto.ChatMessageDto;
+import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
-import com.happiday.Happi_Day.domain.repository.chat.ChatRoomRepository;
+import com.happiday.Happi_Day.domain.repository.ChatMessageRepository;
+import com.happiday.Happi_Day.domain.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final RedisTemplate redisTemplate;
-    private final ChannelTopic channelTopic;
-    private final ChatRedisService chatRedisService;
-    private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    // 채팅방 입장
-    public void enter(Long userId, Long roomId) {
-
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        chatRedisService.userEnterRoomInfo(userId, roomId);
+    public List<ChatMessageDto> getChatMessages(String username, Long roomId) {
+        User sender = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return chatMessageRepository.findAllByChatRoom_IdOrderByIdDesc(roomId)
+                .stream().map(ChatMessageDto::fromEntity).toList();
     }
 
-    //채팅
-//    @Transactional
-//    public void sendMessage(ChatMessageDto dto, User user) {
-//        ChatRoom chatRoom = chatRoomRepository.findById(dto.getRoomId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-//
-//        //채팅 생성 및 저장
-//        ChatMessage chatMessage = ChatMessage.builder()
-//                .chatRoom(chatRoom)
-//                .sender(user)
-//                .content(dto.getMessage())
-//                .build();
-//
-//        chatMessageRepository.save(chatMessage);
-//        String topic = channelTopic.getTopic();
-//
-//        // ChatMessageRequest에 유저정보, 현재시간 저장
-//        chatMessageRequest.setNickName(user.getNickname());
-//        chatMessageRequest.setUserId(user.getId());
-//
-//        if (chatMessageRequest.getType() == ChatMessageRequest.MessageType.GROUP_TALK) {
-//            // 그륩 채팅일 경우
-//            redisTemplate.convertAndSend(topic, chatMessageRequest);
-//            redisTemplate.opsForHash();
-//        } else {
-//            // 일대일 채팅 이면서 안읽은 메세지 업데이트
-//            redisTemplate.convertAndSend(topic, chatMessageRequest);
-//            updateUnReadMessageCount(chatMessageRequest);
-//        }
-//    }
+    public ChatMessageDto sendMessage(String username, Long roomId, ChatMessageDto dto) {
+        User sender = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        ChatMessageDto payload = ChatMessageDto.fromEntity(chatMessageRepository.save(dto.newEntity(sender, chatRoom)));
+        User receiver = chatRoom.getReceiver();
+        messagingTemplate.convertAndSend(
+                String.format(String.format("/pub/%s", receiver.getId())),
+                payload
+        );
+        messagingTemplate.convertAndSend(
+                String.format(String.format("/pub/%s", sender.getId())),
+                payload
+        );
 
-
+        return payload;
+    }
 }
