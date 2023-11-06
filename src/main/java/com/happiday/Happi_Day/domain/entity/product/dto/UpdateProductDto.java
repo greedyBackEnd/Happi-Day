@@ -9,14 +9,16 @@ import lombok.Data;
 @Builder
 public class UpdateProductDto {
     private String name;
-    private int price;
+    private Integer price;
     private String status;
+    private Integer stock;
 
     public Product toEntity(){
         return Product.builder()
                 .name(name)
                 .price(price)
                 .productStatus(ProductStatus.valueOf(status))
+                .stock(stock)
                 .build();
     }
 }

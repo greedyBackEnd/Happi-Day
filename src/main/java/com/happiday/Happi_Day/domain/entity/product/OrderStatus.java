@@ -8,7 +8,8 @@ public enum OrderStatus {
     ORDER_COMPLETED("주문완료"),
     PREPARE("발송준비중"),
     DELIVERING("배송중"),
-    DELIVERY_COMPLETED("배송완료");
+    DELIVERY_COMPLETED("배송완료"),
+    ORDER_CANCEL("주문취소");
 
     private String value;
 

@@ -1,5 +1,6 @@
 package com.happiday.Happi_Day.domain.entity.article;
 
+import com.happiday.Happi_Day.domain.entity.product.Sales;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,4 +27,7 @@ public class Hashtag {
 
     @ManyToMany(mappedBy ="hashtags")
     private List<Article> articles = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "hashtags")
+    private List<Sales> sales = new ArrayList<>();
 }

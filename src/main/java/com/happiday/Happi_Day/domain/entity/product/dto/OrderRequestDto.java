@@ -4,11 +4,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Builder
+import java.util.Map;
+
 @Getter
 @Setter
-public class CreateProductDto {
-    private String name;
-    private Integer price;
-    private Integer stock;
+@Builder
+public class OrderRequestDto {
+    private Map<String,Integer> products;
+    private String address;
 }

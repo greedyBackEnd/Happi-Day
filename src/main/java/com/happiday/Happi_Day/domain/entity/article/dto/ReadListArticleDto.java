@@ -1,18 +1,17 @@
 package com.happiday.Happi_Day.domain.entity.article.dto;
 
 import com.happiday.Happi_Day.domain.entity.article.Article;
-import com.happiday.Happi_Day.domain.entity.user.User;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @Builder
 public class ReadListArticleDto {
     private String title;
     private String nickname;
-    private LocalDateTime date;
+    private String date;
     private String thumbnailUrl;
 
     // TODO 댓글, 좋아요, 스크랩 추가예정
@@ -20,7 +19,7 @@ public class ReadListArticleDto {
         return ReadListArticleDto.builder()
                 .nickname(article.getUser().getNickname())
                 .title(article.getTitle())
-                .date(article.getCreatedAt())
+                .date(article.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .thumbnailUrl(article.getThumbnailUrl())
                 .build();
     }

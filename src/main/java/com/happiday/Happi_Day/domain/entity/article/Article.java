@@ -41,6 +41,12 @@ public class Article extends BaseEntity {
     @ElementCollection
     private List<String> imageUrl = new ArrayList<>();
 
+    @Column
+    private String ectTeams;
+
+    @Column
+    private String ectArtists;
+
     // 카테고리 홍보 에만 필요
     private String eventAddress;
 
@@ -95,6 +101,8 @@ public class Article extends BaseEntity {
         if (updateArticle.getArtists() != null) this.artists = updateArticle.getArtists();
         if (updateArticle.getTeams() != null) this.teams = updateArticle.getTeams();
         if (updateArticle.getHashtags() != null) this.hashtags = updateArticle.getHashtags();
+        if (updateArticle.getEctArtists() != null) this.ectArtists = updateArticle.getEctArtists();
+        if (updateArticle.getEctTeams() != null) this.ectTeams = updateArticle.getEctTeams();
     }
 
     public void setThumbnailImage(String thumbnailImage) {

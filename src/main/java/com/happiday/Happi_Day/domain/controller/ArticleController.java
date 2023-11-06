@@ -6,6 +6,7 @@ import com.happiday.Happi_Day.domain.entity.article.dto.ReadOneArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.WriteArticleDto;
 import com.happiday.Happi_Day.domain.service.ArticleService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,7 +26,7 @@ public class ArticleController {
     @PostMapping(value = "/{categoryId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ReadOneArticleDto> writeArticle(
             @PathVariable("categoryId") Long id,
-            @RequestPart(value = "article") WriteArticleDto requestDto,
+            @Valid @RequestPart(value = "article") WriteArticleDto requestDto,
             @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
             @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFileList) {
         String username = SecurityUtils.getCurrentUsername();
@@ -56,7 +57,8 @@ public class ArticleController {
             @RequestPart(name = "article") WriteArticleDto requestDto,
             @RequestPart(name = "thumbnailImage", required = false) MultipartFile thumbnailImage,
             @RequestPart(name = "imageFile", required = false) List<MultipartFile> imageFileList) {
-        ReadOneArticleDto responseArticle = articleService.updateArticle(articleId, requestDto, thumbnailImage, imageFileList);
+        String username = SecurityUtils.getCurrentUsername();
+        ReadOneArticleDto responseArticle = articleService.updateArticle(articleId, requestDto, username, thumbnailImage, imageFileList);
         return new ResponseEntity<>(responseArticle, HttpStatus.OK);
     }
 
@@ -64,7 +66,8 @@ public class ArticleController {
     @DeleteMapping("/{articleId}")
     public ResponseEntity<String> deleteArticle(
             @PathVariable("articleId") Long articleId) {
-        articleService.deleteArticle(articleId);
+        String username = SecurityUtils.getCurrentUsername();
+        articleService.deleteArticle(articleId, username);
         return new ResponseEntity<>("삭제 성공", HttpStatus.OK);
     }
 

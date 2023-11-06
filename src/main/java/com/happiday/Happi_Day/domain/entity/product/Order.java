@@ -9,6 +9,10 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -27,9 +31,14 @@ public class Order {
     private User user;
 
     // 판매글 id
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="sales_id")
     private Sales sales;
+
+    @Column(nullable = false)
+    private String address;
+
+    private Integer totalPrice;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -38,4 +47,20 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime orderedAt;
 
+    // orderedProduct 매핑
+    @OneToMany(mappedBy = "order")
+    private List<OrderedProduct> orderedProducts = new ArrayList<>();
+
+    public String updateStatus(OrderStatus orderStatus){
+        this.orderStatus = orderStatus;
+        return orderStatus.getValue();
+    }
+
+    public void updateTotalPrice(Integer totalPrice){
+        this.totalPrice = totalPrice;
+    }
+
+    public void updateOrderedProduct(OrderedProduct orderedProduct){
+        this.orderedProducts.add(orderedProduct);
+    }
 }
