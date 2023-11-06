@@ -28,7 +28,7 @@ public class EventController {
     public ResponseEntity<EventResponseDto> createEvent(
             @Valid @RequestPart(value = "event") EventCreateDto eventCreateDto,
             @RequestPart(value = "thumbnailFile", required = false) MultipartFile thumbnailFile,
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
+            @RequestPart(value = "imageFile") MultipartFile imageFile
             ){
         String username = SecurityUtils.getCurrentUsername();
         EventResponseDto responseDto = eventService.createEvent(eventCreateDto, thumbnailFile, imageFile, username);

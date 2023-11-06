@@ -46,6 +46,9 @@ public class Event extends BaseEntity {
     @Column(nullable = false)
     private String location;
 
+    @Column(nullable = false)
+    private String address;
+
     @Setter
     private String thumbnailUrl;
 
@@ -103,6 +106,9 @@ public class Event extends BaseEntity {
         }
         if (updateEvent.getDescription() != null && !updateEvent.getDescription().isEmpty()) {
             this.description = updateEvent.getDescription();
+        }
+        if (updateEvent.getAddress() != null) {
+            this.address = updateEvent.getAddress();
         }
         if (updateEvent.getLocation() != null) {
             this.location = updateEvent.getLocation();
