@@ -20,8 +20,8 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 @Table(name = "chat_room")
-@SQLDelete(sql = "UPDATE chat_room SET deleted = true WHERE id = ?")
-@Where(clause = "deleted = false")
+@SQLDelete(sql = "UPDATE chat_room SET isDeleted = true WHERE id = ?")
+@Where(clause = "isDeleted = false")
 public class ChatRoom extends BaseEntity {
 
     @Id
@@ -39,6 +39,6 @@ public class ChatRoom extends BaseEntity {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
     private List<ChatMessage> chatMessages = new ArrayList<>();
 
-    private boolean deleted = false;
+    private boolean isDeleted = false;
 
 }
