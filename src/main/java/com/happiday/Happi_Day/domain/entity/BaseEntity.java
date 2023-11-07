@@ -26,9 +26,12 @@ public abstract class BaseEntity {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    private LocalDateTime deletedAt;
+
     @Override
     public String toString() {
         return "createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt;
+                ", updatedAt=" + updatedAt +
+                ", deletedAt=" + deletedAt;
     }
 }

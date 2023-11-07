@@ -78,7 +78,7 @@ public class FileUtils {
 
 
     public String defaultThumbnail(MultipartFile multipartFile) {
-        String defaultThumbnailKey = "default-thumbnail.jpg"; // 기본 이미지 파일 이름
+        String defaultThumbnailKey = S3_BUCKET_DIRECTORY_NAME + "/" + "default-thumbnail.jpg"; // 기본 이미지 파일 이름
         return amazonS3.getUrl(bucket, defaultThumbnailKey).toString();
     }
 

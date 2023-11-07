@@ -48,7 +48,6 @@ public class EventService {
 
         if (thumbnailFile == null || thumbnailFile.isEmpty()) {
             thumbnailUrl = fileUtils.defaultThumbnail(thumbnailFile);
-
         } else {
             thumbnailUrl = fileUtils.uploadFile(thumbnailFile);
         }
@@ -137,7 +136,9 @@ public class EventService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (!user.getUsername().equals(username)) throw new IllegalArgumentException("사용자 정보가 일치하지 않습니다.");
+        if (!user.getUsername().equals(username)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
@@ -210,7 +211,9 @@ public class EventService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if(!user.getUsername().equals(username)) throw new IllegalArgumentException("사용자 정보가 일치하지 않습니다.");
+        if (!user.getUsername().equals(username)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
