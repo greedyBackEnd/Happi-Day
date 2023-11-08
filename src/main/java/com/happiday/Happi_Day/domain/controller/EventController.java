@@ -48,7 +48,7 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity<Page<EventListResponseDto>> readEvents(
-            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ){
         Page<EventListResponseDto> responseDtoList = eventService.readEvents(pageable);
         log.info("이벤트 리스트 조회");
