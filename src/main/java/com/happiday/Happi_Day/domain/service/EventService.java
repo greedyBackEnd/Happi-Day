@@ -17,6 +17,8 @@ import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -117,11 +118,11 @@ public class EventService {
         return EventResponseDto.fromEntity(event);
     }
 
-    public  List<EventListResponseDto> readEvents() {
+    public Page<EventListResponseDto> readEvents(Pageable pageable) {
         log.info("이벤트 리스트 조회");
-        return eventRepository.findAll().stream()
-                .map(EventListResponseDto::fromEntity)
-                .collect(Collectors.toList());
+        Page<Event> eventListResponseDtoPage = eventRepository.findAll(pageable);
+
+        return eventListResponseDtoPage.map(EventListResponseDto::fromEntity);
     }
 
     public EventResponseDto readEvent(Long eventId) {

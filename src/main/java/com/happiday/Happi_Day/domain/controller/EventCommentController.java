@@ -7,11 +7,13 @@ import com.happiday.Happi_Day.domain.service.EventCommentService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/events/{eventId}/comments")
@@ -29,8 +31,11 @@ public class EventCommentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventCommentResponseDto>> readComments(@PathVariable("eventId") Long eventId) {
-        List<EventCommentResponseDto> responseDtoList = commentService.readComments(eventId);
+    public ResponseEntity<Page<EventCommentResponseDto>> readComments(
+            @PathVariable("eventId") Long eventId,
+            @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<EventCommentResponseDto> responseDtoList = commentService.readComments(eventId, pageable);
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 
