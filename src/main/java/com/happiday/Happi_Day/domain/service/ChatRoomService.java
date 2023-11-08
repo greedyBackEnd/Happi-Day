@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -36,8 +37,12 @@ public class ChatRoomService {
         ChatRoom chatRoom = null;
 
         if (chatRoom1 != null) {
+            chatRoom1.renewChatRoom();
+            chatRoomRepository.save(chatRoom1);
             return chatRoom1.getId();
         } else if (chatRoom2 != null) {
+            chatRoom2.renewChatRoom();
+            chatRoomRepository.save(chatRoom2);
             return chatRoom2.getId();
         } else {
             chatRoom = ChatRoom.builder()
@@ -51,25 +56,29 @@ public class ChatRoomService {
     }
 
     public List<ChatRoomResponse> findChatRooms(String username) {
-        User sender = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        List<ChatRoom> chatRooms = chatRoomRepository.findAllBySenderOrReceiver(sender, sender);
-        return chatRooms.stream().map(room -> ChatRoomResponse.fromEntity(room, sender)).collect(Collectors.toList());
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        List<ChatRoom> senderChatRooms = chatRoomRepository.findBySenderAndIsSenderDeletedFalse(user);
+        List<ChatRoom> receiverChatRooms = chatRoomRepository.findByReceiverAndIsReceiverDeletedFalse(user);
+        List<ChatRoom> chatRooms = Stream.concat(senderChatRooms.stream(), receiverChatRooms.stream())
+                .collect(Collectors.toList());
+
+        return chatRooms.stream().map(room -> ChatRoomResponse.fromEntity(room, user)).collect(Collectors.toList());
     }
 
     public ChatRoomResponse findChatRoom(String username, Long roomId) {
-        User sender = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
-        return ChatRoomResponse.fromEntity(chatRoom, sender);
+        return ChatRoomResponse.fromEntity(chatRoom, user);
     }
 
     public void deleteChatRoom(String username, Long roomId) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
         if (chatRoom.getSender().equals(user)) {
-            chatRoomRepository.delete(chatRoom);
+            chatRoom.deleteChatRoomBySender();
         }
+        else chatRoom.deleteChatRoomByReceiver();
+        chatRoomRepository.save(chatRoom);
     }
-
-
 
 }

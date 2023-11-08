@@ -34,6 +34,9 @@ public class ChatService {
     public ChatMessageDto sendMessage(String username, Long roomId, ChatMessageDto dto) {
         User sender = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+        chatRoom.renewChatRoom();
+        chatRoomRepository.save(chatRoom);
+
         ChatMessageDto payload = ChatMessageDto.fromEntity(chatMessageRepository.save(dto.newEntity(sender, chatRoom)));
         User receiver = chatRoom.getReceiver();
         messagingTemplate.convertAndSend(
