@@ -8,8 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +18,6 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 @Table(name = "chat_room")
-@SQLDelete(sql = "UPDATE chat_room SET deleted = true WHERE id = ?")
-@Where(clause = "deleted = false")
 public class ChatRoom extends BaseEntity {
 
     @Id
@@ -39,6 +35,21 @@ public class ChatRoom extends BaseEntity {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
     private List<ChatMessage> chatMessages = new ArrayList<>();
 
-    private boolean deleted = false;
+    private boolean isSenderDeleted = false;
+
+    private boolean isReceiverDeleted = false;
+
+    public void deleteChatRoomBySender() {
+        this.isSenderDeleted = true;
+    }
+
+    public void deleteChatRoomByReceiver() {
+        this.isReceiverDeleted = true;
+    }
+
+    public void renewChatRoom() {
+        this.isSenderDeleted = false;
+        this.isReceiverDeleted = false;
+    }
 
 }

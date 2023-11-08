@@ -55,8 +55,7 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private Boolean isActive;
 
-    @Column(nullable = false)
-    private Boolean isDeleted;
+    private Boolean isDeleted = false;
 
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime lastLoginAt; // 마지막 로그인 날짜

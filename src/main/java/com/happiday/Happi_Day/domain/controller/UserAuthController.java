@@ -6,6 +6,8 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserLoginDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserRegisterDto;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.jwt.JwtTokenDto;
 import com.happiday.Happi_Day.jwt.JwtTokenUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +22,6 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -52,11 +53,11 @@ public class UserAuthController {
     public ResponseEntity<JwtTokenDto> login(@Validated @RequestBody UserLoginDto dto) {
         UserDetails userDetails = manager.loadUserByUsername(dto.getUsername());
         if (!passwordEncoder.matches(dto.getPassword(), userDetails.getPassword()))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new CustomException(ErrorCode.PASSWORD_NOT_MATCHED);
         JwtTokenDto token = new JwtTokenDto();
         token.setToken(jwtTokenUtils.generateToken(userDetails));
         LocalDateTime date = LocalDateTime.now();
-        User user = userRepository.findByUsername(dto.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        User user = userRepository.findByUsername(dto.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         user.setLastLoginAt(date);
         userRepository.save(user);
         return new ResponseEntity<>(token, HttpStatus.OK);
