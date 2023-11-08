@@ -3,7 +3,6 @@ package com.happiday.Happi_Day.domain.entity.event;
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +22,6 @@ import org.hibernate.annotations.Where;
 public class EventComment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_id")
     private Long id;
 
     // 유저와 관계 설정

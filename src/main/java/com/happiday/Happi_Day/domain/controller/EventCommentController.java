@@ -15,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/events/{eventId}/comments")
 @RequiredArgsConstructor
@@ -35,7 +33,7 @@ public class EventCommentController {
     @GetMapping
     public ResponseEntity<Page<EventCommentResponseDto>> readComments(
             @PathVariable("eventId") Long eventId,
-            @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<EventCommentResponseDto> responseDtoList = commentService.readComments(eventId, pageable);
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
