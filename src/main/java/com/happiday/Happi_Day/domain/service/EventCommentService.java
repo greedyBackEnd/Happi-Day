@@ -13,6 +13,8 @@ import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,10 @@ public class EventCommentService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
+        if(event.getDeletedAt() != null) {
+            throw new CustomException(ErrorCode.EVENT_ALREADY_DELETED);
+        }
+
         EventComment comment = EventComment.builder()
                 .user(user)
                 .content(request.getContent())
@@ -45,12 +51,14 @@ public class EventCommentService {
         return EventCommentResponseDto.fromEntity(comment);
     }
 
-    public List<EventCommentResponseDto> readComments(Long eventId) {
+    public Page<EventCommentResponseDto> readComments(Long eventId, Pageable pageable) {
+
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
-        List<EventComment> commentList = commentRepository.findAllByEvent(event);
 
-        return commentList.stream().map(EventCommentResponseDto::fromEntity).toList();
+        Page<EventComment> commentList = commentRepository.findAllByEvent(event, pageable);
+
+        return commentList.map(EventCommentResponseDto::fromEntity);
     }
 
     @Transactional
@@ -59,11 +67,19 @@ public class EventCommentService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        eventRepository.findById(eventId)
+        Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
+
+        if(event.getDeletedAt() != null) {
+            throw new CustomException(ErrorCode.EVENT_ALREADY_DELETED);
+        }
 
         EventComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_COMMENT_NOT_FOUND));
+
+        if(comment.getDeletedAt() != null) {
+            throw new CustomException(ErrorCode.EVENT_COMMENT_ALREADY_DELETED);
+        }
 
         if (!user.getUsername().equals(username)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
@@ -86,6 +102,10 @@ public class EventCommentService {
 
         EventComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_COMMENT_NOT_FOUND));
+
+        if(comment.getDeletedAt() != null) {
+            throw new CustomException(ErrorCode.EVENT_COMMENT_ALREADY_DELETED);
+        }
 
         if (!user.getUsername().equals(username)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
