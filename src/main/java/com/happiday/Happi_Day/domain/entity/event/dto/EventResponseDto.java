@@ -23,6 +23,8 @@ public class EventResponseDto {
 
     private String title;
 
+    private LocalDateTime updatedAt;
+
     private LocalDateTime startTime;
 
     private LocalDateTime endTime;
@@ -66,6 +68,7 @@ public class EventResponseDto {
                 .id(event.getId())
                 .username(event.getUser().getNickname())
                 .title(event.getTitle())
+                .updatedAt(event.getUpdatedAt())
                 .startTime(event.getStartTime())
                 .endTime(event.getEndTime())
                 .description(event.getDescription())
