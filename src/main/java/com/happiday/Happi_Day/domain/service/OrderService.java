@@ -149,12 +149,21 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!user.equals(order.getUser())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        if (status.equals("입금확인")) return order.updateStatus(OrderStatus.CONFIRM);
-        if (status.equals("주문완료")) return order.updateStatus(OrderStatus.ORDER_CANCEL);
-        if (status.equals("발송준비중")) return order.updateStatus(OrderStatus.PREPARE);
-        if (status.equals("배송중")) return order.updateStatus(OrderStatus.DELIVERING);
-        if (status.equals("배송완료")) return order.updateStatus(OrderStatus.DELIVERY_COMPLETED);
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+
+        switch (status){
+            case "입금확인":
+                return order.updateStatus(OrderStatus.CONFIRM);
+            case "주문완료":
+                return order.updateStatus(OrderStatus.ORDER_COMPLETED);
+            case "발송준비중":
+                return order.updateStatus(OrderStatus.READY_TO_SHIP);
+            case "배송중":
+                return order.updateStatus(OrderStatus.DELIVERING);
+            case "배송완료":
+                return order.updateStatus(OrderStatus.DELIVERY_COMPLETED);
+            default:
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 }
