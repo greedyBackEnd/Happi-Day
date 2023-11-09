@@ -41,8 +41,19 @@ public enum ErrorCode {
 
     // chat
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
-    CHATROOM_NOT_CREATED(HttpStatus.BAD_REQUEST, "채팅방을 만들 수 없습니다.")
+    CHATROOM_NOT_CREATED(HttpStatus.BAD_REQUEST, "채팅방을 만들 수 없습니다."),
 
+    // article
+    ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 글입니다."),
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 댓글입니다."),
+
+    // sales
+    SALES_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 판매글입니다."),
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 옵션입니다."),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
+    ORDER_FAILED(HttpStatus.BAD_REQUEST, "취소할 수 없는 주문입니다."),
+    ORDER_CANT_DELETE(HttpStatus.UNAUTHORIZED, "삭제할 수 없는 주문입니다.")
     ;
 
     private final HttpStatus status;

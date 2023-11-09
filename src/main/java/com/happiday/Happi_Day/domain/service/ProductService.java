@@ -9,6 +9,8 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.ProductRepository;
 import com.happiday.Happi_Day.domain.repository.SalesRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,11 +28,11 @@ public class ProductService {
     @Transactional
     public ReadProductDto createProduct(Long salesId, CreateProductDto productDto, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
         // user 확인
-        if(!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if(!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         Product newProduct = Product.createProduct(productDto.getName(),productDto.getPrice(),sales, productDto.getStock());
         productRepository.save(newProduct);
@@ -40,17 +42,17 @@ public class ProductService {
     @Transactional
     public ReadProductDto updateProduct(Long salesId, Long productId, UpdateProductDto productDto, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        if(!sales.getProducts().contains(product)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if(!sales.getProducts().contains(product)) throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
         // user 확인
-        if(!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if(!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         product.update(productDto.toEntity());
         productRepository.save(product);
@@ -61,17 +63,17 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long salesId, Long productId, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        if(!sales.getProducts().contains(product)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if(!sales.getProducts().contains(product)) throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
         // user 확인
-        if(!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if(!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         productRepository.deleteById(productId);
     }

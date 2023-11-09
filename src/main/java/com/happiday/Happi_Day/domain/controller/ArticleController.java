@@ -8,6 +8,10 @@ import com.happiday.Happi_Day.domain.service.ArticleService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,10 +47,10 @@ public class ArticleController {
 
     // 글 목록 조회
     @GetMapping("/{categoryId}/list")
-    public ResponseEntity<List<ReadListArticleDto>> readList(
+    public ResponseEntity<Page<ReadListArticleDto>> readList(
             @PathVariable("categoryId") Long categoryId,
-            @RequestPart(name = "filter", required = false) String filter) {
-        List<ReadListArticleDto> responseArticles = articleService.readList(categoryId, filter);
+            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ReadListArticleDto> responseArticles = articleService.readList(categoryId, pageable);
         return new ResponseEntity<>(responseArticles, HttpStatus.OK);
     }
 

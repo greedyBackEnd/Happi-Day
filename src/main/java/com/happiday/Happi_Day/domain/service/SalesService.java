@@ -1,6 +1,5 @@
 package com.happiday.Happi_Day.domain.service;
 
-import com.happiday.Happi_Day.domain.entity.article.Article;
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.product.*;
@@ -8,9 +7,13 @@ import com.happiday.Happi_Day.domain.entity.product.dto.*;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,11 +40,11 @@ public class SalesService {
     @Transactional
     public ReadOneSalesDto createSales(Long categoryId, WriteSalesDto dto, MultipartFile thumbnailImage,List<MultipartFile> imageFile, String username){
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 판매글 카테고리
         SalesCategory category = salesCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         List<Product> productList = new ArrayList<>();
 
@@ -124,26 +127,20 @@ public class SalesService {
         return response;
     }
 
-    public List<ReadListSalesDto> readSalesList(Long categoryId){
+    public Page<ReadListSalesDto> readSalesList(Long categoryId, Pageable pageable){
         SalesCategory category = salesCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        List<Sales> salesList = salesRepository.findAllBySalesCategory(category);
-        List<ReadListSalesDto> responseSalesList = new ArrayList<>();
-
-        for (Sales sales: salesList) {
-            responseSalesList.add(ReadListSalesDto.fromEntity(sales));
-        }
-
-        return responseSalesList;
+        Page<Sales> salesList = salesRepository.findAllBySalesCategory(category, pageable);
+        return salesList.map(ReadListSalesDto::fromEntity);
     }
 
     public ReadOneSalesDto readSalesOne(Long categoryId, Long salesId){
         SalesCategory category = salesCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
         List<ReadProductDto> dtoList = new ArrayList<>();
         for (Product product: sales.getProducts()) {
@@ -156,13 +153,13 @@ public class SalesService {
     @Transactional
     public ReadOneSalesDto updateSales(Long salesId, UpdateSalesDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFile, String username){
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
         // user 확인
-        if(!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if(!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         List<Hashtag> hashtagList = new ArrayList<>();
         for (String hashtag : dto.getHashtag()) {
@@ -255,14 +252,14 @@ public class SalesService {
     @Transactional
     public void deleteSales(Long categoryId, Long salesId, String username){
         SalesCategory category = salesCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
-        if(!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if(!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         // 이미지 삭제
         for(String imageUrl: sales.getImageUrl()){
@@ -277,10 +274,10 @@ public class SalesService {
     @Transactional
     public String likeSales(Long salesId, String username) {
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String resposne = "";
         if(sales.getSalesLikesUsers().contains(user)){

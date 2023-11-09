@@ -5,6 +5,10 @@ import com.happiday.Happi_Day.domain.service.SalesService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +37,10 @@ public class SalesController {
 
     // 판매글 목록 조회
     @GetMapping("/{categoryId}")
-    public ResponseEntity<List<ReadListSalesDto>> readSalesList(
-            @PathVariable("categoryId") Long id) {
-        List<ReadListSalesDto> responseSalesList = salesService.readSalesList(id);
+    public ResponseEntity<Page<ReadListSalesDto>> readSalesList(
+            @PathVariable("categoryId") Long id,
+            @PageableDefault(size = 12, sort = "id", direction= Sort.Direction.DESC)Pageable pageable) {
+        Page<ReadListSalesDto> responseSalesList = salesService.readSalesList(id, pageable);
         return new ResponseEntity<>(responseSalesList, HttpStatus.OK);
     }
 
