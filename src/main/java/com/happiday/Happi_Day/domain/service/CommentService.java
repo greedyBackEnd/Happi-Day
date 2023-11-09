@@ -10,8 +10,6 @@ import com.happiday.Happi_Day.domain.repository.CommentRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,12 +44,14 @@ public class CommentService {
         return response;
     }
 
-    public Page<ReadCommentDto> readComment(Long articleId, Pageable pageable){
+    public List<ReadCommentDto> readComment(Long articleId){
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        Page<Comment> comments = commentRepository.findAllByArticle(article, pageable);
-        return comments.map(ReadCommentDto::fromEntity);
+        List<Comment> comments = commentRepository.findAllByArticle(article);
+        List<ReadCommentDto> response = ReadCommentDto.toReadCommentDto(comments);
+
+        return response;
     }
 
     @Transactional

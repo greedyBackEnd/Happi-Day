@@ -5,10 +5,6 @@ import com.happiday.Happi_Day.domain.entity.article.dto.WriteCommentDto;
 import com.happiday.Happi_Day.domain.service.CommentService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +17,7 @@ import java.util.List;
 public class CommentController {
     private final CommentService commentService;
 
+    // TODO 유저 부분 추가예정
     @PostMapping
     public ResponseEntity<ReadCommentDto> writeComment(
             @PathVariable("articleId") Long articleId,
@@ -32,10 +29,9 @@ public class CommentController {
 
     // 댓글 조회
     @GetMapping()
-    public ResponseEntity<Page<ReadCommentDto>> readComment(
-            @PathVariable("articleId") Long articleId,
-            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC)Pageable pageable) {
-        Page<ReadCommentDto> responseComments = commentService.readComment(articleId, pageable);
+    public ResponseEntity<List<ReadCommentDto>> readComment(
+            @PathVariable("articleId") Long articleId) {
+        List<ReadCommentDto> responseComments = commentService.readComment(articleId);
         return new ResponseEntity<>(responseComments, HttpStatus.OK);
     }
 
