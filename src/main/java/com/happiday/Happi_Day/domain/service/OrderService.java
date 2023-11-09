@@ -8,8 +8,6 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,7 +80,7 @@ public class OrderService {
     }
 
     // 판매글 주문 목록 조회
-    public Page<ReadOrderListForSalesDto> orderListForSales(Long salesId, String username, Pageable pageable){
+    public List<ReadOrderListForSalesDto> orderListForSales(Long salesId, String username){
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
@@ -91,8 +89,12 @@ public class OrderService {
         // user 확인
         if(!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
-        Page<Order> orders = orderRepository.findAllBySales(sales, pageable);
-        return orders.map(order -> ReadOrderListForSalesDto.fromEntity(order, user));
+        List<Order> orders = orderRepository.findAllBySales(sales);
+        List<ReadOrderListForSalesDto> dtoList = new ArrayList<>();
+        for (Order order : orders) {
+            dtoList.add(ReadOrderListForSalesDto.fromEntity(order, user));
+        }
+        return dtoList;
     }
 
     // 주문 취소하기

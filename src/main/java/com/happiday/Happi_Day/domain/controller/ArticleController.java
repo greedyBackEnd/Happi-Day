@@ -49,7 +49,7 @@ public class ArticleController {
     @GetMapping("/{categoryId}/list")
     public ResponseEntity<Page<ReadListArticleDto>> readList(
             @PathVariable("categoryId") Long categoryId,
-            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC)Pageable pageable) {
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC)Pageable pageable) {
         Page<ReadListArticleDto> responseArticles = articleService.readList(categoryId, pageable);
         return new ResponseEntity<>(responseArticles, HttpStatus.OK);
     }

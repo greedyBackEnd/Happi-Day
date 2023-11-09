@@ -11,8 +11,6 @@ import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,12 +124,18 @@ public class SalesService {
         return response;
     }
 
-    public Page<ReadListSalesDto> readSalesList(Long categoryId, Pageable pageable){
+    public List<ReadListSalesDto> readSalesList(Long categoryId){
         SalesCategory category = salesCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        Page<Sales> salesList = salesRepository.findAllBySalesCategory(category, pageable);
-        return salesList.map(ReadListSalesDto::fromEntity);
+        List<Sales> salesList = salesRepository.findAllBySalesCategory(category);
+        List<ReadListSalesDto> responseSalesList = new ArrayList<>();
+
+        for (Sales sales: salesList) {
+            responseSalesList.add(ReadListSalesDto.fromEntity(sales));
+        }
+
+        return responseSalesList;
     }
 
     public ReadOneSalesDto readSalesOne(Long categoryId, Long salesId){
