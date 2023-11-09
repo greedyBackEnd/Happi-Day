@@ -140,7 +140,7 @@ public class ArticleService {
         BoardCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        Page<Article> articles = articleRepository.findAllByCategory(category,pageable);
+        Page<Article> articles = articleRepository.findAllByCategory(category, pageable);
         return articles.map(ReadListArticleDto::fromEntity);
     }
 

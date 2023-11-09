@@ -26,7 +26,7 @@ public class CommentController {
             @PathVariable("articleId") Long articleId,
             @RequestBody WriteCommentDto requestDto) {
         String username = SecurityUtils.getCurrentUsername();
-        ReadCommentDto responseComment = commentService.writeComment(articleId, requestDto,username);
+        ReadCommentDto responseComment = commentService.writeComment(articleId, requestDto, username);
         return new ResponseEntity<>(responseComment, HttpStatus.CREATED);
     }
 
@@ -34,7 +34,7 @@ public class CommentController {
     @GetMapping()
     public ResponseEntity<Page<ReadCommentDto>> readComment(
             @PathVariable("articleId") Long articleId,
-            @PageableDefault(size = 5, sort="id", direction = Sort.Direction.DESC)Pageable pageable) {
+            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<ReadCommentDto> responseComments = commentService.readComment(articleId, pageable);
         return new ResponseEntity<>(responseComments, HttpStatus.OK);
     }

@@ -29,7 +29,7 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ReadCommentDto writeComment(Long articleId, WriteCommentDto dto, String username){
+    public ReadCommentDto writeComment(Long articleId, WriteCommentDto dto, String username) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         User user = userRepository.findByUsername(username)
@@ -46,7 +46,7 @@ public class CommentService {
         return response;
     }
 
-    public Page<ReadCommentDto> readComment(Long articleId, Pageable pageable){
+    public Page<ReadCommentDto> readComment(Long articleId, Pageable pageable) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -55,7 +55,7 @@ public class CommentService {
     }
 
     @Transactional
-    public ReadCommentDto updateComment(Long articleId, Long commentId, WriteCommentDto requestDto){
+    public ReadCommentDto updateComment(Long articleId, Long commentId, WriteCommentDto requestDto) {
         articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -70,7 +70,7 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(Long articleId, Long commentId){
+    public void deleteComment(Long articleId, Long commentId) {
         articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 

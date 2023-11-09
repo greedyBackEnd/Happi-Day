@@ -8,6 +8,8 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +49,7 @@ public class OrderService {
         orderRepository.save(newOrder);
 
         int price = 0;
-        for (String productName: orderRequest.getProducts().keySet()) {
+        for (String productName : orderRequest.getProducts().keySet()) {
             Product product = productRepository.findByNameAndSales(productName, sales)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             OrderedProduct orderedProduct = OrderedProduct.builder()
@@ -56,9 +58,9 @@ public class OrderService {
                     .quantity(orderRequest.getProducts().get(productName))
                     .build();
             orderedProductRepository.save(orderedProduct);
-            product.updateStock(product.getStock()-1);
+            product.updateStock(product.getStock() - 1);
             newOrder.updateOrderedProduct(orderedProduct);
-            price += product.getPrice()*orderRequest.getProducts().get(productName);
+            price += product.getPrice() * orderRequest.getProducts().get(productName);
         }
         newOrder.updateTotalPrice(price);
     }
@@ -80,21 +82,17 @@ public class OrderService {
     }
 
     // 판매글 주문 목록 조회
-    public List<ReadOrderListForSalesDto> orderListForSales(Long salesId, String username){
+    public Page<ReadOrderListForSalesDto> orderListForSales(Long salesId, String username, Pageable pageable) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         // user 확인
-        if(!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if (!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
-        List<Order> orders = orderRepository.findAllBySales(sales);
-        List<ReadOrderListForSalesDto> dtoList = new ArrayList<>();
-        for (Order order : orders) {
-            dtoList.add(ReadOrderListForSalesDto.fromEntity(order, user));
-        }
-        return dtoList;
+        Page<Order> orders = orderRepository.findAllBySales(sales, pageable);
+        return orders.map(order -> ReadOrderListForSalesDto.fromEntity(order, user));
     }
 
     // 주문 취소하기
@@ -130,7 +128,7 @@ public class OrderService {
         if (!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         if (order.getOrderStatus().equals(OrderStatus.ORDER_CANCEL)) {
             List<OrderedProduct> orderedProducts = orderedProductRepository.findAllByOrder(order);
-            for (OrderedProduct orderedProduct:orderedProducts) {
+            for (OrderedProduct orderedProduct : orderedProducts) {
                 orderedProductRepository.delete(orderedProduct);
             }
             orderRepository.delete(order);
@@ -151,7 +149,7 @@ public class OrderService {
 
         if (!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
-        switch (status){
+        switch (status) {
             case "입금확인":
                 return order.updateStatus(OrderStatus.CONFIRM);
             case "주문완료":
