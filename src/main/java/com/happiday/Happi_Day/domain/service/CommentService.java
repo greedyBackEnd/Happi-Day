@@ -8,6 +8,8 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.ArticleRepository;
 import com.happiday.Happi_Day.domain.repository.CommentRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,9 +33,9 @@ public class CommentService {
     @Transactional
     public ReadCommentDto writeComment(Long articleId, WriteCommentDto dto, String username) {
         Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Comment newComment = Comment.builder()
                 .content(dto.getContent())
@@ -48,7 +50,7 @@ public class CommentService {
 
     public Page<ReadCommentDto> readComment(Long articleId, Pageable pageable) {
         Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
         Page<Comment> comments = commentRepository.findAllByArticle(article, pageable);
         return comments.map(ReadCommentDto::fromEntity);
@@ -57,10 +59,10 @@ public class CommentService {
     @Transactional
     public ReadCommentDto updateComment(Long articleId, Long commentId, WriteCommentDto requestDto) {
         articleRepository.findById(articleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         comment.update(requestDto.toEntity());
         commentRepository.save(comment);
@@ -72,10 +74,10 @@ public class CommentService {
     @Transactional
     public void deleteComment(Long articleId, Long commentId) {
         articleRepository.findById(articleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
         commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         commentRepository.deleteById(commentId);
     }

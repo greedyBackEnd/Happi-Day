@@ -10,6 +10,8 @@ import com.happiday.Happi_Day.domain.entity.board.BoardCategory;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,7 +43,7 @@ public class ArticleService {
     public ReadOneArticleDto writeArticle(Long categoryId, WriteArticleDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFileList, String username) {
         // user 확인
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 해시태그
         List<Hashtag> hashtagList = new ArrayList<>();
@@ -80,7 +82,7 @@ public class ArticleService {
 
         // 카테고리
         BoardCategory category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         Article newArticle = Article.builder()
                 .user(user)
@@ -130,7 +132,7 @@ public class ArticleService {
     // 글 상세 조회
     public ReadOneArticleDto readOne(Long articleId) {
         Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
         return ReadOneArticleDto.fromEntity(article);
     }
@@ -138,7 +140,7 @@ public class ArticleService {
     // 글 목록 조회
     public Page<ReadListArticleDto> readList(Long categoryId, Pageable pageable) {
         BoardCategory category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         Page<Article> articles = articleRepository.findAllByCategory(category, pageable);
         return articles.map(ReadListArticleDto::fromEntity);
@@ -148,9 +150,9 @@ public class ArticleService {
     @Transactional
     public ReadOneArticleDto updateArticle(Long articleId, WriteArticleDto dto, String username, MultipartFile thumbnailImage, List<MultipartFile> imageFileList) {
         Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (!user.equals(article.getUser())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
@@ -241,11 +243,11 @@ public class ArticleService {
     @Transactional
     public void deleteArticle(Long articleId, String username) {
         Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (!user.equals(article.getUser())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if (!user.equals(article.getUser())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         // 이미지 삭제
         for (String imageUrl : article.getImageUrl()) {
@@ -259,10 +261,10 @@ public class ArticleService {
     @Transactional
     public String likeArticle(Long articleId, String username) {
         Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String response = "";
         if (article.getLikeUsers().contains(user)) {

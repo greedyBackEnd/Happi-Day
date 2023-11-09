@@ -6,6 +6,8 @@ import com.happiday.Happi_Day.domain.entity.product.dto.ReadOneOrderDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadOrderListForSalesDto;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,9 +36,9 @@ public class OrderService {
     @Transactional
     public void order(Long salesId, String username, OrderRequestDto orderRequest) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
         Order newOrder = Order.builder()
                 .user(user)
@@ -51,7 +53,7 @@ public class OrderService {
         int price = 0;
         for (String productName : orderRequest.getProducts().keySet()) {
             Product product = productRepository.findByNameAndSales(productName, sales)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                    .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
             OrderedProduct orderedProduct = OrderedProduct.builder()
                     .order(newOrder)
                     .product(product)
@@ -68,15 +70,15 @@ public class OrderService {
     // 주문 단일 상세 조회
     public ReadOneOrderDto orderOneOrder(Long salesId, Long orderId, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
         // user 확인
         if (!user.equals(order.getUser()) && !user.equals(sales.getUsers()))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new CustomException(ErrorCode.FORBIDDEN);
 
         return ReadOneOrderDto.fromEntity(sales, order, user);
     }
@@ -84,12 +86,12 @@ public class OrderService {
     // 판매글 주문 목록 조회
     public Page<ReadOrderListForSalesDto> orderListForSales(Long salesId, String username, Pageable pageable) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
         // user 확인
-        if (!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if (!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         Page<Order> orders = orderRepository.findAllBySales(sales, pageable);
         return orders.map(order -> ReadOrderListForSalesDto.fromEntity(order, user));
@@ -99,17 +101,17 @@ public class OrderService {
     @Transactional
     public void orderCancel(Long salesId, Long orderId, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
-        if (!user.equals(order.getUser())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if (!user.equals(order.getUser())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         // 배송중이거나 배송완료일 경우 취소 불가
         if (order.getOrderStatus().equals(OrderStatus.DELIVERING) || order.getOrderStatus().equals(OrderStatus.DELIVERY_COMPLETED)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new CustomException(ErrorCode.ORDER_FAILED);
         }
 
         order.updateStatus(OrderStatus.ORDER_CANCEL);
@@ -119,13 +121,13 @@ public class OrderService {
     @Transactional
     public void orderDelete(Long salesId, Long orderId, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
-        if (!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if (!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
         if (order.getOrderStatus().equals(OrderStatus.ORDER_CANCEL)) {
             List<OrderedProduct> orderedProducts = orderedProductRepository.findAllByOrder(order);
             for (OrderedProduct orderedProduct : orderedProducts) {
@@ -133,7 +135,7 @@ public class OrderService {
             }
             orderRepository.delete(order);
         } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new CustomException(ErrorCode.ORDER_CANT_DELETE);
         }
     }
 
@@ -141,13 +143,13 @@ public class OrderService {
     @Transactional
     public String changeOrderStatus(Long salesId, Long orderId, String username, String status) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
-        if (!user.equals(sales.getUsers())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if (!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         switch (status) {
             case "입금확인":
