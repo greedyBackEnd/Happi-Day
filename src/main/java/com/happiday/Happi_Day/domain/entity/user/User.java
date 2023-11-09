@@ -15,6 +15,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -28,6 +30,8 @@ import java.util.List;
 @Table(name = "user")
 @EntityListeners(value = AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE user SET deleted_at = now() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,8 +59,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private Boolean isActive;
 
-    private Boolean isDeleted = false;
-
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime lastLoginAt; // 마지막 로그인 날짜
 
@@ -64,7 +66,7 @@ public class User extends BaseEntity {
     @PrePersist
     public void prePersist() {
         this.isActive = this.isActive == null || this.isActive;
-        this.isDeleted = this.isDeleted != null && this.isDeleted;
+//        this.isDeleted = this.isDeleted != null && this.isDeleted;
     }
 
     // 게시글 작성 매핑(Article) => 커뮤니티(자유게시글)
