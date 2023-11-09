@@ -12,6 +12,8 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -134,17 +136,12 @@ public class ArticleService {
     }
 
     // 글 목록 조회
-    public List<ReadListArticleDto> readList(Long categoryId, String filter) {
+    public Page<ReadListArticleDto> readList(Long categoryId, Pageable pageable) {
         BoardCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        List<Article> articles = articleRepository.findAllByCategory(category);
-        List<ReadListArticleDto> newList = new ArrayList<>();
-        for (Article article : articles) {
-            newList.add(ReadListArticleDto.fromEntity(article));
-        }
-
-        return newList;
+        Page<Article> articlesPage = articleRepository.findAllByCategory(category, pageable);
+        return articlesPage.map(ReadListArticleDto::fromEntity);
     }
 
     // 글 수정
