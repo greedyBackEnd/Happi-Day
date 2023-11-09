@@ -6,6 +6,10 @@ import com.happiday.Happi_Day.domain.entity.product.dto.ReadOrderListForSalesDto
 import com.happiday.Happi_Day.domain.service.OrderService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,10 +45,11 @@ public class OrderController {
 
     // 판매글 주문 목록 조회
     @GetMapping("{salesId}/order")
-    public ResponseEntity<List<ReadOrderListForSalesDto>> readOrderListForSales(
-            @PathVariable("salesId") Long salesId){
+    public ResponseEntity<Page<ReadOrderListForSalesDto>> readOrderListForSales(
+            @PathVariable("salesId") Long salesId,
+            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC)Pageable pageable){
         String username = SecurityUtils.getCurrentUsername();
-        List<ReadOrderListForSalesDto> responseDto = orderService.orderListForSales(salesId, username);
+        Page<ReadOrderListForSalesDto> responseDto = orderService.orderListForSales(salesId, username, pageable);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
