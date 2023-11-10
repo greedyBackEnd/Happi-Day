@@ -14,7 +14,6 @@ public class ReadListArticleDto {
     private String date;
     private String thumbnailUrl;
 
-    // TODO 댓글, 좋아요, 스크랩 추가예정
     public static ReadListArticleDto fromEntity(Article article) {
         return ReadListArticleDto.builder()
                 .nickname(article.getUser().getNickname())

@@ -29,9 +29,8 @@ public class ReadOneArticleDto {
     private List<ReadCommentDto> comments;
     private int likeUsersNum;
     private List<String> imageUrl;
-//    private int scrapUserNum;
 
-    // TODO 댓글, 좋아요, 스크랩 추가예정
+
     public static ReadOneArticleDto fromEntity(Article article) {
         List<String> artists = article.getArtists().stream().map(Artist::getName).collect(Collectors.toList());
         List<String> additionalArtists = article.getArtists() != null ? Arrays.asList(article.getEctArtists().split(", ")) : Collections.emptyList();
