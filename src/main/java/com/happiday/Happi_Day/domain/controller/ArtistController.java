@@ -8,6 +8,7 @@ import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamListResponseDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.SalesListResponseDto;
 import com.happiday.Happi_Day.domain.service.ArtistService;
+import com.happiday.Happi_Day.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class ArtistController {
     @PostMapping
     public ResponseEntity<ArtistDetailResponseDto> registerArtist(@RequestPart(name = "artist") ArtistRegisterDto requestDto,
                                                                   @RequestPart(value = "file", required = false) MultipartFile imageFile) {
+        String username = SecurityUtils.getCurrentUsername();
         ArtistDetailResponseDto responseDto = artistService.registerArtist(requestDto, imageFile);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
@@ -34,12 +36,14 @@ public class ArtistController {
     public ResponseEntity<ArtistDetailResponseDto> updateArtist(@PathVariable Long artistId,
                                                                 @RequestPart(name = "artist") ArtistUpdateDto requestDto,
                                                                 @RequestPart(value = "file", required = false) MultipartFile imageFile) {
+        String username = SecurityUtils.getCurrentUsername();
         ArtistDetailResponseDto responseDto = artistService.updateArtist(artistId, requestDto, imageFile);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{artistId}")
     public ResponseEntity<Void> deleteArtist(@PathVariable Long artistId) {
+        String username = SecurityUtils.getCurrentUsername();
         artistService.delete(artistId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

@@ -23,7 +23,7 @@ public class JpaUserDetailsManager implements UserDetailsManager {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return CustomUserDetails.fromEntity(user);
     }
 
@@ -35,7 +35,7 @@ public class JpaUserDetailsManager implements UserDetailsManager {
     @Override
     public void createUser(UserDetails user) {
         if (this.userExists(user.getUsername()))
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new CustomException(ErrorCode.USER_CONFLICT);
         userRepository.save(((CustomUserDetails) user).newEntity());
     }
 

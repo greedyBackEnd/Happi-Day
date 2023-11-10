@@ -8,6 +8,7 @@ import com.happiday.Happi_Day.domain.entity.team.dto.TeamRegisterDto;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamDetailResponseDto;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamUpdateDto;
 import com.happiday.Happi_Day.domain.service.TeamService;
+import com.happiday.Happi_Day.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class TeamController {
     @PostMapping
     public ResponseEntity<TeamDetailResponseDto> registerTeam(@RequestPart(name = "team") TeamRegisterDto requestDto,
                                                               @RequestPart(value = "file", required = false) MultipartFile imageFile) {
+        String username = SecurityUtils.getCurrentUsername();
         TeamDetailResponseDto responseDto = teamService.registerTeam(requestDto, imageFile);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
@@ -34,12 +36,14 @@ public class TeamController {
     public ResponseEntity<TeamDetailResponseDto> updateTeam(@PathVariable Long teamId,
                                                             @RequestPart(name = "team") TeamUpdateDto requestDto,
                                                             @RequestPart(value = "file", required = false) MultipartFile imageFile) {
+        String username = SecurityUtils.getCurrentUsername();
         TeamDetailResponseDto responseDto = teamService.updateTeam(teamId, requestDto, imageFile);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{teamId}")
     public ResponseEntity<Void> deleteTeam(@PathVariable Long teamId) {
+        String username = SecurityUtils.getCurrentUsername();
         teamService.deleteTeam(teamId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
