@@ -1,7 +1,6 @@
 package com.happiday.Happi_Day.domain.entity.article.dto;
 
-import com.happiday.Happi_Day.domain.entity.article.Comment;
-import com.happiday.Happi_Day.domain.entity.user.User;
+import com.happiday.Happi_Day.domain.entity.article.ArticleComment;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,7 +16,7 @@ public class ReadCommentDto {
     private String content;
     private LocalDateTime createdAt;
 
-    public static ReadCommentDto fromEntity(Comment comment) {
+    public static ReadCommentDto fromEntity(ArticleComment comment) {
         return ReadCommentDto.builder()
                 .id(comment.getId())
                 .user(comment.getUser().getNickname())
@@ -26,9 +25,9 @@ public class ReadCommentDto {
                 .build();
     }
 
-    public static List<ReadCommentDto> toReadCommentDto(List<Comment> commentList){
+    public static List<ReadCommentDto> toReadCommentDto(List<ArticleComment> commentList){
         List<ReadCommentDto> newList = new ArrayList<>();
-        for (Comment comment: commentList) {
+        for (ArticleComment comment: commentList) {
             newList.add(ReadCommentDto.fromEntity(comment));
         }
         return newList;

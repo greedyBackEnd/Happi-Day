@@ -53,7 +53,7 @@ public class ReadOneArticleDto {
                 .content(article.getContent())
                 .teams(allTeams)
                 .artists(allArtists)
-                .comments(ReadCommentDto.toReadCommentDto(article.getComments()))
+                .comments(ReadCommentDto.toReadCommentDto(article.getArticleComments()))
                 .hashtags(hashtagList)
                 .likeUsersNum(article.getLikeUsers().size())
                 .imageUrl(article.getImageUrl())

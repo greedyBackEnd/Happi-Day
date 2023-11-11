@@ -94,7 +94,7 @@ public class ArticleService {
                 .artists(artists)
                 .teams(teams)
                 .likeUsers(new ArrayList<>())
-                .comments(new ArrayList<>())
+                .articleComments(new ArrayList<>())
                 .imageUrl(new ArrayList<>())
                 .build();
 

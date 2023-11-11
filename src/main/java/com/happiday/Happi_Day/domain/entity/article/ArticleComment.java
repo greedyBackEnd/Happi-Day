@@ -3,20 +3,23 @@ package com.happiday.Happi_Day.domain.entity.article;
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
-@Table(name = "comment")
-public class Comment extends BaseEntity {
+@Table(name = "article_comment")
+@SQLDelete(sql = "UPDATE article_comment SET deleted_at = now() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
+public class ArticleComment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,7 +37,7 @@ public class Comment extends BaseEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    public void update(Comment updateComment){
+    public void update(ArticleComment updateComment){
         if(updateComment.getContent() != null) this.content = updateComment.getContent();
     }
 }
