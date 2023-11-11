@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
@@ -14,6 +16,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 @Table(name = "orderedProduct")
+@SQLDelete(sql = "UPDATE orderedProduct SET deleted_at = now() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 public class OrderedProduct extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

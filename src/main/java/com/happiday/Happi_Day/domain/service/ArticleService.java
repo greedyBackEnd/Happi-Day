@@ -250,10 +250,10 @@ public class ArticleService {
         if (!user.equals(article.getUser())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         // 이미지 삭제
-        for (String imageUrl : article.getImageUrl()) {
-            fileUtils.deleteFile(imageUrl);
-        }
-        fileUtils.deleteFile(article.getThumbnailUrl());
+//        for (String imageUrl : article.getImageUrl()) {
+//            fileUtils.deleteFile(imageUrl);
+//        }
+//        fileUtils.deleteFile(article.getThumbnailUrl());
 
         articleRepository.deleteById(articleId);
     }

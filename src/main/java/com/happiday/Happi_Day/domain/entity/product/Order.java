@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,6 +22,8 @@ import java.util.Map;
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 @Table(name = "orders")
+@SQLDelete(sql = "UPDATE orders SET deleted_at = now() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,12 +31,12 @@ public class Order {
 
     // 유저 id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     // 판매글 id
     @ManyToOne
-    @JoinColumn(name="sales_id")
+    @JoinColumn(name = "sales_id")
     private Sales sales;
 
     @Column(nullable = false)
@@ -51,16 +55,16 @@ public class Order {
     @OneToMany(mappedBy = "order")
     private List<OrderedProduct> orderedProducts = new ArrayList<>();
 
-    public String updateStatus(OrderStatus orderStatus){
+    public String updateStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
         return orderStatus.getValue();
     }
 
-    public void updateTotalPrice(Integer totalPrice){
+    public void updateTotalPrice(Integer totalPrice) {
         this.totalPrice = totalPrice;
     }
 
-    public void updateOrderedProduct(OrderedProduct orderedProduct){
+    public void updateOrderedProduct(OrderedProduct orderedProduct) {
         this.orderedProducts.add(orderedProduct);
     }
 }
