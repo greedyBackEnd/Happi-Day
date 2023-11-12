@@ -262,10 +262,14 @@ public class SalesService {
         if(!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         // 이미지 삭제
-        for(String imageUrl: sales.getImageUrl()){
-            fileUtils.deleteFile(imageUrl);
+        if(sales.getImageUrl() != null){
+            for(String imageUrl: sales.getImageUrl()){
+                fileUtils.deleteFile(imageUrl);
+            }
         }
-        fileUtils.deleteFile(sales.getThumbnailImage());
+        if(sales.getThumbnailImage() != null){
+            fileUtils.deleteFile(sales.getThumbnailImage());
+        }
 
         productRepository.deleteAllBySales(sales);
         salesRepository.deleteById(salesId);
