@@ -8,6 +8,8 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.util.*;
 import java.util.List;
@@ -18,6 +20,8 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 @Table(name = "article")
+@SQLDelete(sql="UPDATE article SET deleted_at = now() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 public class Article extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,7 +61,7 @@ public class Article extends BaseEntity {
 
     // 댓글 매핑
     @OneToMany(mappedBy = "article")
-    private List<Comment> comments = new ArrayList<>();
+    private List<ArticleComment> articleComments = new ArrayList<>();
 
     // 게시글 좋아요 매핑
     @ManyToMany(mappedBy = "articleLikes")

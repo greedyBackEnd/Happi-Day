@@ -1,12 +1,12 @@
 package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.article.Article;
-import com.happiday.Happi_Day.domain.entity.article.Comment;
+import com.happiday.Happi_Day.domain.entity.article.ArticleComment;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadCommentDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.WriteCommentDto;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.ArticleRepository;
-import com.happiday.Happi_Day.domain.repository.CommentRepository;
+import com.happiday.Happi_Day.domain.repository.ArticleCommentRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
@@ -14,19 +14,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class CommentService {
-    private final CommentRepository commentRepository;
+public class ArticleCommentService {
+    private final ArticleCommentRepository articleCommentRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
 
@@ -37,12 +33,12 @@ public class CommentService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Comment newComment = Comment.builder()
+        ArticleComment newComment = ArticleComment.builder()
                 .content(dto.getContent())
                 .article(article)
                 .user(user)
                 .build();
-        commentRepository.save(newComment);
+        articleCommentRepository.save(newComment);
 
         ReadCommentDto response = ReadCommentDto.fromEntity(newComment);
         return response;
@@ -52,7 +48,7 @@ public class CommentService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
-        Page<Comment> comments = commentRepository.findAllByArticle(article, pageable);
+        Page<ArticleComment> comments = articleCommentRepository.findAllByArticle(article, pageable);
         return comments.map(ReadCommentDto::fromEntity);
     }
 
@@ -61,11 +57,11 @@ public class CommentService {
         articleRepository.findById(articleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
-        Comment comment = commentRepository.findById(commentId)
+        ArticleComment comment = articleCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         comment.update(requestDto.toEntity());
-        commentRepository.save(comment);
+        articleCommentRepository.save(comment);
 
         ReadCommentDto response = ReadCommentDto.fromEntity(comment);
         return response;
@@ -76,10 +72,10 @@ public class CommentService {
         articleRepository.findById(articleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
-        commentRepository.findById(commentId)
+        articleCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
-        commentRepository.deleteById(commentId);
+        articleCommentRepository.deleteById(commentId);
     }
 
 

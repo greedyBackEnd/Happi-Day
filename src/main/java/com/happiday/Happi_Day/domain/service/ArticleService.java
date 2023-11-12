@@ -94,7 +94,7 @@ public class ArticleService {
                 .artists(artists)
                 .teams(teams)
                 .likeUsers(new ArrayList<>())
-                .comments(new ArrayList<>())
+                .articleComments(new ArrayList<>())
                 .imageUrl(new ArrayList<>())
                 .build();
 
@@ -250,10 +250,14 @@ public class ArticleService {
         if (!user.equals(article.getUser())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         // 이미지 삭제
-        for (String imageUrl : article.getImageUrl()) {
-            fileUtils.deleteFile(imageUrl);
+        if(article.getImageUrl() != null){
+            for (String imageUrl : article.getImageUrl()) {
+                fileUtils.deleteFile(imageUrl);
+            }
         }
-        fileUtils.deleteFile(article.getThumbnailUrl());
+        if(article.getThumbnailUrl() != null){
+            fileUtils.deleteFile(article.getThumbnailUrl());
+        }
 
         articleRepository.deleteById(articleId);
     }

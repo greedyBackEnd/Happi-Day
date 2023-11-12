@@ -2,7 +2,7 @@ package com.happiday.Happi_Day.domain.entity.user;
 
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.article.Article;
-import com.happiday.Happi_Day.domain.entity.article.Comment;
+import com.happiday.Happi_Day.domain.entity.article.ArticleComment;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.chat.ChatMessage;
 import com.happiday.Happi_Day.domain.entity.chat.ChatRoom;
@@ -91,7 +91,7 @@ public class User extends BaseEntity {
 
     // 댓글 매핑
     @OneToMany(mappedBy = "user")
-    private List<Comment> comments = new ArrayList<>();
+    private List<ArticleComment> articleComments = new ArrayList<>();
 
     // 주문 매핑
     @OneToMany(mappedBy = "user")
