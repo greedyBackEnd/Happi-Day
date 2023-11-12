@@ -1,5 +1,6 @@
 package com.happiday.Happi_Day.domain.entity.product;
 
+import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -24,7 +25,7 @@ import java.util.Map;
 @Table(name = "orders")
 @SQLDelete(sql = "UPDATE orders SET deleted_at = now() WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
-public class Order {
+public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -1,5 +1,6 @@
 package com.happiday.Happi_Day.domain.entity.product;
 
+import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ import java.util.List;
 @Table(name = "product")
 @SQLDelete(sql = "UPDATE product SET deleted_at = now() WHERE id =?")
 @Where(clause = "deleted_at IS NULL")
-public class Product {
+public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
