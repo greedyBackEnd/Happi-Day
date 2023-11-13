@@ -8,7 +8,9 @@ import com.happiday.Happi_Day.domain.entity.artist.dto.ArtistUpdateDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamListResponseDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.SalesListResponseDto;
+import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.ArtistRepository;
+import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.utils.FileUtils;
@@ -28,8 +30,10 @@ import java.util.stream.Collectors;
 public class ArtistService {
 
     private final ArtistRepository artistRepository;
+    private final UserRepository userRepository;
     private final FileUtils fileUtils;
 
+    // 아티스트 등록
     @Transactional
     public ArtistDetailResponseDto registerArtist(ArtistRegisterDto requestDto, MultipartFile imageFile) {
         Artist artistEntity = requestDto.toEntity();
@@ -41,9 +45,10 @@ public class ArtistService {
         }
 
         artistEntity = artistRepository.save(artistEntity);
-        return ArtistDetailResponseDto.of(artistEntity);
+        return ArtistDetailResponseDto.of(artistEntity, false);
     }
 
+    // 아티스트 정보 수정
     @Transactional
     public ArtistDetailResponseDto updateArtist(Long artistId, ArtistUpdateDto requestDto, MultipartFile imageFile) {
         Artist artist = artistRepository.findById(artistId)
@@ -71,9 +76,10 @@ public class ArtistService {
         artist.update(requestDto.toEntity());
         artistRepository.save(artist);
 
-        return ArtistDetailResponseDto.of(artist);
+        return ArtistDetailResponseDto.of(artist, false);
     }
 
+    // 아티스트 삭제
     @Transactional
     public void delete(Long artistId) {
         Artist artist = artistRepository.findById(artistId)
@@ -81,18 +87,32 @@ public class ArtistService {
         artistRepository.delete(artist);
     }
 
-    public ArtistDetailResponseDto getArtist(Long artistId) {
+    // 아티스트 상세 조회
+    public ArtistDetailResponseDto getArtist(Long artistId, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Artist artist = artistRepository.findById(artistId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
-        return ArtistDetailResponseDto.of(artist);
+
+        // 구독 여부 확인
+        boolean isSubscribed = user.getSubscribedArtists().contains(artist);
+
+        // 아티스트가 속한 팀 정보 가져오기
+        List<TeamListResponseDto> teams = artist.getTeams().stream()
+                .map(TeamListResponseDto::of)
+                .collect(Collectors.toList());
+
+        return ArtistDetailResponseDto.of(artist, isSubscribed, teams);
     }
 
+    // 아티스트 목록 조회
     public List<ArtistListResponseDto> getArtists() {
         return artistRepository.findAll().stream()
                 .map(ArtistListResponseDto::of)
                 .collect(Collectors.toList());
     }
 
+    // 아티스트가 속한 팀 목록 조회
     public List<TeamListResponseDto> getArtistTeams(Long artistId) {
         Artist artist = artistRepository.findById(artistId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
@@ -102,6 +122,7 @@ public class ArtistService {
                 .collect(Collectors.toList());
     }
 
+    // 아티스트 관련 상품 목록 조회
     public List<SalesListResponseDto> getSalesList(Long artistId) {
         Artist artist = artistRepository.findById(artistId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
@@ -111,6 +132,7 @@ public class ArtistService {
                 .collect(Collectors.toList());
     }
 
+    // 아티스트 이벤트 목록 조회
     public List<EventListResponseDto> getEvents(Long artistId) {
         Artist artist = artistRepository.findById(artistId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
@@ -118,5 +140,29 @@ public class ArtistService {
         return artist.getEvents().stream()
                 .map(EventListResponseDto::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    // 아티스트 구독 추가
+    @Transactional
+    public void subscribeToArtist(String username, Long artistId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Artist artist = artistRepository.findById(artistId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
+        if (!user.getSubscribedArtists().contains(artist)) {
+            user.getSubscribedArtists().add(artist);
+            userRepository.save(user);
+        }
+    }
+
+    // 아티스트 구독 취소
+    @Transactional
+    public void unsubscribeFromArtist(String username, Long artistId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Artist artist = artistRepository.findById(artistId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
+        user.getSubscribedArtists().remove(artist);
+        userRepository.save(user);
     }
 }
