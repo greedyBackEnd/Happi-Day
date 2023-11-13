@@ -50,11 +50,13 @@ public class SalesService {
 
         // 해시태그
         List<Hashtag> hashtagList = new ArrayList<>();
-        for (String hashtag: dto.getHashtag()) {
-            Hashtag newHashtag = Hashtag.builder()
-                    .tag(hashtag)
-                    .build();
-            hashtagList.add(newHashtag);
+        if(dto.getHashtag() != null){
+            for (String hashtag: dto.getHashtag()) {
+                Hashtag newHashtag = Hashtag.builder()
+                        .tag(hashtag)
+                        .build();
+                hashtagList.add(newHashtag);
+            }
         }
 
         // 아티스트
@@ -231,7 +233,7 @@ public class SalesService {
                 .users(user)
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .salesStatus(SalesStatus.valueOf(dto.getStatus()))
+                .salesStatus(dto.getStatus() != null ?SalesStatus.valueOf(dto.getStatus()) : sales.getSalesStatus())
                 .artists(artists)
                 .teams(teams)
                 .hashtags(hashtagList)

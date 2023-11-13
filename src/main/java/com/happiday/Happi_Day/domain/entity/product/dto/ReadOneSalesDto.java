@@ -41,7 +41,7 @@ public class ReadOneSalesDto {
         List<String> allTeams = new ArrayList<>(teams);
         allTeams.addAll(additionalTeams);
 
-        List<ReadDeliveryDto> deliveries = sales.getDeliveries().stream().map(ReadDeliveryDto::fromEntity).collect(Collectors.toList());
+        List<ReadDeliveryDto> deliveries = sales.getDeliveries() != null ? sales.getDeliveries().stream().map(ReadDeliveryDto::fromEntity).collect(Collectors.toList()) : Collections.emptyList();
 
         List<String> hashtagList = new ArrayList<>();
         for (Hashtag hashtag : sales.getHashtags()) {

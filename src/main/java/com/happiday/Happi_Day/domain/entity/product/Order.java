@@ -52,6 +52,9 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime orderedAt;
 
+    @Column
+    private String trackingNum;
+
     // orderedProduct 매핑
     @OneToMany(mappedBy = "order")
     private List<OrderedProduct> orderedProducts = new ArrayList<>();
@@ -64,6 +67,11 @@ public class Order extends BaseEntity {
     public String updateStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
         return orderStatus.getValue();
+    }
+
+    public String updateTrackingNum(String num){
+        this.trackingNum = num;
+        return this.trackingNum;
     }
 
     public void updateTotalPrice(Integer totalPrice) {

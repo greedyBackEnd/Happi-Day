@@ -4,6 +4,7 @@ import com.happiday.Happi_Day.domain.entity.product.*;
 import com.happiday.Happi_Day.domain.entity.product.dto.OrderRequestDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadOneOrderDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadOrderListForSalesDto;
+import com.happiday.Happi_Day.domain.entity.product.dto.UpdateOrderDto;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
@@ -145,7 +146,7 @@ public class OrderService {
 
     // 주문 상태 변경
     @Transactional
-    public String changeOrderStatus(Long salesId, Long orderId, String username, String status) {
+    public void changeOrderStatus(Long salesId, Long orderId, String username, UpdateOrderDto dto) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
@@ -155,19 +156,27 @@ public class OrderService {
 
         if (!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
-        switch (status) {
-            case "입금확인":
-                return order.updateStatus(OrderStatus.CONFIRM);
-            case "주문완료":
-                return order.updateStatus(OrderStatus.ORDER_COMPLETED);
-            case "발송준비중":
-                return order.updateStatus(OrderStatus.READY_TO_SHIP);
-            case "배송중":
-                return order.updateStatus(OrderStatus.DELIVERING);
-            case "배송완료":
-                return order.updateStatus(OrderStatus.DELIVERY_COMPLETED);
-            default:
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if(dto.getTrackingNum() !=  null) order.updateTrackingNum(dto.getTrackingNum());
+        if (dto.getOrderStatus() != null) {
+            switch (dto.getOrderStatus()) {
+                case "입금확인":
+                    order.updateStatus(OrderStatus.CONFIRM);
+                    break;
+                case "주문완료":
+                    order.updateStatus(OrderStatus.ORDER_COMPLETED);
+                    break;
+                case "발송준비중":
+                    order.updateStatus(OrderStatus.READY_TO_SHIP);
+                    break;
+                case "배송중":
+                    order.updateStatus(OrderStatus.DELIVERING);
+                    break;
+                case "배송완료":
+                    order.updateStatus(OrderStatus.DELIVERY_COMPLETED);
+                    break;
+                default:
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ package com.happiday.Happi_Day.domain.controller;
 import com.happiday.Happi_Day.domain.entity.product.dto.OrderRequestDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadOneOrderDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadOrderListForSalesDto;
+import com.happiday.Happi_Day.domain.entity.product.dto.UpdateOrderDto;
 import com.happiday.Happi_Day.domain.service.OrderService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class OrderController {
     @PostMapping("{salesId}/order")
     public String order(
             @PathVariable("salesId") Long salesId,
-            @RequestPart(name = "order") OrderRequestDto orderRequest){
+            @RequestPart(name = "order") OrderRequestDto orderRequest) {
         String username = SecurityUtils.getCurrentUsername();
         orderService.order(salesId, username, orderRequest);
         return "주문이 완료되었습니다.";
@@ -37,7 +38,7 @@ public class OrderController {
     @GetMapping("{salesId}/order/{orderId}")
     public ResponseEntity<ReadOneOrderDto> readOneOrder(
             @PathVariable("salesId") Long salesId,
-            @PathVariable("orderId") Long orderId){
+            @PathVariable("orderId") Long orderId) {
         String username = SecurityUtils.getCurrentUsername();
         ReadOneOrderDto responseDto = orderService.readOneOrder(salesId, orderId, username);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -47,7 +48,7 @@ public class OrderController {
     @GetMapping("{salesId}/order")
     public ResponseEntity<Page<ReadOrderListForSalesDto>> readOrderListForSales(
             @PathVariable("salesId") Long salesId,
-            @PageableDefault(size = 12, sort= "id", direction = Sort.Direction.DESC)Pageable pageable){
+            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         String username = SecurityUtils.getCurrentUsername();
         Page<ReadOrderListForSalesDto> responseDto = orderService.orderListForSales(salesId, username, pageable);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -57,7 +58,7 @@ public class OrderController {
     @PutMapping("{salesId}/order/{orderId}/cancel")
     public String orderCancel(
             @PathVariable("salesId") Long salesId,
-            @PathVariable("orderId") Long orderId){
+            @PathVariable("orderId") Long orderId) {
         String username = SecurityUtils.getCurrentUsername();
         orderService.orderCancel(salesId, orderId, username);
         return "주문이 취소되었습니다.";
@@ -67,7 +68,7 @@ public class OrderController {
     @DeleteMapping("{salesId}/order/{orderId}")
     public String orderDelete(
             @PathVariable("salesId") Long salesId,
-            @PathVariable("orderId") Long orderId){
+            @PathVariable("orderId") Long orderId) {
         String username = SecurityUtils.getCurrentUsername();
         orderService.orderDelete(salesId, orderId, username);
         return "주문이 삭제되었습니다.";
@@ -78,9 +79,9 @@ public class OrderController {
     public String changeStatus(
             @PathVariable("salesId") Long salesId,
             @PathVariable("orderId") Long orderId,
-            @RequestPart(name="status") String status){
+            @RequestPart(name = "status") UpdateOrderDto updateOrderDto) {
         String username = SecurityUtils.getCurrentUsername();
-        orderService.changeOrderStatus(salesId, orderId, username, status);
+        orderService.changeOrderStatus(salesId, orderId, username, updateOrderDto);
         return "주문 상태가 변경되었습니다.";
     }
 }
