@@ -36,7 +36,7 @@ public class Order extends BaseEntity {
     private User user;
 
     // 판매글 id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sales_id")
     private Sales sales;
 
@@ -55,6 +55,11 @@ public class Order extends BaseEntity {
     // orderedProduct 매핑
     @OneToMany(mappedBy = "order")
     private List<OrderedProduct> orderedProducts = new ArrayList<>();
+
+    // 배송방법 매핑
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery;
 
     public String updateStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;

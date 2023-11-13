@@ -67,6 +67,10 @@ public class Sales extends BaseEntity {
     @OneToMany(mappedBy = "sales")
     private List<Product> products = new ArrayList<>();
 
+    // 배송방법
+    @OneToMany(mappedBy = "sales")
+    private List<Delivery> deliveries = new ArrayList<>();
+
     // 주문 매핑
     @OneToMany(mappedBy = "sales")
     private List<Order> orders = new ArrayList<>();

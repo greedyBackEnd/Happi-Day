@@ -20,6 +20,7 @@ public class ReadOneOrderDto {
     private OrderStatus orderStatus;
     private String address;
     private String orderAt;
+    private String delivery;
 
     public static ReadOneOrderDto fromEntity(Sales sales, Order order, User user){
         Map<String, Integer> productList = new HashMap<>();
@@ -36,6 +37,7 @@ public class ReadOneOrderDto {
                 .orderedProducts(productList)
                 .orderStatus(order.getOrderStatus())
                 .address(order.getAddress())
+                .delivery(order.getDelivery().getName())
                 .build();
     }
 }

@@ -39,7 +39,7 @@ public class OrderController {
             @PathVariable("salesId") Long salesId,
             @PathVariable("orderId") Long orderId){
         String username = SecurityUtils.getCurrentUsername();
-        ReadOneOrderDto responseDto = orderService.orderOneOrder(salesId, orderId, username);
+        ReadOneOrderDto responseDto = orderService.readOneOrder(salesId, orderId, username);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 

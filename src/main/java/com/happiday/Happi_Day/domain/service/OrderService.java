@@ -31,6 +31,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final OrderedProductRepository orderedProductRepository;
+    private final DeliveryRepository deliveryRepository;
 
     // 주문하기
     @Transactional
@@ -39,6 +40,8 @@ public class OrderService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
+        Delivery delivery = deliveryRepository.findByName(orderRequest.getDelivery().toString())
+                .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
 
         Order newOrder = Order.builder()
                 .user(user)
@@ -47,10 +50,11 @@ public class OrderService {
                 .orderedAt(LocalDateTime.now())
                 .address(orderRequest.getAddress())
                 .orderedProducts(new ArrayList<>())
+                .delivery(delivery)
                 .build();
         orderRepository.save(newOrder);
 
-        int price = 0;
+        int price = delivery.getPrice();
         for (String productName : orderRequest.getProducts().keySet()) {
             Product product = productRepository.findByNameAndSales(productName, sales)
                     .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -68,7 +72,7 @@ public class OrderService {
     }
 
     // 주문 단일 상세 조회
-    public ReadOneOrderDto orderOneOrder(Long salesId, Long orderId, String username) {
+    public ReadOneOrderDto readOneOrder(Long salesId, Long orderId, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
