@@ -13,16 +13,16 @@ public class CombinedSubscriptionsDto {
     private List<ArtistListResponseDto> subscribedArtists;
     private List<TeamListResponseDto> subscribedTeams;
     private List<ArtistListResponseDto> unsubscribedArtists;
-    private List<TeamListResponseDto> unsubscribedTeas;
+    private List<TeamListResponseDto> unsubscribedTeams;
 
     public CombinedSubscriptionsDto(
             List<ArtistListResponseDto> subscribedArtists,
             List<TeamListResponseDto> subscribedTeams,
             List<ArtistListResponseDto> unsubscribedArtists,
-            List<TeamListResponseDto> unsubscribedTeas) {
+            List<TeamListResponseDto> unsubscribedTeams) {
         this.subscribedArtists = subscribedArtists;
         this.subscribedTeams = subscribedTeams;
         this.unsubscribedArtists = unsubscribedArtists;
-        this.unsubscribedTeas = unsubscribedTeas;
+        this.unsubscribedTeams = unsubscribedTeams;
     }
 }
