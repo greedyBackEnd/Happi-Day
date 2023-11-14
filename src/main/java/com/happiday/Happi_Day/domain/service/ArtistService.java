@@ -6,10 +6,12 @@ import com.happiday.Happi_Day.domain.entity.artist.dto.ArtistRegisterDto;
 import com.happiday.Happi_Day.domain.entity.artist.dto.ArtistDetailResponseDto;
 import com.happiday.Happi_Day.domain.entity.artist.dto.ArtistUpdateDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
+import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamListResponseDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.SalesListResponseDto;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.ArtistRepository;
+import com.happiday.Happi_Day.domain.repository.TeamRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 public class ArtistService {
 
     private final ArtistRepository artistRepository;
+    private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final FileUtils fileUtils;
 
@@ -42,6 +45,15 @@ public class ArtistService {
         if (imageFile != null && !imageFile.isEmpty()) {
             String saveFileUrl = fileUtils.uploadFile(imageFile);
             artistEntity.setProfileUrl(saveFileUrl);
+        }
+
+        // 팀과의 연관 관계 처리
+        if (requestDto.getTeamIds() != null && !requestDto.getTeamIds().isEmpty()) {
+            List<Team> teams = teamRepository.findAllById(requestDto.getTeamIds());
+
+            artistEntity.setTeams(teams); // 아티스트와 팀 연결
+            artistEntity = artistRepository.save(artistEntity);
+            return ArtistDetailResponseDto.of(artistEntity, false, teamsToDto(artistEntity.getTeams()));
         }
 
         artistEntity = artistRepository.save(artistEntity);
@@ -74,8 +86,20 @@ public class ArtistService {
         }
 
         artist.update(requestDto.toEntity());
-        artistRepository.save(artist);
 
+        // 팀과의 연관 관계 처리
+        if (requestDto.getTeamIds() != null) {
+            List<Team> teams = teamRepository.findAllById(requestDto.getTeamIds());
+            artist.setTeams(teams);
+
+            List<TeamListResponseDto> teamDtos = artist.getTeams().stream()
+                    .map(TeamListResponseDto::of)
+                    .collect(Collectors.toList());
+            artistRepository.save(artist);
+            return ArtistDetailResponseDto.of(artist, false, teamDtos);
+        }
+
+        artistRepository.save(artist);
         return ArtistDetailResponseDto.of(artist, false);
     }
 
@@ -164,5 +188,12 @@ public class ArtistService {
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
         user.getSubscribedArtists().remove(artist);
         userRepository.save(user);
+    }
+
+    // 팀을 DTO로 변환하는 유틸리티 메서드
+    private List<TeamListResponseDto> teamsToDto(List<Team> teams) {
+        return teams.stream()
+                .map(TeamListResponseDto::of)
+                .collect(Collectors.toList());
     }
 }
