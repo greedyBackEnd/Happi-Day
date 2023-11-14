@@ -1,20 +1,30 @@
 package com.happiday.Happi_Day.domain.controller;
 
+import com.happiday.Happi_Day.domain.entity.article.dto.ReadListArticleDto;
+import com.happiday.Happi_Day.domain.entity.article.dto.ReadListCommentDto;
+import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
+import com.happiday.Happi_Day.domain.entity.event.dto.comment.EventCommentListResponseDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserResponseDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserUpdateDto;
+import com.happiday.Happi_Day.domain.service.MyPageService;
 import com.happiday.Happi_Day.domain.service.UserService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/user")
 public class UserController {
 
     private final UserService userService;
+    private final MyPageService myPageService;
 
     @GetMapping("/info")
     public ResponseEntity<UserResponseDto> getUser() {
@@ -36,6 +46,54 @@ public class UserController {
         userService.deleteUser(username);
         return new ResponseEntity<>("회원탈퇴되었습니다.", HttpStatus.OK);
 
+    }
+
+    @GetMapping("/articles")
+    public ResponseEntity<Page<ReadListArticleDto>> getMyArticles(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readMyArticles(username, pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/articles/comments")
+    public ResponseEntity<Page<ReadListCommentDto>> getMyArticleComments(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readMyArticleComments(username, pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/articles/like")
+    public ResponseEntity<Page<ReadListArticleDto>> getLikeArticles(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readLikeArticles(username, pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/articles/scrap")
+    public ResponseEntity<Page<ReadListArticleDto>> getScrapArticles(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readScrapArticles(username, pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/events")
+    public ResponseEntity<Page<EventListResponseDto>> getMyEvents(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readMyEvents(username, pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/events/comments")
+    public ResponseEntity<Page<EventCommentListResponseDto>> getMyEventComments(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readMyEventComments(username, pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/events/like")
+    public ResponseEntity<Page<EventListResponseDto>> getLikeEvents(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readLikeEvents(username, pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/events/join")
+    public ResponseEntity<Page<EventListResponseDto>> getJoinEvents(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readJoinEvents(username, pageable), HttpStatus.OK);
     }
 
 }
