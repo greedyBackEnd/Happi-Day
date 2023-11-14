@@ -13,14 +13,14 @@ public class ReadListCommentDto {
     private Long id;
     private String content;
     private LocalDateTime createdAt;
-    private Article article;
+    private Long articleId;
 
     public static ReadListCommentDto fromEntity(ArticleComment comment) {
         return ReadListCommentDto.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
-                .article(comment.getArticle())
+                .articleId(comment.getArticle().getId())
                 .build();
     }
 }

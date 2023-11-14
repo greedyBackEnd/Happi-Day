@@ -14,14 +14,14 @@ public class EventCommentListResponseDto {
     private Long id;
     private String content;
     private LocalDateTime createdAt;
-    private Event event;
+    private Long eventId;
 
     public static EventCommentListResponseDto fromEntity(EventComment comment) {
         return EventCommentListResponseDto.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
-                .event(comment.getEvent())
+                .eventId(comment.getEvent().getId())
                 .build();
     }
 }
