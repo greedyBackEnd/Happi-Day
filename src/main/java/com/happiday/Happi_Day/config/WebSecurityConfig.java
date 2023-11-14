@@ -47,8 +47,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(authHttp -> authHttp
                         .requestMatchers(
                                 HttpMethod.POST,
-                                "/api/v1/teams/**",
-                                "/api/v1/artists/**"
+                                "/api/v1/teams",
+                                "/api/v1/artists"
                         ).hasRole("ADMIN")
                         .requestMatchers(
                                 HttpMethod.PUT,
