@@ -4,6 +4,8 @@ import com.happiday.Happi_Day.domain.entity.article.dto.ReadListArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadListCommentDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.comment.EventCommentListResponseDto;
+import com.happiday.Happi_Day.domain.entity.product.dto.ReadListOrderDto;
+import com.happiday.Happi_Day.domain.entity.product.dto.ReadListSalesDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserResponseDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserUpdateDto;
 import com.happiday.Happi_Day.domain.service.MyPageService;
@@ -94,6 +96,18 @@ public class UserController {
     public ResponseEntity<Page<EventListResponseDto>> getJoinEvents(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         String username = SecurityUtils.getCurrentUsername();
         return new ResponseEntity<>(myPageService.readJoinEvents(username, pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/sales")
+    public ResponseEntity<Page<ReadListSalesDto>> getMySales(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readMySales(username, pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/orders")
+    public ResponseEntity<Page<ReadListOrderDto>> getMyOrders(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readMyOrders(username, pageable), HttpStatus.OK);
     }
 
 }

@@ -8,6 +8,9 @@ import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.event.EventComment;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.comment.EventCommentListResponseDto;
+import com.happiday.Happi_Day.domain.entity.product.Order;
+import com.happiday.Happi_Day.domain.entity.product.Sales;
+import com.happiday.Happi_Day.domain.entity.product.dto.*;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
@@ -27,6 +30,8 @@ public class MyPageService {
     private final ArticleCommentRepository articleCommentRepository;
     private final EventRepository eventRepository;
     private final EventCommentRepository eventCommentRepository;
+    private final SalesRepository salesRepository;
+    private final OrderRepository orderRepository;
     private final UserRepository userRepository;
 
     public Page<ReadListArticleDto> readMyArticles(String username, Pageable pageable) {
@@ -83,5 +88,19 @@ public class MyPageService {
         Page<Event> events = eventRepository.findAllByJoinListContains(user, pageable);
 
         return events.map(EventListResponseDto::fromEntity);
+    }
+
+    public Page<ReadListSalesDto> readMySales(String username, Pageable pageable) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Page<Sales> sales = salesRepository.findAllByUsers(user, pageable);
+
+        return sales.map(ReadListSalesDto::fromEntity);
+    }
+
+    public Page<ReadListOrderDto> readMyOrders(String username, Pageable pageable) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Page<Order> orders = orderRepository.findAllByUser(user, pageable);
+
+        return orders.map(ReadListOrderDto::fromEntity);
     }
 }
