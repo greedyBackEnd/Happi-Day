@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,7 @@ public class TeamService {
         }
 
         teamEntity = teamRepository.save(teamEntity);
-        return TeamDetailResponseDto.of(teamEntity, false);
+        return TeamDetailResponseDto.of(teamEntity, false, new ArrayList<>());
     }
 
     // 팀 정보 수정

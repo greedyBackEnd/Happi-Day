@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,7 +58,7 @@ public class ArtistService {
         }
 
         artistEntity = artistRepository.save(artistEntity);
-        return ArtistDetailResponseDto.of(artistEntity, false);
+        return ArtistDetailResponseDto.of(artistEntity, false, new ArrayList<>());
     }
 
     // 아티스트 정보 수정
@@ -100,7 +101,7 @@ public class ArtistService {
         }
 
         artistRepository.save(artist);
-        return ArtistDetailResponseDto.of(artist, false);
+        return ArtistDetailResponseDto.of(artist, false, new ArrayList<>());
     }
 
     // 아티스트 삭제
