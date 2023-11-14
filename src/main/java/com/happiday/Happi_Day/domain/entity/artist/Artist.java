@@ -11,6 +11,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder(toBuilder = true)
+@SQLDelete(sql = "UPDATE artist SET deleted_at = now() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 public class Artist extends BaseEntity {
 
     @Id
@@ -28,15 +32,9 @@ public class Artist extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ArtistType type = ArtistType.SOLO;
-
     private String description;
 
     private String profileUrl;
-
-    private String nationality;
 
     // 팀-아티스트
     @ManyToMany
@@ -70,12 +68,20 @@ public class Artist extends BaseEntity {
 
     public void update(Artist artistUpdate) {
         this.name = artistUpdate.getName();
-        this.type = artistUpdate.getType();
         this.description = artistUpdate.getDescription();
-        this.nationality = artistUpdate.getNationality();
     }
 
     public void setProfileUrl(String profileUrl) {
         this.profileUrl = profileUrl;
+    }
+
+    public void setTeams(List<Team> teams) {
+        if (this.teams == null) {
+            this.teams = new ArrayList<>();
+        }
+        this.teams.clear();
+        if (teams != null) {
+            this.teams.addAll(teams);
+        }
     }
 }

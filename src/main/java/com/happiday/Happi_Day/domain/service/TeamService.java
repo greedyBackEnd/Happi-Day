@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,12 +46,14 @@ public class TeamService {
         }
 
         teamEntity = teamRepository.save(teamEntity);
-        return TeamDetailResponseDto.of(teamEntity, false);
+        return TeamDetailResponseDto.of(teamEntity, false, new ArrayList<>());
     }
 
     // 팀 정보 수정
     @Transactional
-    public TeamDetailResponseDto updateTeam(Long teamId, TeamUpdateDto requestDto, MultipartFile imageFile) {
+    public TeamDetailResponseDto updateTeam(Long teamId, TeamUpdateDto requestDto, MultipartFile imageFile, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
@@ -76,7 +79,12 @@ public class TeamService {
         team.update(requestDto.toEntity());
         teamRepository.save(team);
 
-        return TeamDetailResponseDto.of(team, false);
+        boolean isSubscribed = user.getSubscribedTeams().contains(team);
+        // 팀에 소속된 아티스트 정보 가져오기
+        List<ArtistListResponseDto> artists = team.getArtists().stream()
+                .map(ArtistListResponseDto::of)
+                .collect(Collectors.toList());
+        return TeamDetailResponseDto.of(team, isSubscribed, artists);
     }
 
     // 팀 삭제
