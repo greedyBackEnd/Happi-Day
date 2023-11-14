@@ -78,4 +78,14 @@ public class Artist extends BaseEntity {
     public void setProfileUrl(String profileUrl) {
         this.profileUrl = profileUrl;
     }
+
+    public void setTeams(List<Team> teams) {
+        if (this.teams == null) {
+            this.teams = new ArrayList<>();
+        }
+        this.teams.clear();
+        if (teams != null) {
+            this.teams.addAll(teams);
+        }
+    }
 }
