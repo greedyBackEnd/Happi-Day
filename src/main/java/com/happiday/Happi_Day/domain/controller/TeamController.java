@@ -37,7 +37,8 @@ public class TeamController {
     public ResponseEntity<TeamDetailResponseDto> updateTeam(@PathVariable Long teamId,
                                                             @RequestPart(name = "team") TeamUpdateDto requestDto,
                                                             @RequestPart(value = "file", required = false) MultipartFile imageFile) {
-        TeamDetailResponseDto responseDto = teamService.updateTeam(teamId, requestDto, imageFile);
+        String username = SecurityUtils.getCurrentUsername();
+        TeamDetailResponseDto responseDto = teamService.updateTeam(teamId, requestDto, imageFile, username);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
