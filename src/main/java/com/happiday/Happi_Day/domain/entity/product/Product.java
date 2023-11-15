@@ -62,8 +62,12 @@ public class Product extends BaseEntity {
     public void update(Product product) {
         if (product.getName() != null) this.name = product.getName();
         if (product.getPrice() != null) this.price = product.getPrice();
-        if (product.getProductStatus() != null) this.productStatus = product.getProductStatus();
+//        if (product.getProductStatus() != null) this.productStatus = product.getProductStatus();
         if (product.getStock() != null) this.stock = product.getStock();
+    }
+
+    public void updateStatus(ProductStatus productStatus){
+        this.productStatus = productStatus;
     }
 
     public void updateStock(Integer stock) {

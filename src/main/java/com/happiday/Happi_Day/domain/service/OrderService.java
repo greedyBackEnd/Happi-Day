@@ -59,6 +59,7 @@ public class OrderService {
         for (String productName : orderRequest.getProducts().keySet()) {
             Product product = productRepository.findByNameAndSales(productName, sales)
                     .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+            if(product.getProductStatus().getValue().equals("품절")) throw new CustomException(ErrorCode.OUT_OF_STOCK);
             OrderedProduct orderedProduct = OrderedProduct.builder()
                     .order(newOrder)
                     .product(product)

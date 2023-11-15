@@ -17,7 +17,6 @@ public class UpdateProductDto {
         return Product.builder()
                 .name(name)
                 .price(price)
-                .productStatus(ProductStatus.valueOf(status))
                 .stock(stock)
                 .build();
     }
