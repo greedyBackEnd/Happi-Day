@@ -8,7 +8,9 @@ import com.happiday.Happi_Day.domain.entity.team.dto.TeamListResponseDto;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamRegisterDto;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamDetailResponseDto;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamUpdateDto;
+import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.TeamRepository;
+import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.utils.FileUtils;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +32,9 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final FileUtils fileUtils;
+    private final UserRepository userRepository;
 
+    // 팀 등록
     @Transactional
     public TeamDetailResponseDto registerTeam(TeamRegisterDto requestDto, MultipartFile imageFile) {
         Team teamEntity = requestDto.toEntity();
@@ -41,11 +46,14 @@ public class TeamService {
         }
 
         teamEntity = teamRepository.save(teamEntity);
-        return TeamDetailResponseDto.of(teamEntity);
+        return TeamDetailResponseDto.of(teamEntity, false, new ArrayList<>());
     }
 
+    // 팀 정보 수정
     @Transactional
-    public TeamDetailResponseDto updateTeam(Long teamId, TeamUpdateDto requestDto, MultipartFile imageFile) {
+    public TeamDetailResponseDto updateTeam(Long teamId, TeamUpdateDto requestDto, MultipartFile imageFile, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
@@ -71,9 +79,15 @@ public class TeamService {
         team.update(requestDto.toEntity());
         teamRepository.save(team);
 
-        return TeamDetailResponseDto.of(team);
+        boolean isSubscribed = user.getSubscribedTeams().contains(team);
+        // 팀에 소속된 아티스트 정보 가져오기
+        List<ArtistListResponseDto> artists = team.getArtists().stream()
+                .map(ArtistListResponseDto::of)
+                .collect(Collectors.toList());
+        return TeamDetailResponseDto.of(team, isSubscribed, artists);
     }
 
+    // 팀 삭제
     @Transactional
     public void deleteTeam(Long teamId) {
         Team team = teamRepository.findById(teamId)
@@ -81,18 +95,28 @@ public class TeamService {
         teamRepository.delete(team);
     }
 
-    public TeamDetailResponseDto getTeam(Long teamId) {
+    // 팀 상세 조회
+    public TeamDetailResponseDto getTeam(Long teamId, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
-        return TeamDetailResponseDto.of(team);
+        boolean isSubscribed = user.getSubscribedTeams().contains(team);
+        // 팀에 소속된 아티스트 정보 가져오기
+        List<ArtistListResponseDto> artists = team.getArtists().stream()
+                .map(ArtistListResponseDto::of)
+                .collect(Collectors.toList());
+        return TeamDetailResponseDto.of(team, isSubscribed, artists);
     }
 
+    // 팀 목록 조회
     public List<TeamListResponseDto> getTeams() {
         return teamRepository.findAll().stream()
                 .map(TeamListResponseDto::of)
                 .collect(Collectors.toList());
     }
 
+    // 팀 소속 아티스트 목록 조회
     public List<ArtistListResponseDto> getTeamArtists(Long teamId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
@@ -102,6 +126,7 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
+    // 팀 관련 상품 목록 조회
     public List<SalesListResponseDto> getSalesList(Long teamId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
@@ -111,6 +136,7 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
+    // 팀의 이벤트 목록 조회
     public List<EventListResponseDto> getEvents(Long teamId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
@@ -118,5 +144,29 @@ public class TeamService {
         return team.getEvents().stream()
                 .map(EventListResponseDto::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    // 팀 구독
+    @Transactional
+    public void subscribeToTeam(String username, Long teamId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
+        if (!user.getSubscribedTeams().contains(team)) {
+            user.getSubscribedTeams().add(team);
+            userRepository.save(user);
+        }
+    }
+
+    // 팀 구독 취소
+    @Transactional
+    public void unsubscribeFromTeam(String username, Long teamId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
+        user.getSubscribedTeams().remove(team);
+        userRepository.save(user);
     }
 }

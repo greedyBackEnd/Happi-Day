@@ -1,5 +1,6 @@
 package com.happiday.Happi_Day.domain.entity.team;
 
+import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.article.Article;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.event.Event;
@@ -10,6 +11,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +21,9 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder(toBuilder = true)
-public class Team {
+@SQLDelete(sql="UPDATE team SET deleted_at = now() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
+public class Team extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
