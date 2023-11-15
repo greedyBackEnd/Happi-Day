@@ -146,6 +146,13 @@ public class ArticleService {
         return articles.map(ReadListArticleDto::fromEntity);
     }
 
+    // 글 전체글 조회
+    public Page<ReadListArticleDto> readList(Pageable pageable){
+        Page<Article> articles = articleRepository.findAll(pageable);
+        return articles.map(ReadListArticleDto::fromEntity);
+
+    }
+
     // 글 수정
     @Transactional
     public ReadOneArticleDto updateArticle(Long articleId, WriteArticleDto dto, String username, MultipartFile thumbnailImage, List<MultipartFile> imageFileList) {
