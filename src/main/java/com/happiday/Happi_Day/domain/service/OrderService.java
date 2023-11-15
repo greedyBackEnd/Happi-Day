@@ -36,7 +36,7 @@ public class OrderService {
 
     // 주문하기
     @Transactional
-    public void order(Long salesId, String username, OrderRequestDto orderRequest) {
+    public String order(Long salesId, String username, OrderRequestDto orderRequest) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
@@ -70,6 +70,8 @@ public class OrderService {
             price += product.getPrice() * orderRequest.getProducts().get(productName);
         }
         newOrder.updateTotalPrice(price);
+
+        return "주문이 완료되었습니다.\n"+"입금 계좌 : "+sales.getAccount()+"\n예금주 : "+sales.getUsers().getRealname();
     }
 
     // 주문 단일 상세 조회

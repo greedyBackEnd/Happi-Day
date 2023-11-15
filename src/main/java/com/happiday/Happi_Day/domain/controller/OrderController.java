@@ -30,8 +30,7 @@ public class OrderController {
             @PathVariable("salesId") Long salesId,
             @RequestPart(name = "order") OrderRequestDto orderRequest) {
         String username = SecurityUtils.getCurrentUsername();
-        orderService.order(salesId, username, orderRequest);
-        return "주문이 완료되었습니다.";
+        return orderService.order(salesId, username, orderRequest);
     }
 
     // 주문 상세 조회
