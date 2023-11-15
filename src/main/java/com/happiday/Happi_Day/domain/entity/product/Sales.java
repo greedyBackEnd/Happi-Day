@@ -96,8 +96,8 @@ public class Sales extends BaseEntity {
     )
     private List<Hashtag> hashtags = new ArrayList<>();
 
-    public void updateProduct(List<Product> products) {
-        this.products = products;
+    public void updateStatus(SalesStatus status) {
+        this.salesStatus = status;
     }
 
     public void updateSales(Sales sales) {

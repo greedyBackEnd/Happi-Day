@@ -1,7 +1,6 @@
 package com.happiday.Happi_Day.domain.entity.product.dto;
 
 import com.happiday.Happi_Day.domain.entity.product.Sales;
-import com.happiday.Happi_Day.domain.entity.product.SalesStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -22,7 +21,6 @@ public class UpdateSalesDto {
         return Sales.builder()
                 .name(name)
                 .description(description)
-                .salesStatus(SalesStatus.valueOf(status))
                 .account(account)
                 .build();
     }

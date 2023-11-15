@@ -234,7 +234,7 @@ public class SalesService {
                 .users(user)
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .salesStatus(dto.getStatus() != null ? SalesStatus.valueOf(dto.getStatus()) : sales.getSalesStatus())
+//                .salesStatus(dto.getStatus() != null ? SalesStatus.valueOf(dto.getStatus()) : sales.getSalesStatus())
                 .artists(artists)
                 .teams(teams)
                 .hashtags(hashtagList)
@@ -244,6 +244,22 @@ public class SalesService {
                 .build()
         );
 
+        if(dto.getStatus() != null){
+            switch (dto.getStatus()){
+                case "판매중":
+                    sales.updateStatus(SalesStatus.ON_SALE);
+                    break;
+                case "판매중지":
+                    sales.updateStatus(SalesStatus.STOP_SALE);
+                    break;
+                case "품절":
+                    sales.updateStatus(SalesStatus.OUT_OF_STOCK);
+                    break;
+                default:
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+        }
+
         salesRepository.save(sales);
 
         List<ReadProductDto> dtoList = new ArrayList<>();
@@ -251,6 +267,21 @@ public class SalesService {
             dtoList.add(ReadProductDto.fromEntity(product));
         }
         return ReadOneSalesDto.fromEntity(sales, dtoList);
+    }
+
+    // 판매글 상태변경
+    @Transactional
+    public void updateStatus(Long salesId,String username, String status){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Sales sales = salesRepository.findById(salesId)
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
+
+        if (!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
+
+//        sales.updateStatus(status);
+
     }
 
     @Transactional
