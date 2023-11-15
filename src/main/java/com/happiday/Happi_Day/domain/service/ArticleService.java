@@ -1,6 +1,7 @@
 package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.article.Article;
+import com.happiday.Happi_Day.domain.entity.article.ArticleComment;
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadListArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadOneArticleDto;
@@ -33,6 +34,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ArticleService {
     private final ArticleRepository articleRepository;
+    private final ArticleCommentRepository articleCommentRepository;
     private final BoardCategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final ArtistRepository artistRepository;
@@ -264,6 +266,11 @@ public class ArticleService {
         }
         if(article.getThumbnailUrl() != null){
             fileUtils.deleteFile(article.getThumbnailUrl());
+        }
+
+        List<ArticleComment> articleComments = articleCommentRepository.findAllByArticle(article);
+        for (ArticleComment comment: articleComments) {
+            articleCommentRepository.delete(comment);
         }
 
         articleRepository.deleteById(articleId);
