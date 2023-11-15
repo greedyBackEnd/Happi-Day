@@ -16,12 +16,14 @@ public class UpdateSalesDto {
     private List<String> teams;
     private List<String> hashtag;
     private String status;
+    private String account;
 
     public Sales toEntity(){
         return Sales.builder()
                 .name(name)
                 .description(description)
                 .salesStatus(SalesStatus.valueOf(status))
+                .account(account)
                 .build();
     }
 }

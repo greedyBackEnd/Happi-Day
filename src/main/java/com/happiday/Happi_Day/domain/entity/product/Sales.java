@@ -103,13 +103,12 @@ public class Sales extends BaseEntity {
     public void updateSales(Sales sales) {
         if (sales.getName() != null) this.name = sales.getName();
         if (sales.getDescription() != null) this.description = sales.getDescription();
-//        if (sales.getProducts() != null) this.products = sales.getProducts();
         if (sales.getSalesStatus() != null) this.salesStatus = sales.getSalesStatus();
         if (sales.getArtists() != null) this.artists = sales.getArtists();
         if (sales.getTeams() != null) this.teams = sales.getTeams();
         if (sales.getHashtags() != null) this.hashtags = sales.getHashtags();
         if (sales.getEctArtists() != null) this.ectArtists = sales.getEctArtists();
         if (sales.getEctTeams() != null) this.ectTeams = sales.getEctTeams();
-
+        if (sales.getAccount() != null) this.account = sales.getAccount();
     }
 }
