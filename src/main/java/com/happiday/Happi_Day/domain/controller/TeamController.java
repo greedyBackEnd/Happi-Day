@@ -28,6 +28,7 @@ public class TeamController {
     @PostMapping
     public ResponseEntity<TeamDetailResponseDto> registerTeam(@RequestPart(name = "team") TeamRegisterDto requestDto,
                                                               @RequestPart(value = "file", required = false) MultipartFile imageFile) {
+        String username = SecurityUtils.getCurrentUsername();
         TeamDetailResponseDto responseDto = teamService.registerTeam(requestDto, imageFile);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
@@ -45,6 +46,7 @@ public class TeamController {
     // 팀 삭제
     @DeleteMapping("/{teamId}")
     public ResponseEntity<Void> deleteTeam(@PathVariable Long teamId) {
+        String username = SecurityUtils.getCurrentUsername();
         teamService.deleteTeam(teamId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

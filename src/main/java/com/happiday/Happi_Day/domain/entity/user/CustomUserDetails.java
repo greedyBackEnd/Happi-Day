@@ -82,7 +82,7 @@ public class CustomUserDetails implements UserDetails {
                 .nickname(nickname)
                 .realname(realname)
                 .phone(phone)
-                .role(RoleType.USER)
+                .role(role)
                 .build();
 
     }

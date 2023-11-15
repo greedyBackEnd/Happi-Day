@@ -1,5 +1,6 @@
 package com.happiday.Happi_Day.config;
 
+import com.happiday.Happi_Day.domain.entity.user.RoleType;
 import com.happiday.Happi_Day.jwt.JwtTokenFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,6 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -41,10 +46,26 @@ public class WebSecurityConfig {
                 )
                 .authorizeHttpRequests(authHttp -> authHttp
                         .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/teams",
+                                "/api/v1/artists"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/v1/teams/**",
+                                "/api/v1/artists/**"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/v1/teams/**",
+                                "/api/v1/artists/**"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
                                 HttpMethod.GET,
                                 "/",
-                                "/api/v1/chat",
-                                "/api/v1/events/**"
+                                "/api/v1/events/**",
+                                "/api/v1/teams/**",
+                                "/api/v1/artists/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/**",
@@ -53,12 +74,13 @@ public class WebSecurityConfig {
                                 "/static/**",
                                 "/ws",
                                 "/api/v1/auth/signup",
+                                "/api/v1/auth/admin",
                                 "/api/v1/auth/login"
                         )
                         .permitAll()
                         .anyRequest().authenticated()
                 )
-        ;
+                .addFilterBefore(jwtTokenFilter, AuthorizationFilter.class);
         return http.build();
     }
 

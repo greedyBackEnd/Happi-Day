@@ -68,4 +68,18 @@ public class UserAuthController {
         new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
         return new ResponseEntity<>("로그아웃되었습니다.", HttpStatus.OK);
     }
+
+    @PostMapping("/admin")
+    public ResponseEntity<?> registerAdmin(@Validated @RequestBody UserRegisterDto dto) {
+        CustomUserDetails userDetails = CustomUserDetails.builder()
+                .username(dto.getUsername())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .nickname(dto.getNickname())
+                .realname(dto.getRealname())
+                .phone(dto.getPhone())
+                .role(RoleType.ADMIN)
+                .build();
+        manager.createUser(userDetails);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 }
