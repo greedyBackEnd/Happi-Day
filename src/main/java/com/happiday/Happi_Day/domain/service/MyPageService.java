@@ -55,13 +55,6 @@ public class MyPageService {
         return articles.map(ReadListArticleDto::fromEntity);
     }
 
-    public Page<ReadListArticleDto> readScrapArticles(String username, Pageable pageable) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        Page<Article> articles = articleRepository.findAllByScrapUsersContains(user, pageable);
-
-        return articles.map(ReadListArticleDto::fromEntity);
-    }
-
     public Page<EventListResponseDto> readMyEvents(String username, Pageable pageable) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Page<Event> events = eventRepository.findAllByUser(user, pageable);
