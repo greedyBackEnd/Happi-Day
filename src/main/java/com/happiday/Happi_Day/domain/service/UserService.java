@@ -34,13 +34,6 @@ public class UserService{
         return UserResponseDto.fromEntity(user);
     }
 
-    public UserResponseDto myInfo() {
-        String username = SecurityUtils.getCurrentUsername();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        return UserResponseDto.fromEntity(user);
-    }
-
     public void deleteUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
