@@ -25,7 +25,7 @@ public class ReadOneArticleDto {
     private List<String> artists;
     private List<String> hashtags;
     private String user;
-    private String createdAt;
+    private String updatedAt;
     private List<ReadCommentDto> comments;
     private int likeUsersNum;
     private List<String> imageUrl;
@@ -57,7 +57,7 @@ public class ReadOneArticleDto {
                 .hashtags(hashtagList)
                 .likeUsersNum(article.getLikeUsers().size())
                 .imageUrl(article.getImageUrl())
-                .createdAt(article.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .updatedAt(article.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .build();
     }
 

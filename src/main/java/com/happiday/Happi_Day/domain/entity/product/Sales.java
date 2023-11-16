@@ -67,6 +67,10 @@ public class Sales extends BaseEntity {
     @OneToMany(mappedBy = "sales")
     private List<Product> products = new ArrayList<>();
 
+    // 배송방법
+    @OneToMany(mappedBy = "sales")
+    private List<Delivery> deliveries = new ArrayList<>();
+
     // 주문 매핑
     @OneToMany(mappedBy = "sales")
     private List<Order> orders = new ArrayList<>();
@@ -92,20 +96,19 @@ public class Sales extends BaseEntity {
     )
     private List<Hashtag> hashtags = new ArrayList<>();
 
-    public void updateProduct(List<Product> products) {
-        this.products = products;
+    public void updateStatus(SalesStatus status) {
+        this.salesStatus = status;
     }
 
     public void updateSales(Sales sales) {
         if (sales.getName() != null) this.name = sales.getName();
         if (sales.getDescription() != null) this.description = sales.getDescription();
-//        if (sales.getProducts() != null) this.products = sales.getProducts();
         if (sales.getSalesStatus() != null) this.salesStatus = sales.getSalesStatus();
         if (sales.getArtists() != null) this.artists = sales.getArtists();
         if (sales.getTeams() != null) this.teams = sales.getTeams();
         if (sales.getHashtags() != null) this.hashtags = sales.getHashtags();
         if (sales.getEctArtists() != null) this.ectArtists = sales.getEctArtists();
         if (sales.getEctTeams() != null) this.ectTeams = sales.getEctTeams();
-
+        if (sales.getAccount() != null) this.account = sales.getAccount();
     }
 }

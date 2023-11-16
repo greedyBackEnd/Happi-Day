@@ -28,6 +28,7 @@ public class ReadOneSalesDto {
     private List<String> hashtag;
     private int likeNum;
     private List<String> imageList;
+    private List<ReadDeliveryDto> deliveries;
 
     public static ReadOneSalesDto fromEntity(Sales sales, List<ReadProductDto> productList){
         List<String> artists = sales.getArtists().stream().map(Artist::getName).collect(Collectors.toList());
@@ -39,6 +40,8 @@ public class ReadOneSalesDto {
         List<String> additionalTeams = sales.getTeams() != null ? Arrays.asList(sales.getEctTeams().split(", ")) : Collections.emptyList();
         List<String> allTeams = new ArrayList<>(teams);
         allTeams.addAll(additionalTeams);
+
+        List<ReadDeliveryDto> deliveries = sales.getDeliveries() != null ? sales.getDeliveries().stream().map(ReadDeliveryDto::fromEntity).collect(Collectors.toList()) : Collections.emptyList();
 
         List<String> hashtagList = new ArrayList<>();
         for (Hashtag hashtag : sales.getHashtags()) {
@@ -58,6 +61,7 @@ public class ReadOneSalesDto {
                 .artists(allArtists)
                 .teams(allTeams)
                 .hashtag(hashtagList)
+                .deliveries(deliveries)
                 .build();
     }
 }

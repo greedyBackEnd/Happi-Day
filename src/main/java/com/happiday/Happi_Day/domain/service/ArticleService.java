@@ -1,6 +1,7 @@
 package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.article.Article;
+import com.happiday.Happi_Day.domain.entity.article.ArticleComment;
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadListArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadOneArticleDto;
@@ -33,6 +34,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ArticleService {
     private final ArticleRepository articleRepository;
+    private final ArticleCommentRepository articleCommentRepository;
     private final BoardCategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final ArtistRepository artistRepository;
@@ -146,6 +148,13 @@ public class ArticleService {
         return articles.map(ReadListArticleDto::fromEntity);
     }
 
+    // 글 전체글 조회
+    public Page<ReadListArticleDto> readList(Pageable pageable){
+        Page<Article> articles = articleRepository.findAll(pageable);
+        return articles.map(ReadListArticleDto::fromEntity);
+
+    }
+
     // 글 수정
     @Transactional
     public ReadOneArticleDto updateArticle(Long articleId, WriteArticleDto dto, String username, MultipartFile thumbnailImage, List<MultipartFile> imageFileList) {
@@ -257,6 +266,11 @@ public class ArticleService {
         }
         if(article.getThumbnailUrl() != null){
             fileUtils.deleteFile(article.getThumbnailUrl());
+        }
+
+        List<ArticleComment> articleComments = articleCommentRepository.findAllByArticle(article);
+        for (ArticleComment comment: articleComments) {
+            articleCommentRepository.delete(comment);
         }
 
         articleRepository.deleteById(articleId);

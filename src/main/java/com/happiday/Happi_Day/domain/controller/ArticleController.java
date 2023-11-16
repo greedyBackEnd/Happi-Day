@@ -54,6 +54,14 @@ public class ArticleController {
         return new ResponseEntity<>(responseArticles, HttpStatus.OK);
     }
 
+    // 글 전체글 조회
+    @GetMapping()
+    public ResponseEntity<Page<ReadListArticleDto>> readAllArticles(
+            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable){
+        Page<ReadListArticleDto> responseArticles = articleService.readList(pageable);
+        return new ResponseEntity<>(responseArticles, HttpStatus.OK);
+    }
+
     // 글 수정
     @PutMapping("/{articleId}")
     public ResponseEntity<ReadOneArticleDto> updateArticle(

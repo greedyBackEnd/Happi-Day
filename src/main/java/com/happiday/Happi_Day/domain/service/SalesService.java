@@ -38,7 +38,7 @@ public class SalesService {
     private final FileUtils fileUtils;
 
     @Transactional
-    public ReadOneSalesDto createSales(Long categoryId, WriteSalesDto dto, MultipartFile thumbnailImage,List<MultipartFile> imageFile, String username){
+    public ReadOneSalesDto createSales(Long categoryId, WriteSalesDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFile, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -50,21 +50,23 @@ public class SalesService {
 
         // 해시태그
         List<Hashtag> hashtagList = new ArrayList<>();
-        for (String hashtag: dto.getHashtag()) {
-            Hashtag newHashtag = Hashtag.builder()
-                    .tag(hashtag)
-                    .build();
-            hashtagList.add(newHashtag);
+        if (dto.getHashtag() != null) {
+            for (String hashtag : dto.getHashtag()) {
+                Hashtag newHashtag = Hashtag.builder()
+                        .tag(hashtag)
+                        .build();
+                hashtagList.add(newHashtag);
+            }
         }
 
         // 아티스트
         List<Artist> artists = new ArrayList<>();
         List<String> ectArtists = new ArrayList<>();
-        for (String artist: dto.getArtists()) {
+        for (String artist : dto.getArtists()) {
             Optional<Artist> existingArtist = artistRepository.findByName(artist);
-            if(existingArtist.isPresent()){
+            if (existingArtist.isPresent()) {
                 artists.add(existingArtist.get());
-            }else{
+            } else {
                 ectArtists.add(artist);
             }
         }
@@ -98,24 +100,25 @@ public class SalesService {
                 .account(dto.getAccount())
                 .build();
 
-        if(!ectArtists.isEmpty()){
+        if (!ectArtists.isEmpty()) {
             newSales = newSales.toBuilder()
                     .ectArtists(ectArtist)
                     .build();
         }
-        if(!ectTeams.isEmpty()){
+        if (!ectTeams.isEmpty()) {
             newSales = newSales.toBuilder()
                     .ectTeams(ectTeam)
                     .build();
         }
 
         // 이미지 저장
-        if(thumbnailImage != null && !thumbnailImage.isEmpty()){
+        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
             String saveThumbnailImage = fileUtils.uploadFile(thumbnailImage);
             newSales.setThumbnailImage(saveThumbnailImage);
-        }if(imageFile != null && !imageFile.isEmpty()){
+        }
+        if (imageFile != null && !imageFile.isEmpty()) {
             List<String> imageList = new ArrayList<>();
-            for(MultipartFile image: imageFile){
+            for (MultipartFile image : imageFile) {
                 String imageUrl = fileUtils.uploadFile(image);
                 imageList.add(imageUrl);
             }
@@ -123,11 +126,11 @@ public class SalesService {
         }
 
         salesRepository.save(newSales);
-        ReadOneSalesDto response = ReadOneSalesDto.fromEntity(newSales,new ArrayList<>());
+        ReadOneSalesDto response = ReadOneSalesDto.fromEntity(newSales, new ArrayList<>());
         return response;
     }
 
-    public Page<ReadListSalesDto> readSalesList(Long categoryId, Pageable pageable){
+    public Page<ReadListSalesDto> readSalesList(Long categoryId, Pageable pageable) {
         SalesCategory category = salesCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
@@ -135,7 +138,7 @@ public class SalesService {
         return salesList.map(ReadListSalesDto::fromEntity);
     }
 
-    public ReadOneSalesDto readSalesOne(Long categoryId, Long salesId){
+    public ReadOneSalesDto readSalesOne(Long categoryId, Long salesId) {
         SalesCategory category = salesCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
@@ -143,7 +146,7 @@ public class SalesService {
                 .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
         List<ReadProductDto> dtoList = new ArrayList<>();
-        for (Product product: sales.getProducts()) {
+        for (Product product : sales.getProducts()) {
             dtoList.add(ReadProductDto.fromEntity(product));
         }
 
@@ -151,7 +154,7 @@ public class SalesService {
     }
 
     @Transactional
-    public ReadOneSalesDto updateSales(Long salesId, UpdateSalesDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFile, String username){
+    public ReadOneSalesDto updateSales(Long salesId, UpdateSalesDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFile, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -159,7 +162,7 @@ public class SalesService {
                 .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
         // user 확인
-        if(!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
+        if (!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         List<Hashtag> hashtagList = new ArrayList<>();
         for (String hashtag : dto.getHashtag()) {
@@ -195,12 +198,12 @@ public class SalesService {
         }
         String ectTeam = String.join(", ", ectTeams);
 
-        if(thumbnailImage != null && !thumbnailImage.isEmpty()){
-            if(sales.getThumbnailImage() != null && !sales.getThumbnailImage().isEmpty()){
-                try{
+        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
+            if (sales.getThumbnailImage() != null && !sales.getThumbnailImage().isEmpty()) {
+                try {
                     fileUtils.deleteFile(sales.getThumbnailImage());
                     log.info("썸네일 이미지 삭제완료");
-                }catch(Exception e){
+                } catch (Exception e) {
                     log.error("썸네일 삭제 실패");
                 }
             }
@@ -208,19 +211,19 @@ public class SalesService {
             sales.setThumbnailImage(thumbnailImageUrl);
         }
 
-        if(imageFile != null && !imageFile.isEmpty()){
-            if(sales.getImageUrl() != null && !sales.getImageUrl().isEmpty()){
-                try{
-                    for(String url: sales.getImageUrl()){
+        if (imageFile != null && !imageFile.isEmpty()) {
+            if (sales.getImageUrl() != null && !sales.getImageUrl().isEmpty()) {
+                try {
+                    for (String url : sales.getImageUrl()) {
                         fileUtils.deleteFile(url);
                         log.info("판매글 이미지 삭제완료");
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     log.error("판매글 이미지 삭제 실패");
                 }
             }
             List<String> imageList = new ArrayList<>();
-            for(MultipartFile image: imageFile){
+            for (MultipartFile image : imageFile) {
                 String imageUrl = fileUtils.uploadFile(image);
                 imageList.add(imageUrl);
             }
@@ -231,26 +234,58 @@ public class SalesService {
                 .users(user)
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .salesStatus(SalesStatus.valueOf(dto.getStatus()))
+//                .salesStatus(dto.getStatus() != null ? SalesStatus.valueOf(dto.getStatus()) : sales.getSalesStatus())
                 .artists(artists)
                 .teams(teams)
                 .hashtags(hashtagList)
                 .ectArtists(ectArtist.isEmpty() ? sales.getEctArtists() : ectArtist)
                 .ectTeams(ectTeam.isEmpty() ? sales.getEctTeams() : ectTeam)
+                .account(dto.getAccount())
                 .build()
         );
+
+        if(dto.getStatus() != null){
+            switch (dto.getStatus()){
+                case "판매중":
+                    sales.updateStatus(SalesStatus.ON_SALE);
+                    break;
+                case "판매중지":
+                    sales.updateStatus(SalesStatus.STOP_SALE);
+                    break;
+                case "품절":
+                    sales.updateStatus(SalesStatus.OUT_OF_STOCK);
+                    break;
+                default:
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+        }
 
         salesRepository.save(sales);
 
         List<ReadProductDto> dtoList = new ArrayList<>();
-        for (Product product: sales.getProducts()) {
+        for (Product product : sales.getProducts()) {
             dtoList.add(ReadProductDto.fromEntity(product));
         }
         return ReadOneSalesDto.fromEntity(sales, dtoList);
     }
 
+    // 판매글 상태변경
     @Transactional
-    public void deleteSales(Long categoryId, Long salesId, String username){
+    public void updateStatus(Long salesId,String username, String status){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Sales sales = salesRepository.findById(salesId)
+                .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
+
+        if (!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
+
+//        sales.updateStatus(status);
+
+    }
+
+    @Transactional
+    public void deleteSales(Long categoryId, Long salesId, String username) {
         SalesCategory category = salesCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
         User user = userRepository.findByUsername(username)
@@ -259,15 +294,15 @@ public class SalesService {
         Sales sales = salesRepository.findById(salesId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
-        if(!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
+        if (!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
         // 이미지 삭제
-        if(sales.getImageUrl() != null){
-            for(String imageUrl: sales.getImageUrl()){
+        if (sales.getImageUrl() != null) {
+            for (String imageUrl : sales.getImageUrl()) {
                 fileUtils.deleteFile(imageUrl);
             }
         }
-        if(sales.getThumbnailImage() != null){
+        if (sales.getThumbnailImage() != null) {
             fileUtils.deleteFile(sales.getThumbnailImage());
         }
 
@@ -284,14 +319,14 @@ public class SalesService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String resposne = "";
-        if(sales.getSalesLikesUsers().contains(user)){
+        if (sales.getSalesLikesUsers().contains(user)) {
             sales.getSalesLikesUsers().remove(user);
             user.getSalesLikes().remove(sales);
-            resposne="찜하기가 취소되었습니다. 현재 찜하기 수 : "+ sales.getSalesLikesUsers().size();
-        }else{
+            resposne = "찜하기가 취소되었습니다. 현재 찜하기 수 : " + sales.getSalesLikesUsers().size();
+        } else {
             sales.getSalesLikesUsers().add(user);
             user.getSalesLikes().add(sales);
-            resposne = "찜하기를 눌렀습니다. 현재 찜하기 수 : "+sales.getSalesLikesUsers().size();
+            resposne = "찜하기를 눌렀습니다. 현재 찜하기 수 : " + sales.getSalesLikesUsers().size();
         }
         return resposne;
     }

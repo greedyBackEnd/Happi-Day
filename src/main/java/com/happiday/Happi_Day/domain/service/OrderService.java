@@ -4,6 +4,7 @@ import com.happiday.Happi_Day.domain.entity.product.*;
 import com.happiday.Happi_Day.domain.entity.product.dto.OrderRequestDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadOneOrderDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadOrderListForSalesDto;
+import com.happiday.Happi_Day.domain.entity.product.dto.UpdateOrderDto;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
@@ -31,14 +32,17 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final OrderedProductRepository orderedProductRepository;
+    private final DeliveryRepository deliveryRepository;
 
     // 주문하기
     @Transactional
-    public void order(Long salesId, String username, OrderRequestDto orderRequest) {
+    public String order(Long salesId, String username, OrderRequestDto orderRequest) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
+        Delivery delivery = deliveryRepository.findByName(orderRequest.getDelivery().toString())
+                .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
 
         Order newOrder = Order.builder()
                 .user(user)
@@ -47,13 +51,15 @@ public class OrderService {
                 .orderedAt(LocalDateTime.now())
                 .address(orderRequest.getAddress())
                 .orderedProducts(new ArrayList<>())
+                .delivery(delivery)
                 .build();
         orderRepository.save(newOrder);
 
-        int price = 0;
+        int price = delivery.getPrice();
         for (String productName : orderRequest.getProducts().keySet()) {
             Product product = productRepository.findByNameAndSales(productName, sales)
                     .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+            if(product.getProductStatus().getValue().equals("품절")) throw new CustomException(ErrorCode.OUT_OF_STOCK);
             OrderedProduct orderedProduct = OrderedProduct.builder()
                     .order(newOrder)
                     .product(product)
@@ -65,10 +71,12 @@ public class OrderService {
             price += product.getPrice() * orderRequest.getProducts().get(productName);
         }
         newOrder.updateTotalPrice(price);
+
+        return "주문이 완료되었습니다.\n"+"입금 계좌 : "+sales.getAccount()+"\n예금주 : "+sales.getUsers().getRealname();
     }
 
     // 주문 단일 상세 조회
-    public ReadOneOrderDto orderOneOrder(Long salesId, Long orderId, String username) {
+    public ReadOneOrderDto readOneOrder(Long salesId, Long orderId, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
@@ -141,7 +149,7 @@ public class OrderService {
 
     // 주문 상태 변경
     @Transactional
-    public String changeOrderStatus(Long salesId, Long orderId, String username, String status) {
+    public void changeOrderStatus(Long salesId, Long orderId, String username, UpdateOrderDto dto) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
@@ -151,19 +159,27 @@ public class OrderService {
 
         if (!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
-        switch (status) {
-            case "입금확인":
-                return order.updateStatus(OrderStatus.CONFIRM);
-            case "주문완료":
-                return order.updateStatus(OrderStatus.ORDER_COMPLETED);
-            case "발송준비중":
-                return order.updateStatus(OrderStatus.READY_TO_SHIP);
-            case "배송중":
-                return order.updateStatus(OrderStatus.DELIVERING);
-            case "배송완료":
-                return order.updateStatus(OrderStatus.DELIVERY_COMPLETED);
-            default:
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if(dto.getTrackingNum() !=  null) order.updateTrackingNum(dto.getTrackingNum());
+        if (dto.getOrderStatus() != null) {
+            switch (dto.getOrderStatus()) {
+                case "입금확인":
+                    order.updateStatus(OrderStatus.CONFIRM);
+                    break;
+                case "주문완료":
+                    order.updateStatus(OrderStatus.ORDER_COMPLETED);
+                    break;
+                case "발송준비중":
+                    order.updateStatus(OrderStatus.READY_TO_SHIP);
+                    break;
+                case "배송중":
+                    order.updateStatus(OrderStatus.DELIVERING);
+                    break;
+                case "배송완료":
+                    order.updateStatus(OrderStatus.DELIVERY_COMPLETED);
+                    break;
+                default:
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
         }
     }
 }

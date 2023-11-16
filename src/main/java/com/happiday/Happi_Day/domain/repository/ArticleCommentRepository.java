@@ -7,8 +7,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface ArticleCommentRepository extends JpaRepository<ArticleComment, Long> {
     Page<ArticleComment> findAllByArticle(Article article, Pageable pageable);
-
+    List<ArticleComment> findAllByArticle(Article article);
     Page<ArticleComment> findAllByUser(User user, Pageable pageable);
 }

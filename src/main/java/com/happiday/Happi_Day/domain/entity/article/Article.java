@@ -67,10 +67,6 @@ public class Article extends BaseEntity {
     @ManyToMany(mappedBy = "articleLikes")
     private List<User> likeUsers = new ArrayList<>();
 
-    // 게시글 스크랩 매핑
-    @ManyToMany(mappedBy = "articleScraps")
-    private List<User> scrapUsers = new ArrayList<>();
-
     // 게시글 아티스트 매핑
     @ManyToMany
     @JoinTable(

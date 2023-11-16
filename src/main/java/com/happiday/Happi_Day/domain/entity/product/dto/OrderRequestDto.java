@@ -12,4 +12,5 @@ import java.util.Map;
 public class OrderRequestDto {
     private Map<String,Integer> products;
     private String address;
+    private String delivery;
 }

@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/articleComments/{articleId}")
+@RequestMapping("/api/v1/articles/{articleId}/comments")
 @RequiredArgsConstructor
 public class ArticleCommentController {
     private final ArticleCommentService articleCommentService;
