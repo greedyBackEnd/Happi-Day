@@ -68,12 +68,6 @@ public class UserController {
         return new ResponseEntity<>(myPageService.readLikeArticles(username, pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/articles/scrap")
-    public ResponseEntity<Page<ReadListArticleDto>> getScrapArticles(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        String username = SecurityUtils.getCurrentUsername();
-        return new ResponseEntity<>(myPageService.readScrapArticles(username, pageable), HttpStatus.OK);
-    }
-
     @GetMapping("/events")
     public ResponseEntity<Page<EventListResponseDto>> getMyEvents(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         String username = SecurityUtils.getCurrentUsername();

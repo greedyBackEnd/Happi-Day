@@ -6,6 +6,7 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserLoginDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserRegisterDto;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.domain.service.JpaUserDetailsManager;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.jwt.JwtTokenDto;
@@ -31,7 +32,7 @@ import java.time.LocalDateTime;
 public class UserAuthController {
 
     private final UserRepository userRepository;
-    private final UserDetailsManager manager;
+    private final JpaUserDetailsManager manager;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtils jwtTokenUtils;
 

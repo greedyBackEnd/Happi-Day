@@ -11,10 +11,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService{
 
     private final PasswordEncoder passwordEncoder;
@@ -26,6 +28,7 @@ public class UserService{
         return UserResponseDto.fromEntity(user);
     }
 
+    @Transactional
     public UserResponseDto updateUserProfile(String username, UserUpdateDto dto) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -34,13 +37,7 @@ public class UserService{
         return UserResponseDto.fromEntity(user);
     }
 
-    public UserResponseDto myInfo() {
-        String username = SecurityUtils.getCurrentUsername();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        return UserResponseDto.fromEntity(user);
-    }
-
+    @Transactional
     public void deleteUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
