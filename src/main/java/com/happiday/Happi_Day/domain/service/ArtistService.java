@@ -127,7 +127,17 @@ public class ArtistService {
                 .map(TeamListResponseDto::of)
                 .collect(Collectors.toList());
 
-        return ArtistDetailResponseDto.of(artist, isSubscribed, teams);
+        // 관련 상품 조회
+        List<SalesListResponseDto> sales = artist.getSalesList().stream()
+                .map(SalesListResponseDto::of)
+                .collect(Collectors.toList());
+
+        // 관련 이벤트 조회
+        List<EventListResponseDto> events = artist.getEvents().stream()
+                .map(EventListResponseDto::fromEntity)
+                .collect(Collectors.toList());
+
+        return ArtistDetailResponseDto.of(artist, isSubscribed, teams, sales, events);
     }
 
     // 아티스트 목록 조회

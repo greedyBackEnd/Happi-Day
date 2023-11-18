@@ -102,11 +102,23 @@ public class TeamService {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
         boolean isSubscribed = user.getSubscribedTeams().contains(team);
+
         // 팀에 소속된 아티스트 정보 가져오기
         List<ArtistListResponseDto> artists = team.getArtists().stream()
                 .map(ArtistListResponseDto::of)
                 .collect(Collectors.toList());
-        return TeamDetailResponseDto.of(team, isSubscribed, artists);
+
+        // 관련 상품 조회
+        List<SalesListResponseDto> sales = team.getSalesList().stream()
+                .map(SalesListResponseDto::of)
+                .collect(Collectors.toList());
+
+        // 관련 이벤트 조회
+        List<EventListResponseDto> events = team.getEvents().stream()
+                .map(EventListResponseDto::fromEntity)
+                .collect(Collectors.toList());
+
+        return TeamDetailResponseDto.of(team, isSubscribed, artists, sales, events);
     }
 
     // 팀 목록 조회
