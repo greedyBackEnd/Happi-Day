@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     void deleteAllBySales(Sales sales);
     Optional<Product> findByNameAndSales(String name, Sales sales);
+
+    boolean existsByName(String name);
 }
