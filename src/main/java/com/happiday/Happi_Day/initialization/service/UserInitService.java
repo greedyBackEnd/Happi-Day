@@ -27,7 +27,7 @@ public class UserInitService {
                         .nickname("admin")
                         .realname("admin")
                         .phone("01011111111")
-                        .role(RoleType.USER)
+                        .role(RoleType.ADMIN)
                         .isActive(true)
                         .build(),
                 // 유저 1 : qwer (article writer, seller)
