@@ -14,4 +14,6 @@ public interface ArtistRepository extends JpaRepository<Artist, Long> {
 
     @Query("SELECT a FROM Artist a WHERE a.id NOT IN (SELECT ua.id FROM User u JOIN u.subscribedArtists ua WHERE u.id = :userId)")
     Page<Artist> findUnsubscribedArtists(@Param("userId") Long userId, Pageable pageable);
+
+    boolean existsByName(String name);
 }
