@@ -14,4 +14,6 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 
     @Query("SELECT t FROM Team t WHERE t.id NOT IN (SELECT ut.id FROM User u JOIN u.subscribedTeams ut WHERE u.id = :userId)")
     Page<Team> findUnsubscribedTeams(@Param("userId") Long userId, Pageable pageable);
+
+    boolean existsByName(String name);
 }

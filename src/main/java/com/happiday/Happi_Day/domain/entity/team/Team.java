@@ -44,12 +44,7 @@ public class Team extends BaseEntity {
     private List<Event> events = new ArrayList<>();
 
     // 판매글
-    @ManyToMany
-    @JoinTable(
-            name = "team_sales",
-            joinColumns = @JoinColumn(name = "team_id"),
-            inverseJoinColumns = @JoinColumn(name = "sales_id")
-    )
+    @ManyToMany(mappedBy = "teams")
     private List<Sales> salesList = new ArrayList<>();
 
     // 유저 구독
