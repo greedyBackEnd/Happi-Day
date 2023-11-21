@@ -13,4 +13,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     Page<Article> findAllByUser(User user, Pageable pageable);
 
     Page<Article> findAllByLikeUsersContains(User user, Pageable pageable);
+
+    boolean existsByTitle(String title);
 }
