@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
     List<Delivery> findAllBySales(Sales sales);
     Optional<Delivery> findByName(String name);
+    boolean existsByName(String name);
 }
