@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -48,9 +50,11 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity<Page<EventListResponseDto>> readEvents(
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String keyword
     ){
-        Page<EventListResponseDto> responseDtoList = eventService.readEvents(pageable);
+        Page<EventListResponseDto> responseDtoList = eventService.readEvents(pageable, filter, keyword);
         log.info("이벤트 리스트 조회");
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
@@ -88,5 +92,15 @@ public class EventController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+//    @GetMapping()
+//    public ResponseEntity<Page<EventListResponseDto>> readEventsByArtist(
+//            @RequestParam(name = "artistIds", required = false) List<Long> artistIds,
+//            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+//
+//    ){
+//        Page<EventListResponseDto> responseDtoList = eventService.readEventsByArtists(artistIds, pageable);
+//        log.info("내가 좋아요한 아티스트 관련 이벤트 리스트 조회");
+//        return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
+//    }
 
 }

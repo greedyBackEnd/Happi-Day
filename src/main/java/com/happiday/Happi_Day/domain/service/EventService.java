@@ -8,10 +8,7 @@ import com.happiday.Happi_Day.domain.entity.event.dto.EventUpdateDto;
 import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
-import com.happiday.Happi_Day.domain.repository.ArtistRepository;
-import com.happiday.Happi_Day.domain.repository.EventRepository;
-import com.happiday.Happi_Day.domain.repository.TeamRepository;
-import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.utils.FileUtils;
@@ -23,9 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -36,7 +32,9 @@ public class EventService {
     private final UserRepository userRepository;
     private final ArtistRepository artistRepository;
     private final TeamRepository teamRepository;
+    private final QueryRepository queryRepository;
     private final FileUtils fileUtils;
+
 
     @Transactional
     public EventResponseDto createEvent(
@@ -118,11 +116,11 @@ public class EventService {
         return EventResponseDto.fromEntity(event);
     }
 
-    public Page<EventListResponseDto> readEvents(Pageable pageable) {
+    public Page<EventListResponseDto> readEvents(Pageable pageable, String filter, String keyword) {
         log.info("이벤트 리스트 조회");
-        Page<Event> eventListResponseDtoPage = eventRepository.findAll(pageable);
+        Page<Event> events = queryRepository.findEventsByFilterAndKeyword(pageable, filter, keyword);
 
-        return eventListResponseDtoPage.map(EventListResponseDto::fromEntity);
+        return events.map(EventListResponseDto::fromEntity);
     }
 
     public EventResponseDto readEvent(Long eventId) {
@@ -276,4 +274,5 @@ public class EventService {
         eventRepository.save(event);
         return event.getTitle() + response;
     }
+
 }
