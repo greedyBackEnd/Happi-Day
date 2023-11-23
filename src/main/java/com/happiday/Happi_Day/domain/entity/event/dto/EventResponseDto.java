@@ -43,6 +43,13 @@ public class EventResponseDto {
 
     private List<String> teams;
 
+    private int commentCount;
+
+    private int likeCount;
+
+    private int joinCount;
+
+
     public static EventResponseDto fromEntity(Event event) {
         // 이벤트의 artists 필드에서 이름을 꺼내오기
         List<String> eventArtists = event.getArtists().stream().map(Artist::getName).collect(Collectors.toList());
@@ -78,6 +85,9 @@ public class EventResponseDto {
                 .imageUrl(event.getImageUrl())
                 .artists(allArtists)
                 .teams(allTeams)
+                .commentCount(event.getCommentCount())
+                .joinCount(event.getJoinCount())
+                .likeCount(event.getLikeCount())
                 .build();
     }
 }

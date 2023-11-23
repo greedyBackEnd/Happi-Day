@@ -135,6 +135,14 @@ public class Event extends BaseEntity {
     }
 
     public int getLikeCount() {
-        return likes.size();
+        return likes != null ? likes.size() : 0;
+    }
+
+    public int getJoinCount() {
+        return joinList != null ? joinList.size() : 0;
+    }
+
+    public int getCommentCount() {
+        return comments != null ? comments.size() : 0;
     }
 }
