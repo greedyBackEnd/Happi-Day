@@ -23,25 +23,25 @@ public class TokenController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtils jwtTokenUtils;
 
-    @PostMapping("/issue")
-    public JwtTokenDto issueJwtToken(@RequestBody JwtRequestDto dto) {
-        UserDetails user = manager.loadUserByUsername(dto.getUsername());
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword()))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        JwtTokenDto token = new JwtTokenDto();
-        token.setToken(jwtTokenUtils.generateToken(user));
-        return token;
-    }
-
-    @PostMapping("/secured")
-    public String checkSecure() {
-        log.info(SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName()
-        );
-        return "success";
-    }
+//    @PostMapping("/issue")
+//    public JwtTokenDto issueJwtToken(@RequestBody JwtRequestDto dto) {
+//        UserDetails user = manager.loadUserByUsername(dto.getUsername());
+//        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword()))
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+//        JwtTokenDto token = new JwtTokenDto();
+//        token.setToken(jwtTokenUtils.generateToken(user));
+//        return token;
+//    }
+//
+//    @PostMapping("/secured")
+//    public String checkSecure() {
+//        log.info(SecurityContextHolder
+//                .getContext()
+//                .getAuthentication()
+//                .getName()
+//        );
+//        return "success";
+//    }
 
 
 }
