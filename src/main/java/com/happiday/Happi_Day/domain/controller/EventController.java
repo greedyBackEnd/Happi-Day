@@ -92,15 +92,17 @@ public class EventController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-//    @GetMapping()
-//    public ResponseEntity<Page<EventListResponseDto>> readEventsByArtist(
-//            @RequestParam(name = "artistIds", required = false) List<Long> artistIds,
-//            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
-//
-//    ){
-//        Page<EventListResponseDto> responseDtoList = eventService.readEventsByArtists(artistIds, pageable);
-//        log.info("내가 좋아요한 아티스트 관련 이벤트 리스트 조회");
-//        return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
-//    }
+    @GetMapping()
+    public ResponseEntity<Page<EventListResponseDto>> readEventsByArtist(
+            @RequestParam(name = "artistIds", required = false) List<Long> artistIds,
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String keyword
+
+    ){
+        Page<EventListResponseDto> responseDtoList = eventService.readEventsByArtists(artistIds, pageable, filter, keyword);
+        log.info("내가 좋아요한 아티스트 관련 이벤트 리스트 조회");
+        return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
+    }
 
 }
