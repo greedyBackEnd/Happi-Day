@@ -275,4 +275,13 @@ public class EventService {
         return event.getTitle() + response;
     }
 
+    public Page<EventListResponseDto> readEventsByArtists(String username, Pageable pageable, String filter, String keyword) {
+        userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        log.info("이벤트 리스트 조회");
+        Page<Event> events = queryRepository.findEventsByArtist(username, pageable, filter, keyword);
+
+        return events.map(EventListResponseDto::fromEntity);
+    }
 }
