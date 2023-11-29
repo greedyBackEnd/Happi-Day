@@ -83,4 +83,31 @@ public class QueryRepository {
         }
     }
 
+    public Page<Event> findEventsByArtist(String username, Pageable pageable, String filter, String keyword) {
+
+
+        List<Event> events = queryFactory
+                .selectDistinct(event)
+                .from(event)
+                .join(event.user, user).fetchJoin()
+                .join(event.teams, team).on(team.in(user.subscribedTeams))
+                .join(event.artists, artist).on(artist.in(user.subscribedArtists))
+                .where(eventSearchFilter(filter, keyword),
+                        user.username.eq(username))
+                .orderBy(event.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // 카운트
+        Long count = queryFactory
+                .select(event.count())
+                .from(event)
+                .where(eventSearchFilter(filter, keyword))
+                .fetchOne();
+
+        log.info("닉네임 : " + event.user.nickname);
+
+        return new PageImpl<>(events, pageable, count);
+    }
 }
