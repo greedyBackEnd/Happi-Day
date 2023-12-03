@@ -10,6 +10,7 @@ import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
 import com.happiday.Happi_Day.domain.entity.team.QTeam;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamListResponseDto;
+import com.happiday.Happi_Day.domain.entity.user.User;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,13 +42,67 @@ public class QueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
+
     // 이벤트 목록
     public Page<Event> findEventsByFilterAndKeyword(Pageable pageable, String filter, String keyword) {
-
         List<Event> events = queryFactory
                 .selectFrom(event)
                 .join(event.user, user).fetchJoin()
                 .where(eventSearchFilter(filter, keyword))
+                .orderBy(event.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+
+        // 카운트
+        Long count = queryFactory
+                .select(event.count())
+                .from(event)
+                .where(eventSearchFilter(filter, keyword))
+                .fetchOne();
+
+        return new PageImpl<>(events, pageable, count);
+    }
+
+    // 진행중인 이벤트 목록
+    public Page<Event> findEventsByFilterAndKeywordAndOngoing(Pageable pageable, String filter, String keyword) {
+
+        List<Event> events = queryFactory
+                .selectFrom(event)
+                .join(event.user, user).fetchJoin()
+                .where((event.startTime.before(LocalDateTime.now()).and(event.endTime.after(LocalDateTime.now()))
+                        .and(eventSearchFilter(filter, keyword))))
+                .orderBy(event.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // 카운트
+        Long count = queryFactory
+                .select(event.count())
+                .from(event)
+                .where((event.startTime.before(LocalDateTime.now()).and(event.endTime.after(LocalDateTime.now()))
+                        .and(eventSearchFilter(filter, keyword))))
+                .fetchOne();
+
+        log.info("닉네임 : " + event.user.nickname);
+
+        return new PageImpl<>(events, pageable, count);
+    }
+
+    // 내가 구독한 아티스트의 이벤트 목록
+    public Page<Event> findEventsByFilterAndKeywordAndSubscribedArtists(Pageable pageable, String filter, String keyword, User loginUser) {
+
+        log.info("이건 !!!! userId : " + loginUser.getId());
+        log.info("이건 !!!! user.subscribedArtists : " + user.subscribedArtists.any().id);
+
+        List<Event> events = queryFactory
+                .selectFrom(event)
+                .where(
+                        (user.subscribedArtists.any().id.eq(loginUser.getId())
+                                .or(user.subscribedTeams.any().id.eq(loginUser.getId()))
+                     .and(eventSearchFilter(filter, keyword))))
                 .orderBy(event.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -58,13 +114,56 @@ public class QueryRepository {
         Long count = queryFactory
                 .select(event.count())
                 .from(event)
-                .where(eventSearchFilter(filter, keyword))
+                .where(
+                        (user.subscribedArtists.any().id.eq(loginUser.getId())
+                                .or(user.subscribedTeams.any().id.eq(loginUser.getId()))
+                                .and(eventSearchFilter(filter, keyword)))
+                )
                 .fetchOne();
 
         log.info("닉네임 : " + event.user.nickname);
 
         return new PageImpl<>(events, pageable, count);
     }
+
+    // 내가 구독한 아티스트의 진행 중인 이벤트 목록
+    public Page<Event> findEventsByFilterAndKeywordAndOngoingAndSubscribedArtists(
+            Pageable pageable, String filter, String keyword, User loginUser) {
+
+
+        List<Event> events = queryFactory
+                .selectFrom(event)
+                .join(event.user, user).fetchJoin()
+                .where(
+                        (event.startTime.before(LocalDateTime.now()).and(event.endTime.after(LocalDateTime.now()))
+                        .and(user.subscribedArtists.any().id.eq(loginUser.getId())
+                                .or(user.subscribedTeams.any().id.eq(loginUser.getId()))
+                        .and(eventSearchFilter(filter, keyword))))
+                )
+                .orderBy(event.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+
+
+        // 카운트
+        Long count = queryFactory
+                .select(event.count())
+                .from(event)
+                .where(
+                        (event.startTime.before(LocalDateTime.now()).and(event.endTime.after(LocalDateTime.now()))
+                                .and(user.subscribedArtists.any().id.eq(loginUser.getId())
+                                        .or(user.subscribedTeams.any().id.eq(loginUser.getId()))
+                                        .and(eventSearchFilter(filter, keyword))))
+                )
+                .fetchOne();
+
+        log.info("닉네임 : " + event.user.nickname);
+
+        return new PageImpl<>(events, pageable, count);
+    }
+
 
 
     private BooleanExpression eventSearchFilter(String filter, String keyword) {
@@ -81,33 +180,5 @@ public class QueryRepository {
         } else {
             return null;
         }
-    }
-
-    public Page<Event> findEventsByArtist(String username, Pageable pageable, String filter, String keyword) {
-
-
-        List<Event> events = queryFactory
-                .selectDistinct(event)
-                .from(event)
-                .join(event.user, user).fetchJoin()
-                .join(event.teams, team).on(team.in(user.subscribedTeams))
-                .join(event.artists, artist).on(artist.in(user.subscribedArtists))
-                .where(eventSearchFilter(filter, keyword),
-                        user.username.eq(username))
-                .orderBy(event.id.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        // 카운트
-        Long count = queryFactory
-                .select(event.count())
-                .from(event)
-                .where(eventSearchFilter(filter, keyword))
-                .fetchOne();
-
-        log.info("닉네임 : " + event.user.nickname);
-
-        return new PageImpl<>(events, pageable, count);
     }
 }

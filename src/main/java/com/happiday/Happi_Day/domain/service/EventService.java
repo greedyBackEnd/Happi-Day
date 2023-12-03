@@ -1,5 +1,6 @@
 package com.happiday.Happi_Day.domain.service;
 
+import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventCreateDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
@@ -36,14 +37,95 @@ public class EventService {
     private final FileUtils fileUtils;
 
 
+//    @Transactional
+//    public EventResponseDto createEvent(
+//            EventCreateDto request, MultipartFile thumbnailFile, MultipartFile imageFile, String username) {
+//
+//        User user = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+//
+//        String thumbnailUrl;
+//
+//        if (thumbnailFile == null || thumbnailFile.isEmpty()) {
+//            thumbnailUrl = fileUtils.defaultThumbnail(thumbnailFile);
+//        } else {
+//            thumbnailUrl = fileUtils.uploadFile(thumbnailFile);
+//        }
+//
+//        String imageUrl = fileUtils.uploadFile(imageFile);
+//
+//        // Artist Entity에 없는 Artist 처리
+//        List<String> artistNameList = request.getArtists();
+//        List<Artist> artists = new ArrayList<>();
+//        List<String> ectArtists = new ArrayList<>(); // 존재하지 않는 아티스트 이름 목록
+//
+//        for (String artistName : artistNameList) {
+//            Optional<Artist> existingArtist = artistRepository.findByName(artistName);
+//            if (existingArtist.isPresent()) {
+//                artists.add(existingArtist.get());
+//            } else {
+//                // Artist 엔티티가 존재하지 않을 경우
+//                ectArtists.add(artistName);
+//            }
+//        }
+//
+//        // Team Entity에 없는 Team 처리
+//        List<String> teamNameList = request.getTeams();
+//        List<Team> teams = new ArrayList<>();
+//        List<String> ectTeams = new ArrayList<>(); // 존재하지 않는 팀 이름 목록
+//
+//        for (String teamName : teamNameList) {
+//            Optional<Team> existingTeam = teamRepository.findByName(teamName);
+//            if (existingTeam.isPresent()) {
+//                teams.add(existingTeam.get());
+//            } else {
+//                ectTeams.add(teamName);
+//            }
+//        }
+//
+//        String ectArtist = String.join(", ", ectArtists); // 존재하지 않는 아티스트 이름을 쉼표로 구분하여 저장
+//        String ectTeam = String.join(", ", ectTeams); // 존재하지 않는 팀 이름을 쉼표로 구분하여 저장
+//
+//        Event event = Event.builder()
+//                .user(user)
+//                .title(request.getTitle())
+//                .imageUrl(imageUrl)
+//                .thumbnailUrl(thumbnailUrl)
+//                .artists(artists)
+//                .teams(teams)
+//                .startTime(request.getStartTime())
+//                .endTime(request.getEndTime())
+//                .description(request.getDescription())
+//                .address(request.getAddress())
+//                .location(request.getLocation())
+//                .build();
+//
+//        // ect Artist, Team이 있는 경우 추가
+//
+//        if (!ectArtists.isEmpty()) {
+//            event = event.toBuilder()
+//                    .ectArtists(ectArtist)
+//                    .build();
+//        }
+//        if (!ectTeams.isEmpty()) {
+//            event = event.toBuilder()
+//                    .ectTeams(ectTeam)
+//                    .build();
+//        }
+//
+//        eventRepository.save(event);
+//        return EventResponseDto.fromEntity(event);
+//    }
+
     @Transactional
     public EventResponseDto createEvent(
             EventCreateDto request, MultipartFile thumbnailFile, MultipartFile imageFile, String username) {
 
+        String thumbnailUrl;
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        String thumbnailUrl;
 
         if (thumbnailFile == null || thumbnailFile.isEmpty()) {
             thumbnailUrl = fileUtils.defaultThumbnail(thumbnailFile);
@@ -53,37 +135,30 @@ public class EventService {
 
         String imageUrl = fileUtils.uploadFile(imageFile);
 
-        // Artist Entity에 없는 Artist 처리
-        List<String> artistNameList = request.getArtists();
-        List<Artist> artists = new ArrayList<>();
-        List<String> ectArtists = new ArrayList<>(); // 존재하지 않는 아티스트 이름 목록
+        List<String> hashtagRequests = request.getHashtags();
 
-        for (String artistName : artistNameList) {
-            Optional<Artist> existingArtist = artistRepository.findByName(artistName);
+
+        List<Artist> artists = new ArrayList<>();
+        List<Team> teams = new ArrayList<>();
+        List<Hashtag> hashtagList = new ArrayList<>();
+
+        for (String hashtagRequest : hashtagRequests) {
+            Optional<Artist> existingArtist = artistRepository.findByName(hashtagRequest);
+            Optional<Team> existingTeam = teamRepository.findByName(hashtagRequest);
             if (existingArtist.isPresent()) {
                 artists.add(existingArtist.get());
-            } else {
-                // Artist 엔티티가 존재하지 않을 경우
-                ectArtists.add(artistName);
-            }
-        }
-
-        // Team Entity에 없는 Team 처리
-        List<String> teamNameList = request.getTeams();
-        List<Team> teams = new ArrayList<>();
-        List<String> ectTeams = new ArrayList<>(); // 존재하지 않는 팀 이름 목록
-
-        for (String teamName : teamNameList) {
-            Optional<Team> existingTeam = teamRepository.findByName(teamName);
-            if (existingTeam.isPresent()) {
+            } else if (existingTeam.isPresent()) {
                 teams.add(existingTeam.get());
             } else {
-                ectTeams.add(teamName);
+                Hashtag newHashtag = Hashtag.builder()
+                        .tag(hashtagRequest)
+                        .build();
+                hashtagList.add(newHashtag);
             }
         }
 
-        String ectArtist = String.join(", ", ectArtists); // 존재하지 않는 아티스트 이름을 쉼표로 구분하여 저장
-        String ectTeam = String.join(", ", ectTeams); // 존재하지 않는 팀 이름을 쉼표로 구분하여 저장
+
+
 
         Event event = Event.builder()
                 .user(user)
@@ -92,25 +167,13 @@ public class EventService {
                 .thumbnailUrl(thumbnailUrl)
                 .artists(artists)
                 .teams(teams)
+                .hashtags(hashtagList)
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
                 .description(request.getDescription())
                 .address(request.getAddress())
                 .location(request.getLocation())
                 .build();
-
-        // ect Artist, Team이 있는 경우 추가
-
-        if (!ectArtists.isEmpty()) {
-            event = event.toBuilder()
-                    .ectArtists(ectArtist)
-                    .build();
-        }
-        if (!ectTeams.isEmpty()) {
-            event = event.toBuilder()
-                    .ectTeams(ectTeam)
-                    .build();
-        }
 
         eventRepository.save(event);
         return EventResponseDto.fromEntity(event);
@@ -123,6 +186,35 @@ public class EventService {
         return events.map(EventListResponseDto::fromEntity);
     }
 
+    public Page<EventListResponseDto> readOngoingEvents(Pageable pageable, String filter, String keyword) {
+        log.info("진행중인 이벤트 리스트 조회");
+        Page<Event> events = queryRepository.findEventsByFilterAndKeywordAndOngoing(pageable, filter, keyword);
+
+        return events.map(EventListResponseDto::fromEntity);
+    }
+
+    public Page<EventListResponseDto> readEventsBySubscribedArtists(Pageable pageable, String filter, String keyword, String username) {
+        log.info("내가 구독한 아티스트의 이벤트 리스트 조회");
+        log.info("username : " + username);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Event> events = queryRepository.findEventsByFilterAndKeywordAndSubscribedArtists(pageable, filter, keyword, user);
+
+        return events.map(EventListResponseDto::fromEntity);
+    }
+
+    public Page<EventListResponseDto> readOngoingEventsBySubscribedArtists(
+            Pageable pageable, String filter, String keyword, String username) {
+
+        log.info("내가 구독한 아티스트의 진행중인 이벤트 리스트 조회");
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Event> events = queryRepository.findEventsByFilterAndKeywordAndOngoingAndSubscribedArtists(pageable, filter, keyword, user);
+
+        return events.map(EventListResponseDto::fromEntity);
+    }
+
     public EventResponseDto readEvent(Long eventId) {
         log.info("이벤트 단일 조회");
         Event event = eventRepository.findById(eventId)
@@ -130,7 +222,82 @@ public class EventService {
         return EventResponseDto.fromEntity(event);
     }
 
-    @Transactional
+//    @Transactional
+//    public EventResponseDto updateEvent(Long eventId, EventUpdateDto request, MultipartFile thumbnailFile, MultipartFile imageFile, String username) {
+//        User user = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+//
+//        if (!user.getUsername().equals(username)) {
+//            throw new CustomException(ErrorCode.FORBIDDEN);
+//        }
+//
+//        Event event = eventRepository.findById(eventId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
+//
+//        // 이미지 업로드 추가
+//        if (thumbnailFile != null && !thumbnailFile.isEmpty()) {
+//            fileUtils.deleteFile(event.getThumbnailUrl());
+//            String newThumbnailUrl = fileUtils.uploadFile(thumbnailFile);
+//            event.setThumbnailUrl(newThumbnailUrl);
+//        }
+//
+//        if (imageFile != null && !imageFile.isEmpty()) {
+//            fileUtils.deleteFile(event.getImageUrl());
+//            String newImageUrl = fileUtils.uploadFile(imageFile);
+//            event.setImageUrl(newImageUrl);
+//        }
+//
+//        // Artist Entity에 없는 Artist 처리
+//        List<String> artistNameList = request.getArtists();
+//        List<Artist> artists = new ArrayList<>();
+//        List<String> ectArtists = new ArrayList<>(); // 존재하지 않는 아티스트 이름 목록
+//
+//        for (String artistName : artistNameList) {
+//            Optional<Artist> existingArtist = artistRepository.findByName(artistName);
+//            if (existingArtist.isPresent()) {
+//                artists.add(existingArtist.get());
+//            } else {
+//                // Artist 엔티티가 존재하지 않을 경우
+//                ectArtists.add(artistName);
+//            }
+//        }
+//
+//        // Team Entity에 없는 Team 처리
+//        List<String> teamNameList = request.getTeams();
+//        List<Team> teams = new ArrayList<>();
+//        List<String> ectTeams = new ArrayList<>(); // 존재하지 않는 팀 이름 목록
+//
+//        for (String teamName : teamNameList) {
+//            Optional<Team> existingTeam = teamRepository.findByName(teamName);
+//            if (existingTeam.isPresent()) {
+//                teams.add(existingTeam.get());
+//            } else {
+//                ectTeams.add(teamName);
+//            }
+//        }
+//
+//        String ectArtist = String.join(", ", ectArtists); // 존재하지 않는 아티스트 이름을 쉼표로 구분하여 저장
+//        String ectTeam = String.join(", ", ectTeams); // 존재하지 않는 팀 이름을 쉼표로 구분하여 저장
+//
+//        event.update(Event.builder()
+//                .user(user)
+//                .title(request.getTitle())
+//                .artists(artists)
+//                .teams(teams)
+//                .startTime(request.getStartTime())
+//                .endTime(request.getEndTime())
+//                .description(request.getDescription())
+//                .location(request.getLocation())
+//                .address(request.getAddress())
+//                .ectArtists(ectArtists.isEmpty() ? event.getEctArtists() : ectArtist)
+//                .ectTeams(ectTeams.isEmpty() ? event.getEctTeams() : ectTeam)
+//                .build());
+//
+//        eventRepository.save(event);
+//        return EventResponseDto.fromEntity(event);
+//    }
+
+        @Transactional
     public EventResponseDto updateEvent(Long eventId, EventUpdateDto request, MultipartFile thumbnailFile, MultipartFile imageFile, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -155,37 +322,28 @@ public class EventService {
             event.setImageUrl(newImageUrl);
         }
 
-        // Artist Entity에 없는 Artist 처리
-        List<String> artistNameList = request.getArtists();
-        List<Artist> artists = new ArrayList<>();
-        List<String> ectArtists = new ArrayList<>(); // 존재하지 않는 아티스트 이름 목록
+            List<String> hashtagRequests = request.getHashtags();
 
-        for (String artistName : artistNameList) {
-            Optional<Artist> existingArtist = artistRepository.findByName(artistName);
-            if (existingArtist.isPresent()) {
-                artists.add(existingArtist.get());
-            } else {
-                // Artist 엔티티가 존재하지 않을 경우
-                ectArtists.add(artistName);
+
+            List<Artist> artists = new ArrayList<>();
+            List<Team> teams = new ArrayList<>();
+            List<Hashtag> hashtagList = new ArrayList<>();
+
+            for (String hashtagRequest : hashtagRequests) {
+                Optional<Artist> existingArtist = artistRepository.findByName(hashtagRequest);
+                Optional<Team> existingTeam = teamRepository.findByName(hashtagRequest);
+                if (existingArtist.isPresent()) {
+                    artists.add(existingArtist.get());
+                } else if (existingTeam.isPresent()) {
+                    teams.add(existingTeam.get());
+                } else {
+                    Hashtag newHashtag = Hashtag.builder()
+                            .tag(hashtagRequest)
+                            .build();
+                    hashtagList.add(newHashtag);
+                }
             }
-        }
 
-        // Team Entity에 없는 Team 처리
-        List<String> teamNameList = request.getTeams();
-        List<Team> teams = new ArrayList<>();
-        List<String> ectTeams = new ArrayList<>(); // 존재하지 않는 팀 이름 목록
-
-        for (String teamName : teamNameList) {
-            Optional<Team> existingTeam = teamRepository.findByName(teamName);
-            if (existingTeam.isPresent()) {
-                teams.add(existingTeam.get());
-            } else {
-                ectTeams.add(teamName);
-            }
-        }
-
-        String ectArtist = String.join(", ", ectArtists); // 존재하지 않는 아티스트 이름을 쉼표로 구분하여 저장
-        String ectTeam = String.join(", ", ectTeams); // 존재하지 않는 팀 이름을 쉼표로 구분하여 저장
 
         event.update(Event.builder()
                 .user(user)
@@ -197,13 +355,14 @@ public class EventService {
                 .description(request.getDescription())
                 .location(request.getLocation())
                 .address(request.getAddress())
-                .ectArtists(ectArtists.isEmpty() ? event.getEctArtists() : ectArtist)
-                .ectTeams(ectTeams.isEmpty() ? event.getEctTeams() : ectTeam)
+                .hashtags(hashtagList)
                 .build());
 
         eventRepository.save(event);
         return EventResponseDto.fromEntity(event);
     }
+
+
 
     @Transactional
     public void deleteEvent(Long eventId, String username) {
@@ -257,7 +416,6 @@ public class EventService {
 
         boolean isJoined = event.getJoinList().contains(user);
 
-        log.info(String.valueOf(isJoined));
         String response = "";
         if (isJoined) {
             // 이미 참여한 경우, 취소
@@ -275,13 +433,5 @@ public class EventService {
         return event.getTitle() + response;
     }
 
-    public Page<EventListResponseDto> readEventsByArtists(String username, Pageable pageable, String filter, String keyword) {
-        userRepository.findByUsername(username)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        log.info("이벤트 리스트 조회");
-        Page<Event> events = queryRepository.findEventsByArtist(username, pageable, filter, keyword);
-
-        return events.map(EventListResponseDto::fromEntity);
-    }
 }
