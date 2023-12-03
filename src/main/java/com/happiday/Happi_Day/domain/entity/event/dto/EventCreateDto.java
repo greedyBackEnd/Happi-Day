@@ -7,6 +7,7 @@ import com.happiday.Happi_Day.domain.repository.ArtistRepository;
 import com.happiday.Happi_Day.domain.repository.TeamRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -22,15 +23,14 @@ public class EventCreateDto {
     public EventCreateDto() {
     }
 
-    public EventCreateDto(String title, LocalDateTime startTime, LocalDateTime endTime, String description, String address, String location, List<String> artists, List<String> teams) {
+    public EventCreateDto(String title, LocalDateTime startTime, LocalDateTime endTime, String description, String address, String location, List<String> hashtags) {
         this.title = title;
         this.startTime = startTime;
         this.endTime = endTime;
         this.description = description;
         this.address = address;
         this.location = location;
-        this.artists = artists;
-        this.teams = teams;
+        this.hashtags = hashtags;
     }
 
     @NotBlank(message = "제목을 입력해주세요.")
@@ -51,8 +51,7 @@ public class EventCreateDto {
     @NotBlank(message = "장소를 입력해주세요.")
     private String location;
 
-    private List<String> artists;
-
-    private List<String> teams;
+    @NotEmpty(message = "해시태그를 입력해주세요.")
+    private List<String> hashtags;
 
 }
