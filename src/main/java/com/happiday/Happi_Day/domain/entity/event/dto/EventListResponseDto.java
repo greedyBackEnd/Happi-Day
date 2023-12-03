@@ -1,5 +1,6 @@
 package com.happiday.Happi_Day.domain.entity.event.dto;
 
+import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.team.Team;
@@ -35,13 +36,11 @@ public class EventListResponseDto {
 
     private String thumbnailUrl;
 
-    private String ectArtists;
-
-    private String ectTeams;
-
     private List<String> artists;
 
     private List<String> teams;
+
+    private List<String> hashtags;
 
     private int commentCount;
 
@@ -51,7 +50,7 @@ public class EventListResponseDto {
     }
 
 //    @QueryProjection
-    public EventListResponseDto(Long id, String nickname, String title, LocalDateTime updatedAt, LocalDateTime startTime, LocalDateTime endTime, String location, String thumbnailUrl, String ectArtists, String ectTeams, List<String> artists, List<String> teams, int commentCount, int likeCount) {
+    public EventListResponseDto(Long id, String nickname, String title, LocalDateTime updatedAt, LocalDateTime startTime, LocalDateTime endTime, String location, String thumbnailUrl, List<String> artists, List<String> teams, List<String> hashtags, int commentCount, int likeCount) {
         this.id = id;
         this.nickname = nickname;
         this.title = title;
@@ -60,38 +59,15 @@ public class EventListResponseDto {
         this.endTime = endTime;
         this.location = location;
         this.thumbnailUrl = thumbnailUrl;
-        this.ectArtists = ectArtists;
-        this.ectTeams = ectTeams;
         this.artists = artists;
         this.teams = teams;
+        this.hashtags = hashtags;
         this.commentCount = commentCount;
         this.likeCount = likeCount;
 
     }
 
     public static EventListResponseDto fromEntity(Event event) {
-        // 이벤트의 artists 필드에서 이름을 꺼내오기
-        List<String> eventArtists = event.getArtists().stream().map(Artist::getName).collect(Collectors.toList());
-
-        // 이벤트의 ectArtists 필드가 null이 아닌 경우, 추가 아티스트들을 쉼표(,)로 분리하여 리스트로 만들기
-        List<String> additionalArtists = event.getEctArtists() != null ?
-                Arrays.asList(event.getEctArtists().split(", ")) : Collections.emptyList();
-
-        // eventArtists와 additionalArtists를 합친 리스트 생성
-        List<String> allArtists = new ArrayList<>(eventArtists);
-        allArtists.addAll(additionalArtists);
-
-        // 이벤트의 teams 필드에서 이름을 꺼내오기
-        List<String> eventTeams = event.getTeams().stream().map(Team::getName).collect(Collectors.toList());
-
-        // 이벤트의 ectTeams 필드가 null이 아닌 경우, 추가 팀들을 쉼표(,)로 분리하여 리스트로 만들기
-        List<String> additionalTeams = event.getEctTeams() != null ?
-                Arrays.asList(event.getEctTeams().split(", ")) : Collections.emptyList();
-
-        // eventTeams와 additionalTeams를 합친 리스트 생성
-        List<String> allTeams = new ArrayList<>(eventTeams);
-        allTeams.addAll(additionalTeams);
-
         return EventListResponseDto.builder()
                 .id(event.getId())
                 .nickname(event.getUser().getNickname())
@@ -101,8 +77,9 @@ public class EventListResponseDto {
                 .endTime(event.getEndTime())
                 .location(event.getLocation())
                 .thumbnailUrl(event.getThumbnailUrl())
-                .artists(allArtists)
-                .teams(allTeams)
+                .artists(event.getArtists().stream().map(Artist::getName).collect(Collectors.toList()))
+                .teams(event.getTeams().stream().map(Team::getName).collect(Collectors.toList()))
+                .hashtags(event.getHashtags().stream().map(Hashtag::getTag).collect(Collectors.toList()))
                 .commentCount(event.getComments().size())
                 .likeCount(event.getLikes().size())
                 .build();
