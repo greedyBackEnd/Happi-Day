@@ -1,10 +1,7 @@
 package com.happiday.Happi_Day.jwt;
 
 import com.happiday.Happi_Day.domain.entity.user.CustomUserDetails;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +20,6 @@ public class JwtTokenUtils {
     private final Key signingKey;
     private final Key refreshKey;
     private final JwtParser jwtParser;
-    private final StringRedisTemplate redisTemplate;
     public final Long ACCESS_TOKEN_EXPIRATION_TIME;
     public final Long REFRESH_TOKEN_EXPIRATION_TIME;
 
@@ -31,15 +27,13 @@ public class JwtTokenUtils {
             @Value("${jwt.access-secret}") String jwtSecret,
             @Value("${jwt.refresh-secret}") String refreshSecret,
             @Value("${jwt.access-expiration-time}") Long accessExpirationTime,
-            @Value("${jwt.refresh-expiration-time}") Long refreshExpirationTime,
-            StringRedisTemplate redisTemplate
+            @Value("${jwt.refresh-expiration-time}") Long refreshExpirationTime
     ) {
         this.signingKey = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         this.refreshKey = Keys.hmacShaKeyFor(refreshSecret.getBytes());
         this.jwtParser = Jwts.parserBuilder().setSigningKey(this.signingKey).build();
         this.ACCESS_TOKEN_EXPIRATION_TIME = accessExpirationTime;
         this.REFRESH_TOKEN_EXPIRATION_TIME = refreshExpirationTime;
-        this.redisTemplate = redisTemplate;
     }
 
     public boolean validate(String token) {
@@ -51,6 +45,7 @@ public class JwtTokenUtils {
             return false;
         }
     }
+
 
     public Claims parseClaims(String token) {
         return jwtParser.parseClaimsJws(token).getBody();
@@ -73,36 +68,40 @@ public class JwtTokenUtils {
         return generateToken(userDetails, REFRESH_TOKEN_EXPIRATION_TIME, refreshKey);
     }
 
-    public String validateAccessToken(String token) {
+    public String getUsername(String token) {
         try {
-            Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
-
-            if (!claims.getBody().getExpiration().after(new Date())) {
-                return claims.getBody().getSubject();
-            }
-            return "ok";
+            Jws<Claims> claims = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(token);
+            return claims.getBody().getSubject();
+        } catch (ExpiredJwtException e) {
+            log.warn("Expired Token: {}", e.getMessage());
+            Claims claims = e.getClaims();
+            return claims.getSubject();
         } catch (Exception e) {
-            log.warn("invalid jwt: {}", e.getClass());
+            log.error("Error extracting email from token: {}", e.getMessage());
             return null;
         }
     }
 
-    public String validateRefreshToken(String token) {
+    public boolean validateAccessToken(String token) {
         try {
-            // 검증
-            Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(refreshKey).build().parseClaimsJws(token);
-            String username = claims.getBody().getSubject();
-
-            if (!redisTemplate.opsForHash().get("refresh", username).equals(token))
-                return null;
-
-            if (claims.getBody().getExpiration().after(new Date())) {
-                return username;
-            }
+            Jws<Claims> claims = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(token);
+            return !claims.getBody().getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+//            log.warn("invalid jwt: {}", e.getMessage());
+            return false;
         } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
+//            log.warn("invalid jwt: {}", e.getMessage());
+            return false;
         }
-        return null;
+    }
+
+    public boolean validateRefreshToken(String token) {
+        try {
+            Jws<Claims> claims = Jwts.parser().setSigningKey(refreshKey).parseClaimsJws(token);
+            return !claims.getBody().getExpiration().before(new Date());
+        } catch (Exception e) {
+            log.warn("invalid jwt: {}", e.getMessage());
+            return false;
+        }
     }
 }

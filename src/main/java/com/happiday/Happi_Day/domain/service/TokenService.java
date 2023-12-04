@@ -34,7 +34,7 @@ public class TokenService {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         String accessToken = jwtTokenUtils.createAccessToken(CustomUserDetails.fromEntity(user));
         String refreshToken = jwtTokenUtils.createRefreshToken(CustomUserDetails.fromEntity(user));
-        redisTemplate.opsForValue().set(username, refreshToken, Duration.ofHours(1));
+        redisTemplate.opsForValue().set(username, refreshToken, Duration.ofMinutes(2));
         return accessToken;
     }
 
