@@ -7,10 +7,12 @@ import com.happiday.Happi_Day.domain.entity.user.dto.UserLoginDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserRegisterDto;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.domain.service.JpaUserDetailsManager;
+import com.happiday.Happi_Day.domain.service.TokenService;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.jwt.JwtTokenDto;
 import com.happiday.Happi_Day.jwt.JwtTokenUtils;
+import com.happiday.Happi_Day.utils.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class UserAuthController {
     private final JpaUserDetailsManager manager;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtils jwtTokenUtils;
+    private final TokenService tokenService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Validated @RequestBody UserRegisterDto dto) {
@@ -55,8 +58,9 @@ public class UserAuthController {
         UserDetails userDetails = manager.loadUserByUsername(dto.getUsername());
         if (!passwordEncoder.matches(dto.getPassword(), userDetails.getPassword()))
             throw new CustomException(ErrorCode.PASSWORD_NOT_MATCHED);
+        String accessToken = tokenService.setToken(dto.getUsername());
         JwtTokenDto token = new JwtTokenDto();
-        token.setToken(jwtTokenUtils.generateToken(userDetails));
+        token.setToken(accessToken);
         LocalDateTime date = LocalDateTime.now();
         User user = userRepository.findByUsername(dto.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         user.setLastLoginAt(date);
@@ -66,6 +70,8 @@ public class UserAuthController {
 
     @GetMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        String username = SecurityUtils.getCurrentUsername();
+        tokenService.logout(username);
         new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
         return new ResponseEntity<>("로그아웃되었습니다.", HttpStatus.OK);
     }
