@@ -18,7 +18,7 @@ public class EventUpdateDto {
 
     public EventUpdateDto() {
     }
-    public EventUpdateDto(String title, LocalDateTime startTime, LocalDateTime endTime, String description, String address, String location, String thumbnailUrl, String imageUrl, List<String> artists, List<String> teams) {
+    public EventUpdateDto(String title, LocalDateTime startTime, LocalDateTime endTime, String description, String address, String location, String thumbnailUrl, String imageUrl, List<String> hashtags) {
         this.title = title;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -27,8 +27,7 @@ public class EventUpdateDto {
         this.location = location;
         this.thumbnailUrl = thumbnailUrl;
         this.imageUrl = imageUrl;
-        this.artists = artists;
-        this.teams = teams;
+        this.hashtags = hashtags;
     }
 
     private String title;
@@ -47,8 +46,6 @@ public class EventUpdateDto {
 
     private String imageUrl;
 
-    private List<String> artists;
-
-    private List<String> teams;
+    private List<String> hashtags;
 
 }

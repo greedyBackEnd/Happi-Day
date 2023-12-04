@@ -1,6 +1,7 @@
 package com.happiday.Happi_Day.domain.entity.event;
 
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
+import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
@@ -88,11 +89,14 @@ public class Event extends BaseEntity {
     )
     private List<Artist> artists = new ArrayList<>();
 
-    @Column
-    private String ectTeams;
-
-    @Column
-    private String ectArtists;
+    // 이벤트 해시태그 매핑
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "event_hashtag",
+            joinColumns = @JoinColumn(name = "article_id"),
+            inverseJoinColumns = @JoinColumn(name = "hashtag_id")
+    )
+    private List<Hashtag> hashtags = new ArrayList<>();
 
 
 
@@ -124,13 +128,9 @@ public class Event extends BaseEntity {
             this.artists.clear();
             this.artists = updateEvent.getArtists();
         }
-        if (updateEvent.getEctArtists() != null) {
-            log.info("아티스트 + : " + updateEvent.getEctArtists());
-            this.ectArtists = updateEvent.getEctArtists();
-        }
-        if (updateEvent.getEctTeams() != null) {
-            log.info("팀 + : " + updateEvent.getEctTeams());
-            this.ectTeams = updateEvent.getEctTeams();
+        if (updateEvent.getHashtags() != null && !updateEvent.getHashtags().isEmpty()) {
+            this.hashtags.clear();
+            this.hashtags = updateEvent.getHashtags();
         }
     }
 

@@ -68,6 +68,10 @@ public class WebSecurityConfig {
                                 "/api/v1/artists/**"
                         ).permitAll()
                         .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/event/subscribedArtists/**"
+                        ).authenticated()
+                        .requestMatchers(
                                 "/**",
                                 "/error",
                                 "/views/**",
