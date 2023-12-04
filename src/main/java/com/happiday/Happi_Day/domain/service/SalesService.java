@@ -234,7 +234,6 @@ public class SalesService {
                 .users(user)
                 .name(dto.getName())
                 .description(dto.getDescription())
-//                .salesStatus(dto.getStatus() != null ? SalesStatus.valueOf(dto.getStatus()) : sales.getSalesStatus())
                 .artists(artists)
                 .teams(teams)
                 .hashtags(hashtagList)
@@ -279,9 +278,6 @@ public class SalesService {
                 .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
         if (!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
-
-//        sales.updateStatus(status);
-
     }
 
     @Transactional
@@ -312,6 +308,7 @@ public class SalesService {
 
     @Transactional
     public String likeSales(Long salesId, String username) {
+        System.out.println("WHAT");
         Sales sales = salesRepository.findById(salesId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
@@ -320,6 +317,7 @@ public class SalesService {
 
         String resposne = "";
         if (sales.getSalesLikesUsers().contains(user)) {
+            System.out.println("WWWWWWHAT");
             sales.getSalesLikesUsers().remove(user);
             user.getSalesLikes().remove(sales);
             resposne = "찜하기가 취소되었습니다. 현재 찜하기 수 : " + sales.getSalesLikesUsers().size();

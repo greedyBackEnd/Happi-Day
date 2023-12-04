@@ -11,8 +11,9 @@ public class ReadListSalesDto {
     private String salesCategory;
     private String name;
     private String user;
-    private int likeNum;
+    private Integer likeNum;
     private String thumbnailImage;
+    private Integer orderNum;
 
     public static ReadListSalesDto fromEntity(Sales sales){
         return ReadListSalesDto.builder()
@@ -22,6 +23,7 @@ public class ReadListSalesDto {
                 .user(sales.getUsers().getNickname())
                 .likeNum(sales.getSalesLikesUsers().size())
                 .thumbnailImage(sales.getThumbnailImage())
+                .orderNum(sales.getOrders().size())
                 .build();
     }
 }
