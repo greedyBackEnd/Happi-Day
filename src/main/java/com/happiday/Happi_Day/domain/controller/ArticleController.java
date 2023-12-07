@@ -37,14 +37,6 @@ public class ArticleController {
         ReadOneArticleDto response = articleService.writeArticle(id, requestDto, thumbnailImage, imageFileList, username);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-//    public void writeArticle(
-//            @PathVariable("categoryId") Long id,
-//            @Valid @RequestPart(value = "article") WriteArticleDto requestDto,
-//            @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
-//            @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFileList) {
-//        String username = SecurityUtils.getCurrentUsername();
-//        articleService.writeArticle(id, requestDto, thumbnailImage, imageFileList, username);
-//    }
 
     // 글 상세 조회
     @GetMapping("/{articleId}")
