@@ -58,12 +58,13 @@ public class UserAuthController {
         UserDetails userDetails = manager.loadUserByUsername(dto.getUsername());
         if (!passwordEncoder.matches(dto.getPassword(), userDetails.getPassword()))
             throw new CustomException(ErrorCode.PASSWORD_NOT_MATCHED);
+
         String accessToken = tokenService.setToken(dto.getUsername());
         JwtTokenDto token = new JwtTokenDto();
         token.setToken(accessToken);
-        LocalDateTime date = LocalDateTime.now();
+
         User user = userRepository.findByUsername(dto.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        user.setLastLoginAt(date);
+        user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
         return new ResponseEntity<>(token, HttpStatus.OK);
     }

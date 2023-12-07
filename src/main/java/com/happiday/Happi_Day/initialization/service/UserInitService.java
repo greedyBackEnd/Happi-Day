@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -29,6 +30,8 @@ public class UserInitService {
                         .phone("01011111111")
                         .role(RoleType.ADMIN)
                         .isActive(true)
+                        .isTermsAgreed(true)
+                        .termsAt(LocalDateTime.now())
                         .build(),
                 // 유저 1 : qwer (article writer, seller)
                 User.builder()
@@ -39,6 +42,8 @@ public class UserInitService {
                         .phone("01022222222")
                         .role(RoleType.USER)
                         .isActive(true)
+                        .isTermsAgreed(true)
+                        .termsAt(LocalDateTime.now())
                         .build(),
                 // 유저 2 : asdf (comment writer, buyer)
                 User.builder()
@@ -49,6 +54,8 @@ public class UserInitService {
                         .phone("01033333333")
                         .role(RoleType.USER)
                         .isActive(true)
+                        .isTermsAgreed(true)
+                        .termsAt(LocalDateTime.now())
                         .build()
         );
 

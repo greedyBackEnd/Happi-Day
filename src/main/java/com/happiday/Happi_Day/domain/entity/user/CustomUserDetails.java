@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -83,6 +84,8 @@ public class CustomUserDetails implements UserDetails {
                 .realname(realname)
                 .phone(phone)
                 .role(role)
+                .termsAt(LocalDateTime.now())
+                .isTermsAgreed(true)
                 .build();
 
     }
