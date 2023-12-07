@@ -1,6 +1,7 @@
 package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.user.User;
+import com.happiday.Happi_Day.domain.entity.user.dto.UserDeleteDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserResponseDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserUpdateDto;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
@@ -38,9 +39,12 @@ public class UserService{
     }
 
     @Transactional
-    public void deleteUser(String username) {
+    public void deleteUser(String username, UserDeleteDto dto) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_NOT_MATCHED);
+        }
         userRepository.delete(user);
     }
 
