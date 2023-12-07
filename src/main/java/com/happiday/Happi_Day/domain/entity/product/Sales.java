@@ -121,4 +121,10 @@ public class Sales extends BaseEntity {
         if (sales.getEctTeams() != null) this.ectTeams = sales.getEctTeams();
         if (sales.getAccount() != null) this.account = sales.getAccount();
     }
+
+    public void setHashtag(List<Artist> artists, List<Team> teams, List<Hashtag> hashtags) {
+        if (artists != null) this.artists = artists;
+        if (teams != null) this.teams = teams;
+        if (hashtags != null) this.hashtags = hashtags;
+    }
 }
