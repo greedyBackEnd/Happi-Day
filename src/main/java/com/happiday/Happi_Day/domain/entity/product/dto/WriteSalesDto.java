@@ -18,8 +18,8 @@ public class WriteSalesDto {
     @NotBlank(message= "내용을 입력해주세요.")
     private String description;
 
-    private List<String> artists;
-    private List<String> teams;
+//    private List<String> artists;
+//    private List<String> teams;
     private List<String> hashtag;
     private String account;
 
