@@ -8,12 +8,16 @@ import com.happiday.Happi_Day.domain.repository.ArtistRepository;
 import com.happiday.Happi_Day.domain.repository.EventRepository;
 import com.happiday.Happi_Day.domain.repository.TeamRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventInitService {
@@ -58,8 +62,13 @@ public class EventInitService {
         );
 
         events.forEach(event -> {
-            if (!eventRepository.existsByTitle(event.getTitle())) {
-                eventRepository.save(event);
+            try {
+                if (!eventRepository.existsByTitle(event.getTitle())) {
+                    eventRepository.save(event);
+                }
+            } catch (Exception e) {
+                log.error("DB Seeder 이벤트 저장 중 예외 발생 - 이벤트명: {}", event.getTitle(), e);
+                throw new CustomException(ErrorCode.DB_SEEDER_EVENT_SAVE_ERROR);
             }
         });
     }

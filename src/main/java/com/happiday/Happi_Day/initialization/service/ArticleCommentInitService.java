@@ -6,11 +6,15 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.ArticleCommentRepository;
 import com.happiday.Happi_Day.domain.repository.ArticleRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArticleCommentInitService {
@@ -36,6 +40,11 @@ public class ArticleCommentInitService {
                         .build()
         );
 
-        articleCommentRepository.saveAll(comments);
+        try {
+            articleCommentRepository.saveAll(comments);
+        } catch (Exception e) {
+            log.error("DB Seeder 게시글 댓글 저장 중 예외 발생", e);
+            throw new CustomException(ErrorCode.DB_SEEDER_ARTICLE_COMMENT_SAVE_ERROR);
+        }
     }
 }

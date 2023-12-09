@@ -17,6 +17,20 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부적인 서버 에러가 발생했습니다."),
     NOT_IMPLEMENTED(HttpStatus.NOT_IMPLEMENTED, "구현되지 않은 기능입니다."),
 
+    // db seeder
+    DB_SEEDER_USER_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "사용자 정보 저장 중 오류 발생"),
+    DB_SEEDER_BOARD_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "게시판 정보 저장 중 오류 발생"),
+    DB_SEEDER_TEAM_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "팀 정보 저장 중 오류 발생"),
+    DB_SEEDER_ARTIST_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "아티스트 정보 저장 중 오류 발생"),
+    DB_SEEDER_ARTICLE_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "게시글 정보 저장 중 오류 발생"),
+    DB_SEEDER_ARTICLE_COMMENT_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "게시글 댓글 정보 저장 중 오류 발생"),
+    DB_SEEDER_EVENT_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "이벤트 정보 저장 중 오류 발생"),
+    DB_SEEDER_EVENT_COMMENT_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "이벤트 댓글 정보 저장 중 오류 발생"),
+    DB_SEEDER_SALES_CATEGORY_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "판매 카테고리 정보 저장 중 오류 발생"),
+    DB_SEEDER_SALES_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "판매글 정보 저장 중 오류 발생"),
+    DB_SEEDER_PRODUCT_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "상품 정보 저장 중 오류 발생"),
+    DB_SEEDER_DELIVERY_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "상품 정보 저장 중 오류 발생"),
+
     // s3 file uploader
     FILE_DELETE_BAD_REQUEST(HttpStatus.BAD_REQUEST, "S3 이미지 삭제에 실패하였습니다."),
     FILE_UPLOAD_BAD_REQUEST(HttpStatus.BAD_REQUEST, "S3 이미지 업로드에 실패하였습니다."),
