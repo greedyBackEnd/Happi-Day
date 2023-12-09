@@ -2,9 +2,13 @@ package com.happiday.Happi_Day.domain.repository;
 
 
 
+import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.event.Event;
+import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.user.QUser;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +20,12 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.happiday.Happi_Day.domain.entity.event.QEvent.event;
 import static com.happiday.Happi_Day.domain.entity.user.QUser.user;
+import static com.happiday.Happi_Day.domain.entity.artist.QArtist.artist;
+import static com.happiday.Happi_Day.domain.entity.team.QTeam.team;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -78,7 +85,7 @@ public class QueryRepository {
     public Page<Event> findEventsByFilterAndKeywordAndSubscribedArtists(Pageable pageable, String filter, String keyword, User loginUser) {
 
         log.info("이건 !!!! userId : " + loginUser.getId());
-        log.info("이건 !!!! user.subscribedArtists : " + user.subscribedArtists.any().id);
+        log.info("이건 !!!! user.subscribedArtists : {}", user.subscribedArtists.any().id);
 
         List<Event> events = queryFactory
                 .selectFrom(event)
@@ -167,8 +174,17 @@ public class QueryRepository {
 
     // 구독한 아티스트/팀의 이벤트 필터링 메서드
     private BooleanExpression subscribedArtistsCondition(User loginUser) {
-        return user.subscribedArtists.any().id.eq(loginUser.getId())
-                .or(user.subscribedTeams.any().id.eq(loginUser.getId()));
-    }
+        List<Long> artistIds = loginUser.getSubscribedArtists().stream()
+                .map(Artist::getId)
+                .toList();
+
+        List<Long> teamIds = loginUser.getSubscribedTeams().stream()
+                .map(Team::getId)
+                .toList();
+
+        return event.artists.any().id.in(artistIds)
+                .or(event.teams.any().id.in(teamIds));
+
+        }
 
 }
