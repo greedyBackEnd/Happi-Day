@@ -2,11 +2,15 @@ package com.happiday.Happi_Day.initialization.service;
 
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.repository.TeamRepository;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TeamInitService {
@@ -26,8 +30,13 @@ public class TeamInitService {
         );
 
         teams.forEach(team -> {
-            if (!teamRepository.existsByName(team.getName())) {
-                teamRepository.save(team);
+            try {
+                if (!teamRepository.existsByName(team.getName())) {
+                    teamRepository.save(team);
+                }
+            } catch (Exception e) {
+                log.error("DB Seeder 팀 저장 중 예외 발생 - 팀명: {}", team.getName(), e);
+                throw new CustomException(ErrorCode.DB_SEEDER_TEAM_SAVE_ERROR);
             }
         });
     }
