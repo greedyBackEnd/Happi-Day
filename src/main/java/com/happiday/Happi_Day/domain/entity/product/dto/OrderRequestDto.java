@@ -13,4 +13,6 @@ public class OrderRequestDto {
     private Map<String,Integer> products;
     private String address;
     private String delivery;
+    private String depositor;
+    private String refundAccount;
 }
