@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +50,9 @@ public class SalesService {
 
         List<Product> productList = new ArrayList<>();
 
+        if(dto.getStartTime().isBefore(LocalDateTime.now())) throw new CustomException(ErrorCode.START_TIME_ERROR);
+        if(dto.getEndTime().isBefore(dto.getStartTime())) throw new CustomException(ErrorCode.END_TIME_ERROR);
+
         Sales newSales = Sales.builder()
                 .users(user)
                 .salesStatus(SalesStatus.ON_SALE)
@@ -59,6 +63,8 @@ public class SalesService {
                 .salesLikesUsers(new ArrayList<>())
                 .imageUrl(new ArrayList<>())
                 .account(dto.getAccount())
+                .startTime(dto.getStartTime())
+                .endTime(dto.getEndTime())
                 .build();
 
         List<Artist> artists = new ArrayList<>();

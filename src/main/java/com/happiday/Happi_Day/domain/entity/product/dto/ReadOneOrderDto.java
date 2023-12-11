@@ -22,6 +22,8 @@ public class ReadOneOrderDto {
     private String orderAt;
     private String delivery;
     private String trackingNum;
+    private String depositor;
+    private String refundAccount;
 
     public static ReadOneOrderDto fromEntity(Sales sales, Order order, User user){
         Map<String, Integer> productList = new HashMap<>();
@@ -39,7 +41,9 @@ public class ReadOneOrderDto {
                 .orderStatus(order.getOrderStatus())
                 .address(order.getAddress())
                 .delivery(order.getDelivery().getName())
-                .trackingNum(order.getTrackingNum())
+                .trackingNum(order.getTrackingNum() != null ? order.getTrackingNum(): "등록되지 않음.")
+                .depositor(order.getDepositor())
+                .refundAccount(order.getRefundAccount())
                 .build();
     }
 }
