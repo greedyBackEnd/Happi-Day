@@ -10,6 +10,7 @@ import com.happiday.Happi_Day.domain.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -42,10 +43,8 @@ public class SalesInitService {
                         .description("동방신기 콘서트 티셔츠 굿즈, 거의 새 것...")
                         .salesStatus(SalesStatus.ON_SALE)
                         .account("1234567890")
-                        .artists(List.of(artist1, artist2))
-                        .teams(List.of(team1))
-                        .ectArtists("")
-                        .ectTeams("")
+                        .startTime(LocalDateTime.of(2023,12,24,11,00))
+                        .endTime(LocalDateTime.of(2023,12,31,11,00))
                         .build(),
                 Sales.builder()
                         .users(seller)
@@ -54,10 +53,8 @@ public class SalesInitService {
                         .description("god 콘서트 자켓 굿즈, 거의 새 것...")
                         .salesStatus(SalesStatus.ON_SALE)
                         .account("1234567890")
-                        .artists(List.of(artist3, artist4))
-                        .teams(List.of(team2))
-                        .ectArtists("")
-                        .ectTeams("")
+                        .startTime(LocalDateTime.of(2023,12,25,11,00))
+                        .endTime(LocalDateTime.of(2023,12,31,11,00))
                         .build()
         );
 

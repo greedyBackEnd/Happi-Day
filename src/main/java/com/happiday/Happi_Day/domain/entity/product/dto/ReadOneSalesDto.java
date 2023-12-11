@@ -7,6 +7,7 @@ import com.happiday.Happi_Day.domain.entity.team.Team;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +30,8 @@ public class ReadOneSalesDto {
     private int likeNum;
     private List<String> imageList;
     private List<ReadDeliveryDto> deliveries;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
     public static ReadOneSalesDto fromEntity(Sales sales, List<ReadProductDto> productList){
         List<String> keywords = new ArrayList<>();
@@ -55,6 +58,8 @@ public class ReadOneSalesDto {
                 .imageList(sales.getImageUrl())
                 .hashtag(keywords)
                 .deliveries(deliveries)
+                .startTime(sales.getStartTime())
+                .endTime(sales.getEndTime())
                 .build();
     }
 }
