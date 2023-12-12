@@ -3,11 +3,13 @@ package com.happiday.Happi_Day.domain.controller;
 import com.happiday.Happi_Day.domain.entity.user.CustomUserDetails;
 import com.happiday.Happi_Day.domain.entity.user.RoleType;
 import com.happiday.Happi_Day.domain.entity.user.User;
+import com.happiday.Happi_Day.domain.entity.user.dto.UserFindDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserLoginDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserRegisterDto;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.domain.service.JpaUserDetailsManager;
 import com.happiday.Happi_Day.domain.service.TokenService;
+import com.happiday.Happi_Day.domain.service.UserService;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.jwt.JwtTokenDto;
@@ -21,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,7 @@ public class UserAuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtils jwtTokenUtils;
     private final TokenService tokenService;
+    private final UserService userService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Validated @RequestBody UserRegisterDto dto) {
@@ -89,5 +91,10 @@ public class UserAuthController {
                 .build();
         manager.createUser(userDetails);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<String> findPassword(@RequestBody UserFindDto dto) throws Exception {
+        return new ResponseEntity<>(userService.findPassword(dto), HttpStatus.OK);
     }
 }
