@@ -13,7 +13,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Random;
+import java.security.SecureRandom;
 
 @Slf4j
 @Service
@@ -29,9 +29,9 @@ public class MailService {
 
     // 인증코드 만들기
     public String createNumber() {
-        Random random = new Random();
-        String code = String.format("%06d", random.nextInt(1000000));
-        return code;
+        SecureRandom random = new SecureRandom();
+        int num = random.nextInt(1000000);
+        return String.format("%06d", num);
     }
 
     public void sendEmail(String to, String code) {
