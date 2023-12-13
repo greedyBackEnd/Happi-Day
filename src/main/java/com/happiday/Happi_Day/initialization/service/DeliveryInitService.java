@@ -4,11 +4,15 @@ import com.happiday.Happi_Day.domain.entity.product.Delivery;
 import com.happiday.Happi_Day.domain.entity.product.Sales;
 import com.happiday.Happi_Day.domain.repository.DeliveryRepository;
 import com.happiday.Happi_Day.domain.repository.SalesRepository;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DeliveryInitService {
@@ -34,8 +38,13 @@ public class DeliveryInitService {
         );
 
         deliveries.forEach(delivery -> {
-            if (!deliveryRepository.existsByName(delivery.getName())) {
-                deliveryRepository.save(delivery);
+            try {
+                if (!deliveryRepository.existsByName(delivery.getName())) {
+                    deliveryRepository.save(delivery);
+                }
+            } catch (Exception e) {
+                log.error("DB Seeder 배송 정보 저장 중 예외 발생 - 배송정보명: {}", delivery.getName(), e);
+                throw new CustomException(ErrorCode.DB_SEEDER_DELIVERY_SAVE_ERROR);
             }
         });
     }

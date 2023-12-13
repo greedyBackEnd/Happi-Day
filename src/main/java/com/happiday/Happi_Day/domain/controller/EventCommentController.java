@@ -43,7 +43,7 @@ public class EventCommentController {
     public ResponseEntity<EventCommentResponseDto> updateComment(@PathVariable("eventId") Long eventId,
                                                                  @PathVariable("commentId") Long commentId,
                                                                  @RequestBody EventCommentUpdateDto updateDto) {
-        log.info("수정 테스트");
+        log.info("댓글 수정 Controller");
         String username = SecurityUtils.getCurrentUsername();
         EventCommentResponseDto responseDto = commentService.updateComment(eventId, commentId, updateDto, username);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -52,7 +52,7 @@ public class EventCommentController {
     @DeleteMapping("/{commentId}")
     public ResponseEntity<String> deleteComment(@PathVariable("eventId") Long eventId,
                                                 @PathVariable("commentId") Long commentId) {
-        log.info("삭제 테스트");
+        log.info("댓글 삭제 Controller");
         String username = SecurityUtils.getCurrentUsername();
         commentService.deleteComment(eventId, commentId, username);
         return ResponseEntity.ok("삭제 성공");

@@ -3,7 +3,10 @@ package com.happiday.Happi_Day.initialization.service;
 import com.happiday.Happi_Day.domain.entity.user.RoleType;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserInitService {
@@ -60,8 +64,13 @@ public class UserInitService {
         );
 
         users.forEach(user -> {
-            if (!userRepository.existsByUsername(user.getUsername())) {
-                userRepository.save(user);
+            try {
+                if (!userRepository.existsByUsername(user.getUsername())) {
+                    userRepository.save(user);
+                }
+            } catch (Exception e) {
+                log.error("DB Seeder 사용자 저장 중 예외 발생 - 사용자명: {}", user.getUsername(), e);
+                throw new CustomException(ErrorCode.DB_SEEDER_USER_SAVE_ERROR);
             }
         });
     }

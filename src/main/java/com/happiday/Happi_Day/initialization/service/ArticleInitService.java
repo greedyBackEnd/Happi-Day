@@ -6,11 +6,15 @@ import com.happiday.Happi_Day.domain.entity.board.BoardCategory;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArticleInitService {
@@ -51,8 +55,13 @@ public class ArticleInitService {
         );
 
         articles.forEach(article -> {
-            if (!articleRepository.existsByTitle(article.getTitle())) {
-                articleRepository.save(article);
+            try {
+                if (!articleRepository.existsByTitle(article.getTitle())) {
+                    articleRepository.save(article);
+                }
+            } catch (Exception e) {
+                log.error("DB Seeder 게시글 저장 중 예외 발생 - 제목: {}", article.getTitle(), e);
+                throw new CustomException(ErrorCode.DB_SEEDER_ARTICLE_SAVE_ERROR);
             }
         });
     }

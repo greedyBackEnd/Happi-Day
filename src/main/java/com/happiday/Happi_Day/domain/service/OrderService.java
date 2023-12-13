@@ -52,6 +52,8 @@ public class OrderService {
                 .address(orderRequest.getAddress())
                 .orderedProducts(new ArrayList<>())
                 .delivery(delivery)
+                .depositor(orderRequest.getDepositor())
+                .refundAccount(orderRequest.getRefundAccount())
                 .build();
         orderRepository.save(newOrder);
 

@@ -7,6 +7,7 @@ import com.happiday.Happi_Day.domain.entity.team.Team;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,23 +24,20 @@ public class ReadOneSalesDto {
     private String description;
     private String salesStatus;
     private List<ReadProductDto> products;
-    private List<String> artists;
-    private List<String> teams;
+//    private List<String> artists;
+//    private List<String> teams;
     private List<String> hashtag;
     private int likeNum;
     private List<String> imageList;
     private List<ReadDeliveryDto> deliveries;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
     public static ReadOneSalesDto fromEntity(Sales sales, List<ReadProductDto> productList){
-        List<String> artists = sales.getArtists().stream().map(Artist::getName).collect(Collectors.toList());
-        List<String> additionalArtists = sales.getArtists() != null ? Arrays.asList(sales.getEctArtists().split(", ")) : Collections.emptyList();
-        List<String> allArtists = new ArrayList<>(artists);
-        allArtists.addAll(additionalArtists);
-
-        List<String> teams = sales.getTeams().stream().map(Team::getName).collect(Collectors.toList());
-        List<String> additionalTeams = sales.getTeams() != null ? Arrays.asList(sales.getEctTeams().split(", ")) : Collections.emptyList();
-        List<String> allTeams = new ArrayList<>(teams);
-        allTeams.addAll(additionalTeams);
+        List<String> keywords = new ArrayList<>();
+        keywords.addAll(sales.getArtists().stream().map(Artist::getName).collect(Collectors.toList()));
+        keywords.addAll(sales.getTeams().stream().map(Team::getName).collect(Collectors.toList()));
+        keywords.addAll(sales.getHashtags().stream().map(Hashtag::getTag).collect(Collectors.toList()));
 
         List<ReadDeliveryDto> deliveries = sales.getDeliveries() != null ? sales.getDeliveries().stream().map(ReadDeliveryDto::fromEntity).collect(Collectors.toList()) : Collections.emptyList();
 
@@ -58,10 +56,10 @@ public class ReadOneSalesDto {
                 .products(productList)
                 .likeNum(sales.getSalesLikesUsers().size())
                 .imageList(sales.getImageUrl())
-                .artists(allArtists)
-                .teams(allTeams)
-                .hashtag(hashtagList)
+                .hashtag(keywords)
                 .deliveries(deliveries)
+                .startTime(sales.getStartTime())
+                .endTime(sales.getEndTime())
                 .build();
     }
 }

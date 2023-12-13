@@ -4,11 +4,15 @@ import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.repository.ArtistRepository;
 import com.happiday.Happi_Day.domain.repository.TeamRepository;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArtistInitService {
@@ -44,8 +48,13 @@ public class ArtistInitService {
         );
 
         artists.forEach(artist -> {
-            if (!artistRepository.existsByName(artist.getName())) {
-                artistRepository.save(artist);
+            try {
+                if (!artistRepository.existsByName(artist.getName())) {
+                    artistRepository.save(artist);
+                }
+            } catch (Exception e) {
+                log.error("DB Seeder 아티스트 저장 중 예외 발생 - 아티스트명: {}", artist.getName(), e);
+                throw new CustomException(ErrorCode.DB_SEEDER_ARTIST_SAVE_ERROR);
             }
         });
     }

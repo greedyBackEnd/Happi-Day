@@ -7,11 +7,16 @@ import com.happiday.Happi_Day.domain.entity.product.SalesStatus;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SalesInitService {
@@ -42,10 +47,8 @@ public class SalesInitService {
                         .description("동방신기 콘서트 티셔츠 굿즈, 거의 새 것...")
                         .salesStatus(SalesStatus.ON_SALE)
                         .account("1234567890")
-                        .artists(List.of(artist1, artist2))
-                        .teams(List.of(team1))
-                        .ectArtists("")
-                        .ectTeams("")
+                        .startTime(LocalDateTime.of(2023,12,24,11,00))
+                        .endTime(LocalDateTime.of(2023,12,31,11,00))
                         .build(),
                 Sales.builder()
                         .users(seller)
@@ -54,16 +57,19 @@ public class SalesInitService {
                         .description("god 콘서트 자켓 굿즈, 거의 새 것...")
                         .salesStatus(SalesStatus.ON_SALE)
                         .account("1234567890")
-                        .artists(List.of(artist3, artist4))
-                        .teams(List.of(team2))
-                        .ectArtists("")
-                        .ectTeams("")
+                        .startTime(LocalDateTime.of(2023,12,25,11,00))
+                        .endTime(LocalDateTime.of(2023,12,31,11,00))
                         .build()
         );
 
         salesList.forEach(sales -> {
-            if (!salesRepository.existsByName(sales.getName())) {
-                salesRepository.save(sales);
+            try {
+                if (!salesRepository.existsByName(sales.getName())) {
+                    salesRepository.save(sales);
+                }
+            } catch (Exception e) {
+                log.error("DB Seeder 판매글 저장 중 예외 발생 - 판매글명: {}", sales.getName(), e);
+                throw new CustomException(ErrorCode.DB_SEEDER_SALES_SAVE_ERROR);
             }
         });
     }

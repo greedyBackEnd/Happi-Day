@@ -20,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 @Table(name = "article")
-@SQLDelete(sql="UPDATE article SET deleted_at = now() WHERE id = ?")
+@SQLDelete(sql = "UPDATE article SET deleted_at = now() WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
 public class Article extends BaseEntity {
     @Id
@@ -107,5 +107,11 @@ public class Article extends BaseEntity {
 
     public void setThumbnailImage(String thumbnailImage) {
         this.thumbnailUrl = thumbnailImage;
+    }
+
+    public void setHashtag(List<Artist> artists, List<Team> teams, List<Hashtag> hashtags) {
+        if (artists != null) this.artists = artists;
+        if (teams != null) this.teams = teams;
+        if (hashtags != null) this.hashtags = hashtags;
     }
 }

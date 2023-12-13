@@ -3,10 +3,7 @@ package com.happiday.Happi_Day.domain.entity.product;
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -54,6 +51,12 @@ public class Order extends BaseEntity {
 
     @Column
     private String trackingNum;
+
+    @Column
+    private String depositor;
+
+    @Column
+    private String refundAccount;
 
     // orderedProduct 매핑
     @OneToMany(mappedBy = "order")

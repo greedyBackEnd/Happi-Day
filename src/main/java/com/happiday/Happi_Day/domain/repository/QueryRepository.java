@@ -1,22 +1,14 @@
 package com.happiday.Happi_Day.domain.repository;
 
 
+
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
-import com.happiday.Happi_Day.domain.entity.artist.QArtist;
-import com.happiday.Happi_Day.domain.entity.artist.dto.ArtistListResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.Event;
-import com.happiday.Happi_Day.domain.entity.event.QEvent;
-import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
-import com.happiday.Happi_Day.domain.entity.team.QTeam;
 import com.happiday.Happi_Day.domain.entity.team.Team;
-import com.happiday.Happi_Day.domain.entity.team.dto.TeamListResponseDto;
+import com.happiday.Happi_Day.domain.entity.user.QUser;
 import com.happiday.Happi_Day.domain.entity.user.User;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +22,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.happiday.Happi_Day.domain.entity.artist.QArtist.artist;
 import static com.happiday.Happi_Day.domain.entity.event.QEvent.event;
-import static com.happiday.Happi_Day.domain.entity.team.QTeam.team;
 import static com.happiday.Happi_Day.domain.entity.user.QUser.user;
+import static com.happiday.Happi_Day.domain.entity.artist.QArtist.artist;
+import static com.happiday.Happi_Day.domain.entity.team.QTeam.team;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -71,8 +63,7 @@ public class QueryRepository {
         List<Event> events = queryFactory
                 .selectFrom(event)
                 .join(event.user, user).fetchJoin()
-                .where((event.startTime.before(LocalDateTime.now()).and(event.endTime.after(LocalDateTime.now()))
-                        .and(eventSearchFilter(filter, keyword))))
+                .where(ongoingCondition().and(eventSearchFilter(filter, keyword)))
                 .orderBy(event.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -82,8 +73,7 @@ public class QueryRepository {
         Long count = queryFactory
                 .select(event.count())
                 .from(event)
-                .where((event.startTime.before(LocalDateTime.now()).and(event.endTime.after(LocalDateTime.now()))
-                        .and(eventSearchFilter(filter, keyword))))
+                .where(ongoingCondition().and(eventSearchFilter(filter, keyword)))
                 .fetchOne();
 
         log.info("닉네임 : " + event.user.nickname);
@@ -95,14 +85,13 @@ public class QueryRepository {
     public Page<Event> findEventsByFilterAndKeywordAndSubscribedArtists(Pageable pageable, String filter, String keyword, User loginUser) {
 
         log.info("이건 !!!! userId : " + loginUser.getId());
-        log.info("이건 !!!! user.subscribedArtists : " + user.subscribedArtists.any().id);
+        log.info("이건 !!!! user.subscribedArtists : {}", user.subscribedArtists.any().id);
 
         List<Event> events = queryFactory
                 .selectFrom(event)
-                .where(
-                        (user.subscribedArtists.any().id.eq(loginUser.getId())
-                                .or(user.subscribedTeams.any().id.eq(loginUser.getId()))
-                     .and(eventSearchFilter(filter, keyword))))
+                .where(subscribedArtistsCondition(loginUser)
+                        .and(eventSearchFilter(filter, keyword))
+                )
                 .orderBy(event.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -114,10 +103,8 @@ public class QueryRepository {
         Long count = queryFactory
                 .select(event.count())
                 .from(event)
-                .where(
-                        (user.subscribedArtists.any().id.eq(loginUser.getId())
-                                .or(user.subscribedTeams.any().id.eq(loginUser.getId()))
-                                .and(eventSearchFilter(filter, keyword)))
+                .where(subscribedArtistsCondition(loginUser)
+                        .and(eventSearchFilter(filter, keyword))
                 )
                 .fetchOne();
 
@@ -134,11 +121,9 @@ public class QueryRepository {
         List<Event> events = queryFactory
                 .selectFrom(event)
                 .join(event.user, user).fetchJoin()
-                .where(
-                        (event.startTime.before(LocalDateTime.now()).and(event.endTime.after(LocalDateTime.now()))
-                        .and(user.subscribedArtists.any().id.eq(loginUser.getId())
-                                .or(user.subscribedTeams.any().id.eq(loginUser.getId()))
-                        .and(eventSearchFilter(filter, keyword))))
+                .where(ongoingCondition()
+                        .and(subscribedArtistsCondition(loginUser))
+                        .and(eventSearchFilter(filter, keyword))
                 )
                 .orderBy(event.id.desc())
                 .offset(pageable.getOffset())
@@ -151,11 +136,9 @@ public class QueryRepository {
         Long count = queryFactory
                 .select(event.count())
                 .from(event)
-                .where(
-                        (event.startTime.before(LocalDateTime.now()).and(event.endTime.after(LocalDateTime.now()))
-                                .and(user.subscribedArtists.any().id.eq(loginUser.getId())
-                                        .or(user.subscribedTeams.any().id.eq(loginUser.getId()))
-                                        .and(eventSearchFilter(filter, keyword))))
+                .where(ongoingCondition()
+                        .and(subscribedArtistsCondition(loginUser))
+                        .and(eventSearchFilter(filter, keyword))
                 )
                 .fetchOne();
 
@@ -166,6 +149,7 @@ public class QueryRepository {
 
 
 
+    // 이벤트 검색 필터링 메서드
     private BooleanExpression eventSearchFilter(String filter, String keyword) {
         log.info("filter!! : " + filter);
         log.info("keyword!! : " + keyword);
@@ -181,4 +165,26 @@ public class QueryRepository {
             return null;
         }
     }
+
+    // 진행중인 이벤트 필터링 메서드
+    private BooleanExpression ongoingCondition() {
+        return event.startTime.before(LocalDateTime.now())
+                .and(event.endTime.after(LocalDateTime.now()));
+    }
+
+    // 구독한 아티스트/팀의 이벤트 필터링 메서드
+    private BooleanExpression subscribedArtistsCondition(User loginUser) {
+        List<Long> artistIds = loginUser.getSubscribedArtists().stream()
+                .map(Artist::getId)
+                .toList();
+
+        List<Long> teamIds = loginUser.getSubscribedTeams().stream()
+                .map(Team::getId)
+                .toList();
+
+        return event.artists.any().id.in(artistIds)
+                .or(event.teams.any().id.in(teamIds));
+
+        }
+
 }

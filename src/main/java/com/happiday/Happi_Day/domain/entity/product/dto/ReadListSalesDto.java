@@ -4,6 +4,8 @@ import com.happiday.Happi_Day.domain.entity.product.Sales;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 public class ReadListSalesDto {
@@ -11,8 +13,11 @@ public class ReadListSalesDto {
     private String salesCategory;
     private String name;
     private String user;
-    private int likeNum;
+    private Integer likeNum;
     private String thumbnailImage;
+    private Integer orderNum;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
     public static ReadListSalesDto fromEntity(Sales sales){
         return ReadListSalesDto.builder()
@@ -22,6 +27,9 @@ public class ReadListSalesDto {
                 .user(sales.getUsers().getNickname())
                 .likeNum(sales.getSalesLikesUsers().size())
                 .thumbnailImage(sales.getThumbnailImage())
+                .orderNum(sales.getOrders().size())
+                .startTime(sales.getStartTime())
+                .endTime(sales.getEndTime())
                 .build();
     }
 }

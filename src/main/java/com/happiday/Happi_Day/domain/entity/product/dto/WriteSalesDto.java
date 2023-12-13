@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -18,16 +19,21 @@ public class WriteSalesDto {
     @NotBlank(message= "내용을 입력해주세요.")
     private String description;
 
-    private List<String> artists;
-    private List<String> teams;
+//    private List<String> artists;
+//    private List<String> teams;
     private List<String> hashtag;
     private String account;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
 
     public Sales toEntity(){
         return Sales.builder()
                 .name(name)
                 .description(description)
                 .account(account)
+                .startTime(startTime)
+                .endTime(endTime)
                 .build();
     }
 }
