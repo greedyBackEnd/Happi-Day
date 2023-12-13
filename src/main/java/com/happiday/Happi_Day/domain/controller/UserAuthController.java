@@ -3,11 +3,14 @@ package com.happiday.Happi_Day.domain.controller;
 import com.happiday.Happi_Day.domain.entity.user.CustomUserDetails;
 import com.happiday.Happi_Day.domain.entity.user.RoleType;
 import com.happiday.Happi_Day.domain.entity.user.User;
+import com.happiday.Happi_Day.domain.entity.user.dto.UserFindDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserLoginDto;
+import com.happiday.Happi_Day.domain.entity.user.dto.UserNumDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserRegisterDto;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.domain.service.JpaUserDetailsManager;
 import com.happiday.Happi_Day.domain.service.TokenService;
+import com.happiday.Happi_Day.domain.service.UserService;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.jwt.JwtTokenDto;
@@ -21,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +40,7 @@ public class UserAuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtils jwtTokenUtils;
     private final TokenService tokenService;
+    private final UserService userService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Validated @RequestBody UserRegisterDto dto) {
@@ -58,12 +61,13 @@ public class UserAuthController {
         UserDetails userDetails = manager.loadUserByUsername(dto.getUsername());
         if (!passwordEncoder.matches(dto.getPassword(), userDetails.getPassword()))
             throw new CustomException(ErrorCode.PASSWORD_NOT_MATCHED);
+
         String accessToken = tokenService.setToken(dto.getUsername());
         JwtTokenDto token = new JwtTokenDto();
         token.setToken(accessToken);
-        LocalDateTime date = LocalDateTime.now();
+
         User user = userRepository.findByUsername(dto.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        user.setLastLoginAt(date);
+        user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
         return new ResponseEntity<>(token, HttpStatus.OK);
     }
@@ -89,4 +93,21 @@ public class UserAuthController {
         manager.createUser(userDetails);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    @PostMapping("/find")
+    public ResponseEntity<String> findPassword(@RequestBody UserFindDto dto) throws Exception {
+        return new ResponseEntity<>(userService.findPassword(dto), HttpStatus.OK);
+    }
+
+    @PostMapping("/check")
+    public ResponseEntity<?> checkEmail(@RequestBody UserNumDto dto) {
+        return new ResponseEntity<>(userService.checkEmail(dto), HttpStatus.OK);
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<?> changePassword(@RequestBody UserLoginDto dto) {
+        userService.changePassword(dto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

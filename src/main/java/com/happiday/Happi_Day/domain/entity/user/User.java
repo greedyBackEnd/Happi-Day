@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -61,6 +62,12 @@ public class User extends BaseEntity {
 
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime lastLoginAt; // 마지막 로그인 날짜
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime termsAt; // 약관 동의 날짜
+
+    @Column(nullable = false)
+    private Boolean isTermsAgreed = false; // 약관 동의 여부
 
     // 활성화 상태구분 & 탈퇴, 관리자에 의한 삭제 구분
     @PrePersist
@@ -181,5 +188,18 @@ public class User extends BaseEntity {
         if (userUpdate.getPhone() != null && !userUpdate.getPhone().isEmpty())
             this.phone = userUpdate.phone;
     }
+    public void setTermsAt(LocalDateTime date) {
+        this.lastLoginAt = date;
+    }
+
+    public void setIsTermsAgreed() {
+        this.isTermsAgreed = true;
+    }
+
+    public void setPassword(String password, PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(password);
+    }
+
+
 }
 

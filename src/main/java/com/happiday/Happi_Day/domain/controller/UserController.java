@@ -6,6 +6,7 @@ import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.comment.EventCommentListResponseDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadListOrderDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadListSalesDto;
+import com.happiday.Happi_Day.domain.entity.user.dto.UserPWDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserResponseDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserUpdateDto;
 import com.happiday.Happi_Day.domain.service.MyPageService;
@@ -43,9 +44,9 @@ public class UserController {
     }
 
     @DeleteMapping("/withdrawal")
-    public ResponseEntity<String> withdrawUser() {
+    public ResponseEntity<String> withdrawUser(@RequestBody UserPWDto dto) {
         String username = SecurityUtils.getCurrentUsername();
-        userService.deleteUser(username);
+        userService.deleteUser(username, dto);
         return new ResponseEntity<>("회원탈퇴되었습니다.", HttpStatus.OK);
 
     }
