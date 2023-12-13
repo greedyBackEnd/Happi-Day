@@ -22,8 +22,10 @@ public class MailService {
 
     private final JavaMailSender javaMailSender;
 
-    @Value("${spring.mail.username}")
-    private String username;
+    @Value("${spring.mail.from.address}")
+    private String fromAddress;
+    @Value("${spring.mail.from.name}")
+    private String fromName;
 
     // 인증코드 만들기
     public String createNumber() {
@@ -47,7 +49,7 @@ public class MailService {
         message.addRecipients(MimeMessage.RecipientType.TO, to);
         message.setSubject("HappiDay 이메일 인증 코드입니다.");
         message.setText("이메일 인증코드: " + code);
-        message.setFrom(new InternetAddress(username + "@naver.com", "HappiDay"));
+        message.setFrom(new InternetAddress(fromAddress, fromName));
         return message;
     }
 
