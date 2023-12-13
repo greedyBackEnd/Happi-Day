@@ -4,5 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class UserNumDto {
-    private String number;
+    private String username;
+    private String code;
 }

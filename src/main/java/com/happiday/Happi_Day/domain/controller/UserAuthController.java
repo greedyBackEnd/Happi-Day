@@ -5,6 +5,7 @@ import com.happiday.Happi_Day.domain.entity.user.RoleType;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserFindDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserLoginDto;
+import com.happiday.Happi_Day.domain.entity.user.dto.UserNumDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserRegisterDto;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.domain.service.JpaUserDetailsManager;
@@ -93,8 +94,20 @@ public class UserAuthController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PostMapping("/password")
+    @PostMapping("/find")
     public ResponseEntity<String> findPassword(@RequestBody UserFindDto dto) throws Exception {
         return new ResponseEntity<>(userService.findPassword(dto), HttpStatus.OK);
     }
+
+    @PostMapping("/check")
+    public ResponseEntity<?> checkEmail(@RequestBody UserNumDto dto) {
+        return new ResponseEntity<>(userService.checkEmail(dto), HttpStatus.OK);
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<?> changePassword(@RequestBody UserLoginDto dto) {
+        userService.changePassword(dto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

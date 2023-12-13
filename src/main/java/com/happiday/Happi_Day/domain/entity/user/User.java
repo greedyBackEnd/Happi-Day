@@ -196,6 +196,10 @@ public class User extends BaseEntity {
         this.isTermsAgreed = true;
     }
 
+    public void setPassword(String password, PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(password);
+    }
+
 
 }
 

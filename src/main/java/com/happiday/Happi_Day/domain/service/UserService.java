@@ -7,19 +7,23 @@ import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class UserService{
+public class UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final MailService mailService;
+    private final StringRedisTemplate stringRedisTemplate;
 
     public UserResponseDto getUserProfile(String username) {
         User user = userRepository.findByUsername(username)
@@ -50,16 +54,40 @@ public class UserService{
         // 이름 + 이메일 입력
         User user = userRepository.findByUsername(dto.getUsername())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        if (!user.getRealname().equals(dto.getRealname())){
+        if (!user.getRealname().equals(dto.getRealname())) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
         String code = mailService.createNumber();
         mailService.sendEmail(dto.getUsername(), code);
-        log.info("code : " + code);
+
+        String key = "code:" + dto.getUsername();
+        stringRedisTemplate.opsForValue().set(key, code);
+        stringRedisTemplate.expire(key, 600, TimeUnit.SECONDS);
+
         return code;
     }
 
-//    public void checkEmail(UserNumDto dto) {
-//        if(dto.getNumber().equals())
-//    }
+    public Boolean checkEmail(UserNumDto dto) {
+        User user = userRepository.findByUsername(dto.getUsername())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        String key = "code:" + dto.getUsername();
+        String storedCode = stringRedisTemplate.opsForValue().get(key);
+
+        if (storedCode == null || !dto.getCode().equals(storedCode)) {
+            throw new CustomException(ErrorCode.CODE_ERROR);
+        }
+        return true;
+    }
+
+    @Transactional
+    public void changePassword(UserLoginDto dto) {
+        User user = userRepository.findByUsername(dto.getUsername())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        user.setPassword(dto.getPassword(), passwordEncoder);
+        userRepository.save(user);
+
+        String key = "code:" + dto.getUsername();
+        stringRedisTemplate.delete(key);
+    }
 }
