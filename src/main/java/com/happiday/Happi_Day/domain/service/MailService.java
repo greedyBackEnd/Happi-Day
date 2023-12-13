@@ -10,9 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 @Slf4j
@@ -34,7 +34,7 @@ public class MailService {
         return code;
     }
 
-    public void sendEmail(String to, String code) throws Exception {
+    public void sendEmail(String to, String code) {
         MimeMessage message = createMessage(to, code);
         try {
             javaMailSender.send(message);
@@ -43,15 +43,19 @@ public class MailService {
         }
     }
 
-    public MimeMessage createMessage(String to, String code) throws Exception {
-        MimeMessage message = javaMailSender.createMimeMessage();
+    public MimeMessage createMessage(String to, String code) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
 
-        message.addRecipients(MimeMessage.RecipientType.TO, to);
-        message.setSubject("HappiDay 이메일 인증 코드입니다.");
-        message.setText("이메일 인증코드: " + code);
-        message.setFrom(new InternetAddress(fromAddress, fromName));
-        return message;
+            message.addRecipients(MimeMessage.RecipientType.TO, to);
+            message.setSubject("HappiDay 이메일 인증 코드입니다.");
+            message.setText("이메일 인증코드: " + code);
+            message.setFrom(new InternetAddress(fromAddress, fromName));
+            return message;
+        } catch (MessagingException e) {
+            throw new CustomException(ErrorCode.MAIL_FORMAT_ERROR);
+        } catch (UnsupportedEncodingException e) {
+            throw new CustomException(ErrorCode.MAIL_ENCODING_ERROR);
+        }
     }
-
-
 }
