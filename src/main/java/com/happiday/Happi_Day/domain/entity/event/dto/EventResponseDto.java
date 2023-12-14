@@ -52,6 +52,8 @@ public class EventResponseDto {
 
     private int joinCount;
 
+    private int viewCount;
+
 
     public static EventResponseDto fromEntity(Event event) {
         return EventResponseDto.builder()
@@ -72,6 +74,7 @@ public class EventResponseDto {
                 .commentCount(event.getCommentCount())
                 .joinCount(event.getJoinCount())
                 .likeCount(event.getLikeCount())
+                .viewCount(event.getViewCount())
                 .build();
     }
 }

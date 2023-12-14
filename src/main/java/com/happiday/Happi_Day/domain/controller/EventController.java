@@ -43,6 +43,7 @@ public class EventController {
     @GetMapping("/{eventId}")
     public ResponseEntity<EventResponseDto> readEvent(@PathVariable Long eventId){
         EventResponseDto responseDto = eventService.readEvent(eventId);
+        eventService.updateViewCounts(eventId);
         log.info("이벤트 단일 조회");
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }

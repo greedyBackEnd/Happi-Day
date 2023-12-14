@@ -46,11 +46,12 @@ public class EventListResponseDto {
 
     private int likeCount;
 
+    private int viewCount;
+
     public EventListResponseDto() {
     }
 
-//    @QueryProjection
-    public EventListResponseDto(Long id, String nickname, String title, LocalDateTime updatedAt, LocalDateTime startTime, LocalDateTime endTime, String location, String thumbnailUrl, List<String> artists, List<String> teams, List<String> hashtags, int commentCount, int likeCount) {
+    public EventListResponseDto(Long id, String nickname, String title, LocalDateTime updatedAt, LocalDateTime startTime, LocalDateTime endTime, String location, String thumbnailUrl, List<String> artists, List<String> teams, List<String> hashtags, int commentCount, int likeCount, int viewCount) {
         this.id = id;
         this.nickname = nickname;
         this.title = title;
@@ -64,6 +65,7 @@ public class EventListResponseDto {
         this.hashtags = hashtags;
         this.commentCount = commentCount;
         this.likeCount = likeCount;
+        this.viewCount = viewCount;
 
     }
 
@@ -82,6 +84,7 @@ public class EventListResponseDto {
                 .hashtags(event.getHashtags().stream().map(Hashtag::getTag).collect(Collectors.toList()))
                 .commentCount(event.getComments().size())
                 .likeCount(event.getLikes().size())
+                .viewCount(event.getViewCount())
                 .build();
     }
 }
