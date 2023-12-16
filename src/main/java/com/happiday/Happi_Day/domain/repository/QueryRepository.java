@@ -5,10 +5,8 @@ package com.happiday.Happi_Day.domain.repository;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.team.Team;
-import com.happiday.Happi_Day.domain.entity.user.QUser;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +18,9 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.happiday.Happi_Day.domain.entity.event.QEvent.event;
 import static com.happiday.Happi_Day.domain.entity.user.QUser.user;
-import static com.happiday.Happi_Day.domain.entity.artist.QArtist.artist;
-import static com.happiday.Happi_Day.domain.entity.team.QTeam.team;
 
 @Slf4j
 @RequiredArgsConstructor
