@@ -32,7 +32,6 @@ public class EventService {
     private final UserRepository userRepository;
     private final ArtistRepository artistRepository;
     private final TeamRepository teamRepository;
-    private final QueryRepository queryRepository;
     private final FileUtils fileUtils;
 
 
@@ -100,14 +99,14 @@ public class EventService {
 
     public Page<EventListResponseDto> readEvents(Pageable pageable, String filter, String keyword) {
         log.info("이벤트 리스트 조회");
-        Page<Event> events = queryRepository.findEventsByFilterAndKeyword(pageable, filter, keyword);
+        Page<Event> events = eventRepository.findEventsByFilterAndKeyword(pageable, filter, keyword);
 
         return events.map(EventListResponseDto::fromEntity);
     }
 
     public Page<EventListResponseDto> readOngoingEvents(Pageable pageable, String filter, String keyword) {
         log.info("진행중인 이벤트 리스트 조회");
-        Page<Event> events = queryRepository.findEventsByFilterAndKeywordAndOngoing(pageable, filter, keyword);
+        Page<Event> events = eventRepository.findEventsByFilterAndKeywordAndOngoing(pageable, filter, keyword);
 
         return events.map(EventListResponseDto::fromEntity);
     }
@@ -117,7 +116,7 @@ public class EventService {
         log.info("username : " + username);
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Event> events = queryRepository.findEventsByFilterAndKeywordAndSubscribedArtists(pageable, filter, keyword, user);
+        Page<Event> events = eventRepository.findEventsByFilterAndKeywordAndSubscribedArtists(pageable, filter, keyword, user);
 
         return events.map(EventListResponseDto::fromEntity);
     }
@@ -129,7 +128,7 @@ public class EventService {
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Event> events = queryRepository.findEventsByFilterAndKeywordAndOngoingAndSubscribedArtists(pageable, filter, keyword, user);
+        Page<Event> events = eventRepository.findEventsByFilterAndKeywordAndOngoingAndSubscribedArtists(pageable, filter, keyword, user);
 
         return events.map(EventListResponseDto::fromEntity);
     }
