@@ -50,8 +50,8 @@ public class SalesService {
 
         List<Product> productList = new ArrayList<>();
 
-        if(dto.getStartTime().isBefore(LocalDateTime.now())) throw new CustomException(ErrorCode.START_TIME_ERROR);
-        if(dto.getEndTime().isBefore(dto.getStartTime())) throw new CustomException(ErrorCode.END_TIME_ERROR);
+//        if(dto.getStartTime().isBefore(LocalDateTime.now())) throw new CustomException(ErrorCode.START_TIME_ERROR);
+        if (dto.getEndTime().isBefore(dto.getStartTime())) throw new CustomException(ErrorCode.END_TIME_ERROR);
 
         Sales newSales = Sales.builder()
                 .users(user)
@@ -148,11 +148,15 @@ public class SalesService {
         // user 확인
         if (!user.equals(sales.getUsers())) throw new CustomException(ErrorCode.FORBIDDEN);
 
+        if (dto.getEndTime().isBefore(dto.getStartTime())) throw new CustomException(ErrorCode.END_TIME_ERROR);
+
         sales.updateSales(Sales.builder()
                 .users(user)
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .account(dto.getAccount())
+                .startTime(dto.getStartTime())
+                .endTime(dto.getEndTime())
                 .build()
         );
 
@@ -217,8 +221,8 @@ public class SalesService {
         }
 
 
-        if(dto.getStatus() != null){
-            switch (dto.getStatus()){
+        if (dto.getStatus() != null) {
+            switch (dto.getStatus()) {
                 case "판매중":
                     sales.updateStatus(SalesStatus.ON_SALE);
                     break;
@@ -244,7 +248,7 @@ public class SalesService {
 
     // 판매글 상태변경
     @Transactional
-    public void updateStatus(Long salesId,String username, String status){
+    public void updateStatus(Long salesId, String username, String status) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
