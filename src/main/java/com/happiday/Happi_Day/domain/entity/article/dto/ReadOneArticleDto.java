@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 public class ReadOneArticleDto {
     private String title;
     private String content;
-//    private List<String> teams;
-//    private List<String> artists;
     private List<String> hashtags;
     private String user;
     private String updatedAt;
@@ -48,35 +46,4 @@ public class ReadOneArticleDto {
                 .updatedAt(article.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .build();
     }
-
-//    public static ReadOneArticleDto fromEntity(Article article) {
-//        List<String> artists = article.getArtists().stream().map(Artist::getName).collect(Collectors.toList());
-//        List<String> additionalArtists = article.getArtists() != null ? Arrays.asList(article.getEctArtists().split(", ")) : Collections.emptyList();
-//        List<String> allArtists = new ArrayList<>(artists);
-//        allArtists.addAll(additionalArtists);
-//
-//        List<String> teams = article.getTeams().stream().map(Team::getName).collect(Collectors.toList());
-//        List<String> additionalTeams = article.getTeams() != null ? Arrays.asList(article.getEctTeams().split(", ")) : Collections.emptyList();
-//        List<String> allTeams = new ArrayList<>(teams);
-//        allTeams.addAll(additionalTeams);
-//
-//        List<String> hashtagList = new ArrayList<>();
-//        for (Hashtag hashtag : article.getHashtags()) {
-//            hashtagList.add(hashtag.getTag());
-//        }
-//
-//        return ReadOneArticleDto.builder()
-//                .user(article.getUser().getNickname())
-//                .title(article.getTitle())
-//                .content(article.getContent())
-//                .teams(allTeams)
-//                .artists(allArtists)
-//                .comments(ReadCommentDto.toReadCommentDto(article.getArticleComments()))
-//                .hashtags(hashtagList)
-//                .likeUsersNum(article.getLikeUsers().size())
-//                .imageUrl(article.getImageUrl())
-//                .updatedAt(article.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
-//                .build();
-//    }
-
 }

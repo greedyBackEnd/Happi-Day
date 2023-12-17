@@ -16,8 +16,6 @@ public class WriteArticleDto {
     @NotBlank(message = "내용을 입력해주세요.")
     private String content;
 
-//    private List<String> artists;
-//    private List<String> teams;
     private String eventAddress;
     private List<String> hashtag;
 
