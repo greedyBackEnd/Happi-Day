@@ -9,10 +9,10 @@ public interface EventCustomRepository {
 
     Page<Event> findEventsByFilterAndKeyword(Pageable pageable, String filter, String keyword);
 
-    public Page<Event> findEventsByFilterAndKeywordAndOngoing(Pageable pageable, String filter, String keyword);
+    Page<Event> findEventsByFilterAndKeywordAndOngoing(Pageable pageable, String filter, String keyword);
 
-    public Page<Event> findEventsByFilterAndKeywordAndSubscribedArtists(Pageable pageable, String filter, String keyword, User loginUser);
+    Page<Event> findEventsByFilterAndKeywordAndSubscribedArtists(Pageable pageable, String filter, String keyword, User loginUser);
 
-    public Page<Event> findEventsByFilterAndKeywordAndOngoingAndSubscribedArtists(Pageable pageable, String filter, String keyword, User loginUser);
+    Page<Event> findEventsByFilterAndKeywordAndOngoingAndSubscribedArtists(Pageable pageable, String filter, String keyword, User loginUser);
 
 }
