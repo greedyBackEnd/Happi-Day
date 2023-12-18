@@ -11,13 +11,14 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Service
 public class RedisService {
-    private final Long clientViewCountExpireDurationOfSecond = 86400L;
-    private final RedisTemplate<String, Boolean> redisTemplate;
+    private final long clientViewCountExpireDurationOfSecond = 86400L;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public boolean isFirstIpRequest(String clientAddress, Long eventId) {
         String key = generateKey(clientAddress, eventId);
-        log.info("user event request key: {}", key);
+        log.info("클라이언트 주소 + eventId : {}", key);
         if (redisTemplate.hasKey(key)) {
+            log.info("이미 조회");
             return false;
         }
         return true;
@@ -25,13 +26,13 @@ public class RedisService {
 
     public void clientRequest(String clientAddress, Long eventId) {
         String key = generateKey(clientAddress, eventId);
-        log.info("event request key: {}", key);
+        log.info("클라이언트 주소 + eventId : {}", key);
 
-        redisTemplate.opsForValue().set(key, true);
+        redisTemplate.opsForValue().set(key, "processed");
         redisTemplate.expire(key, clientViewCountExpireDurationOfSecond, TimeUnit.SECONDS);
     }
 
-    // key 형식 : 'client Address + eventId' ->  '\xac\xed\x00\x05t\x00\x0f127.0.0.1 + 500'
+    // key 형식 : 'client Address + eventId' ->  '0:0:0:0:0:0:0:1 + 2'
     private String generateKey(String clientAddress, Long eventId) {
         return clientAddress + " + " + eventId;
     }
