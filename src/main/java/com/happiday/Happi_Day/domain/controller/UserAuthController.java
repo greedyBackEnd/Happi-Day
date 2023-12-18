@@ -100,14 +100,14 @@ public class UserAuthController {
     }
 
     @PostMapping("/check")
-    public ResponseEntity<?> checkEmail(@RequestBody UserNumDto dto) {
+    public ResponseEntity<Boolean> checkEmail(@RequestBody UserNumDto dto) {
         return new ResponseEntity<>(userService.checkEmail(dto), HttpStatus.OK);
     }
 
     @PostMapping("/password")
-    public ResponseEntity<?> changePassword(@RequestBody UserLoginDto dto) {
+    public ResponseEntity<String> changePassword(@RequestBody UserLoginDto dto) {
         userService.changePassword(dto);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("비밀번호가 변경되었습니다.", HttpStatus.OK);
     }
 
 }

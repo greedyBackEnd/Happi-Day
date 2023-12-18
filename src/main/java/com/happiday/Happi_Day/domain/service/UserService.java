@@ -74,8 +74,11 @@ public class UserService {
         String key = "code:" + dto.getUsername();
         String storedCode = stringRedisTemplate.opsForValue().get(key);
 
-        if (storedCode == null || !dto.getCode().equals(storedCode)) {
-            throw new CustomException(ErrorCode.CODE_ERROR);
+        if (storedCode == null) {
+            throw new CustomException(ErrorCode.CODE_TIME_ERROR);
+        }
+        else if (!dto.getCode().equals(storedCode)) {
+            throw new CustomException(ErrorCode.CODE_NOT_MATCHED);
         }
         return true;
     }
