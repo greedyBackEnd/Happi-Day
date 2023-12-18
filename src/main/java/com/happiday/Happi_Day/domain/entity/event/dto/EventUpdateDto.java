@@ -1,9 +1,6 @@
 package com.happiday.Happi_Day.domain.entity.event.dto;
 
-import com.happiday.Happi_Day.domain.entity.artist.Artist;
-import com.happiday.Happi_Day.domain.entity.event.Event;
-import com.happiday.Happi_Day.domain.entity.team.Team;
-import jakarta.validation.constraints.NotBlank;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

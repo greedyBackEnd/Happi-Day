@@ -7,9 +7,6 @@ import com.happiday.Happi_Day.domain.entity.team.Team;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,6 +49,8 @@ public class EventResponseDto {
 
     private int joinCount;
 
+    private int viewCount;
+
 
     public static EventResponseDto fromEntity(Event event) {
         return EventResponseDto.builder()
@@ -72,6 +71,7 @@ public class EventResponseDto {
                 .commentCount(event.getCommentCount())
                 .joinCount(event.getJoinCount())
                 .likeCount(event.getLikeCount())
+                .viewCount(event.getViewCount())
                 .build();
     }
 }
