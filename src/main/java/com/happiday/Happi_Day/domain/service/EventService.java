@@ -33,6 +33,7 @@ public class EventService {
     private final ArtistRepository artistRepository;
     private final TeamRepository teamRepository;
     private final FileUtils fileUtils;
+    private final RedisService redisService;
 
 
     @Transactional
@@ -133,8 +134,22 @@ public class EventService {
         return events.map(EventListResponseDto::fromEntity);
     }
 
-    public EventResponseDto readEvent(Long eventId) {
+    @Transactional
+    public EventResponseDto readEvent(String clientAddress, Long eventId) {
         log.info("이벤트 단일 조회");
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
+
+        if (redisService.isFirstIpRequest(clientAddress, eventId)) {
+            log.debug("same user requests duplicate in 24hours: {}, {}", clientAddress, eventId);
+            increaseViewCount(clientAddress, eventId);
+        }
+
+        return EventResponseDto.fromEntity(event);
+    }
+
+    public EventResponseDto readMapEvent(Long eventId) {
+        log.info("이벤트 지도 조회 테스트");
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
@@ -280,8 +295,9 @@ public class EventService {
 
     // 조회수
     @Transactional
-    public int updateViewCounts(Long eventId) {
-        return eventRepository.updateViewCount(eventId);
+    public void increaseViewCount(String clientAddress, Long eventId) {
+        eventRepository.increaseViewCount(eventId);
+        redisService.clientRequest(clientAddress, eventId);
     }
 
 }

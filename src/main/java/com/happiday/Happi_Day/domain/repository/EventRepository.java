@@ -22,5 +22,5 @@ public interface EventRepository extends JpaRepository<Event, Long>, EventCustom
     //조회수 count
     @Modifying
     @Query("update Event p set p.viewCount = p.viewCount + 1 where p.id = :id")
-    int updateViewCount(@Param("id") Long eventId);
+    int increaseViewCount(@Param("id") Long eventId);
 }
