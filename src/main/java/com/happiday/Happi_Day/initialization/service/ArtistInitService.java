@@ -6,6 +6,7 @@ import com.happiday.Happi_Day.domain.repository.ArtistRepository;
 import com.happiday.Happi_Day.domain.repository.TeamRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
+import com.happiday.Happi_Day.utils.DefaultImageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,31 +20,37 @@ public class ArtistInitService {
 
     private final ArtistRepository artistRepository;
     private final TeamRepository teamRepository;
+    private final DefaultImageUtils defaultImageUtils;
 
     public void initArtists() {
         Team team1 = teamRepository.findById(1L).orElse(null);
         Team team2 = teamRepository.findById(2L).orElse(null);
+        String imageUrl = defaultImageUtils.getDefaultImageUrlTeamArtistProfile();
 
         List<Artist> artists = List.of(
                 Artist.builder()
                         .name("유노윤호")
                         .description("유노윤호입니다")
                         .teams(List.of(team1))
+                        .profileUrl(imageUrl)
                         .build(),
                 Artist.builder()
                         .name("시아준수")
                         .description("시아준수입니다.")
                         .teams(List.of(team1))
+                        .profileUrl(imageUrl)
                         .build(),
                 Artist.builder()
                         .name("박준형")
                         .description("박준형입니다")
                         .teams(List.of(team2))
+                        .profileUrl(imageUrl)
                         .build(),
                 Artist.builder()
                         .name("윤계상")
                         .description("윤계상입니다.")
                         .teams(List.of(team2))
+                        .profileUrl(imageUrl)
                         .build()
         );
 

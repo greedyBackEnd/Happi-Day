@@ -8,6 +8,7 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
+import com.happiday.Happi_Day.utils.DefaultImageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class ArticleInitService {
     private final BoardCategoryRepository boardCategoryRepository;
     private final ArtistRepository artistRepository;
     private final TeamRepository teamRepository;
+    private final DefaultImageUtils defaultImageUtils;
 
     public void initArticles() {
         User writer = userRepository.findById(2L).orElse(null);
@@ -34,6 +36,7 @@ public class ArticleInitService {
         Artist artist4 = artistRepository.findById(2L).orElse(null);
         Team team1 = teamRepository.findById(1L).orElse(null);
         Team team2 = teamRepository.findById(2L).orElse(null);
+        String imageUrl = defaultImageUtils.getDefaultImageUrlArticleThumbnail();
 
         List<Article> articles = List.of(
                 Article.builder()
@@ -43,6 +46,7 @@ public class ArticleInitService {
                         .category(category)
                         .artists(List.of(artist1, artist2))
                         .teams(List.of(team1))
+                        .thumbnailUrl(imageUrl)
                         .build(),
                 Article.builder()
                         .user(writer)
@@ -51,6 +55,7 @@ public class ArticleInitService {
                         .category(category)
                         .artists(List.of(artist3, artist4))
                         .teams(List.of(team2))
+                        .thumbnailUrl(imageUrl)
                         .build()
         );
 

@@ -15,6 +15,7 @@ import com.happiday.Happi_Day.domain.repository.TeamRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
+import com.happiday.Happi_Day.utils.DefaultImageUtils;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public class ArtistService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final FileUtils fileUtils;
+    private final DefaultImageUtils defaultImageUtils;
 
     // 아티스트 등록
     @Transactional
@@ -46,6 +48,8 @@ public class ArtistService {
         if (imageFile != null && !imageFile.isEmpty()) {
             String saveFileUrl = fileUtils.uploadFile(imageFile);
             artistEntity.setProfileUrl(saveFileUrl);
+        } else {
+            artistEntity.setProfileUrl(defaultImageUtils.getDefaultImageUrlTeamArtistProfile());
         }
 
         // 팀과의 연관 관계 처리

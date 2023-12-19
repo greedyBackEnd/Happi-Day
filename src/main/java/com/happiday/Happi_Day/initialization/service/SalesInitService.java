@@ -9,6 +9,7 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
+import com.happiday.Happi_Day.utils.DefaultImageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class SalesInitService {
     private final SalesCategoryRepository salesCategoryRepository;
     private final ArtistRepository artistRepository;
     private final TeamRepository teamRepository;
+    private final DefaultImageUtils defaultImageUtils;
 
     public void initSales() {
         User seller = userRepository.findById(2L).orElse(null);
@@ -37,6 +39,7 @@ public class SalesInitService {
         Artist artist4 = artistRepository.findById(4L).orElse(null);
         Team team1 = teamRepository.findById(1L).orElse(null);
         Team team2 = teamRepository.findById(1L).orElse(null);
+        String imageUrl = defaultImageUtils.getDefaultImageUrlSalesThumbnail();
 
 
         List<Sales> salesList = List.of(
@@ -49,6 +52,7 @@ public class SalesInitService {
                         .account("1234567890")
                         .startTime(LocalDateTime.of(2023,12,24,11,00))
                         .endTime(LocalDateTime.of(2023,12,31,11,00))
+                        .thumbnailImage(imageUrl)
                         .build(),
                 Sales.builder()
                         .users(seller)
@@ -59,6 +63,7 @@ public class SalesInitService {
                         .account("1234567890")
                         .startTime(LocalDateTime.of(2023,12,25,11,00))
                         .endTime(LocalDateTime.of(2023,12,31,11,00))
+                        .thumbnailImage(imageUrl)
                         .build()
         );
 
