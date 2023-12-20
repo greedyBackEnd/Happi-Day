@@ -44,7 +44,7 @@ public class UserAuthController {
     private final DefaultImageUtils defaultImageUtils;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Validated @RequestBody UserRegisterDto dto) {
+    public ResponseEntity<String> registerUser(@Validated @RequestBody UserRegisterDto dto) {
         CustomUserDetails userDetails = CustomUserDetails.builder()
                 .username(dto.getUsername())
                 .password(passwordEncoder.encode(dto.getPassword()))
@@ -55,7 +55,7 @@ public class UserAuthController {
                 .imageUrl(defaultImageUtils.getDefaultImageUrlUserProfile())
                 .build();
         manager.createUser(userDetails);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>("회원가입을 완료했습니다.", HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
