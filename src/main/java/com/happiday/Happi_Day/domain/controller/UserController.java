@@ -18,8 +18,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,11 +37,12 @@ public class UserController {
         UserResponseDto myProfile = userService.getUserProfile(username);
         return new ResponseEntity<>(myProfile,HttpStatus.OK);
     }
-
-    @PatchMapping("/info")
-    public ResponseEntity<UserResponseDto> updateUser(@RequestBody UserUpdateDto dto) {
+    @PatchMapping(value = "/info", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UserResponseDto> updateUser(
+            @RequestPart(value = "dto", required = false) UserUpdateDto dto,
+            @RequestPart(value = "multipartFile", required = false) MultipartFile multipartFile) {
         String username = SecurityUtils.getCurrentUsername();
-        UserResponseDto newProfile = userService.updateUserProfile(username, dto);
+        UserResponseDto newProfile = userService.updateUserProfile(username, dto, multipartFile);
         return new ResponseEntity<>(newProfile,HttpStatus.OK);
     }
 

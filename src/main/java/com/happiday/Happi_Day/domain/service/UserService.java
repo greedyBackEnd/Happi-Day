@@ -5,12 +5,14 @@ import com.happiday.Happi_Day.domain.entity.user.dto.*;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
+import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final MailService mailService;
     private final StringRedisTemplate stringRedisTemplate;
+    private final FileUtils fileUtils;
 
     public UserResponseDto getUserProfile(String username) {
         User user = userRepository.findByUsername(username)
@@ -32,10 +35,19 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDto updateUserProfile(String username, UserUpdateDto dto) {
+    public UserResponseDto updateUserProfile(String username, UserUpdateDto dto, MultipartFile multipartFile) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        user.update(dto.toEntity(), passwordEncoder);
+
+        if (dto != null) {
+            user.update(dto.toEntity(), passwordEncoder);
+        }
+
+        if (!multipartFile.isEmpty()) {
+            String url = fileUtils.uploadFile(multipartFile);
+            user.setImageUrl(url);
+        }
+
         userRepository.save(user);
         return UserResponseDto.fromEntity(user);
     }

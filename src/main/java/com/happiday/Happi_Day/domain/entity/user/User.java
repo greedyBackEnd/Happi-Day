@@ -69,6 +69,8 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private Boolean isTermsAgreed = false; // 약관 동의 여부
 
+    private String imageUrl;
+
     // 활성화 상태구분 & 탈퇴, 관리자에 의한 삭제 구분
     @PrePersist
     public void prePersist() {
@@ -198,6 +200,10 @@ public class User extends BaseEntity {
 
     public void setPassword(String password, PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(password);
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
 
