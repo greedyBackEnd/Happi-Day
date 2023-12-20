@@ -40,7 +40,7 @@ public class UserInitService {
                         .isActive(true)
                         .isTermsAgreed(true)
                         .termsAt(LocalDateTime.now())
-
+                        .imageUrl(imageUrl)
                         .build(),
                 // 유저 1 : qwer (article writer, seller)
                 User.builder()
@@ -53,6 +53,7 @@ public class UserInitService {
                         .isActive(true)
                         .isTermsAgreed(true)
                         .termsAt(LocalDateTime.now())
+                        .imageUrl(imageUrl)
                         .build(),
                 // 유저 2 : asdf (comment writer, buyer)
                 User.builder()
@@ -65,6 +66,7 @@ public class UserInitService {
                         .isActive(true)
                         .isTermsAgreed(true)
                         .termsAt(LocalDateTime.now())
+                        .imageUrl(imageUrl)
                         .build()
         );
 
