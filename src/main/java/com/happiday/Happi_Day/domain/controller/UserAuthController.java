@@ -15,6 +15,7 @@ import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.jwt.JwtTokenDto;
 import com.happiday.Happi_Day.jwt.JwtTokenUtils;
+import com.happiday.Happi_Day.utils.DefaultImageUtils;
 import com.happiday.Happi_Day.utils.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,12 +39,12 @@ public class UserAuthController {
     private final UserRepository userRepository;
     private final JpaUserDetailsManager manager;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenUtils jwtTokenUtils;
     private final TokenService tokenService;
     private final UserService userService;
+    private final DefaultImageUtils defaultImageUtils;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Validated @RequestBody UserRegisterDto dto) {
+    public ResponseEntity<String> registerUser(@Validated @RequestBody UserRegisterDto dto) {
         CustomUserDetails userDetails = CustomUserDetails.builder()
                 .username(dto.getUsername())
                 .password(passwordEncoder.encode(dto.getPassword()))
@@ -51,9 +52,10 @@ public class UserAuthController {
                 .realname(dto.getRealname())
                 .phone(dto.getPhone())
                 .role(RoleType.USER)
+                .imageUrl(defaultImageUtils.getDefaultImageUrlUserProfile())
                 .build();
         manager.createUser(userDetails);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>("회원가입을 완료했습니다.", HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
@@ -100,14 +102,14 @@ public class UserAuthController {
     }
 
     @PostMapping("/check")
-    public ResponseEntity<?> checkEmail(@RequestBody UserNumDto dto) {
+    public ResponseEntity<Boolean> checkEmail(@RequestBody UserNumDto dto) {
         return new ResponseEntity<>(userService.checkEmail(dto), HttpStatus.OK);
     }
 
     @PostMapping("/password")
-    public ResponseEntity<?> changePassword(@RequestBody UserLoginDto dto) {
+    public ResponseEntity<String> changePassword(@RequestBody UserLoginDto dto) {
         userService.changePassword(dto);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("비밀번호가 변경되었습니다.", HttpStatus.OK);
     }
 
 }
