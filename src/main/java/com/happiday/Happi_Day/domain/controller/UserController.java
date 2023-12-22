@@ -102,6 +102,12 @@ public class UserController {
         return new ResponseEntity<>(myPageService.readMySales(username, pageable), HttpStatus.OK);
     }
 
+    @GetMapping("/sales/like")
+    public ResponseEntity<Page<ReadListSalesDto>> getLikeSales(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readLikeSales(username, pageable), HttpStatus.OK);
+    }
+
     @GetMapping("/orders")
     public ResponseEntity<Page<ReadListOrderDto>> getMyOrders(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         String username = SecurityUtils.getCurrentUsername();

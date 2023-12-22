@@ -90,6 +90,13 @@ public class MyPageService {
         return sales.map(ReadListSalesDto::fromEntity);
     }
 
+    public Page<ReadListSalesDto> readLikeSales(String username, Pageable pageable) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Page<Sales> orders = salesRepository.findAllBySalesLikesUsersContains(user, pageable);
+
+        return orders.map(ReadListSalesDto::fromEntity);
+    }
+
     public Page<ReadListOrderDto> readMyOrders(String username, Pageable pageable) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Page<Order> orders = orderRepository.findAllByUser(user, pageable);
