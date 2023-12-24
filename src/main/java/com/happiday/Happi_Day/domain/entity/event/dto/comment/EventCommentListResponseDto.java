@@ -15,6 +15,7 @@ public class EventCommentListResponseDto {
     private String content;
     private LocalDateTime createdAt;
     private Long eventId;
+    private String userProfileUrl;
 
     public static EventCommentListResponseDto fromEntity(EventComment comment) {
         return EventCommentListResponseDto.builder()
@@ -22,6 +23,7 @@ public class EventCommentListResponseDto {
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
                 .eventId(comment.getEvent().getId())
+                .userProfileUrl(comment.getUser().getImageUrl())
                 .build();
     }
 }
