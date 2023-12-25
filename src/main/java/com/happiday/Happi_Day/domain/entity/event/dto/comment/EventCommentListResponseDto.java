@@ -1,10 +1,8 @@
 package com.happiday.Happi_Day.domain.entity.event.dto.comment;
 
-import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.event.EventComment;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
