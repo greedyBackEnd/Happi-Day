@@ -150,6 +150,12 @@ public class EventCustomRepositoryImpl implements EventCustomRepository{
             return switch (filter) {
                 case "title" -> event.title.contains(keyword);
                 case "username" -> event.user.nickname.contains(keyword);
+                case "artistAndTeam" -> event.artists.any().name.in(keyword)
+                            .or(event.teams.any().name.in(keyword));
+                case "all" -> event.title.contains(keyword)
+                            .or(event.user.nickname.contains(keyword))
+                            .or(event.artists.any().name.contains(keyword))
+                            .or(event.teams.any().name.contains(keyword));
                 // TODO : 필요한 다른 필터 조건 추가 예정
                 default -> null;
             };
