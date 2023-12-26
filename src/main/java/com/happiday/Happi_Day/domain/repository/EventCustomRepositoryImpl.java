@@ -156,7 +156,6 @@ public class EventCustomRepositoryImpl implements EventCustomRepository{
                             .or(event.user.nickname.contains(keyword))
                             .or(event.artists.any().name.contains(keyword))
                             .or(event.teams.any().name.contains(keyword));
-                // TODO : 필요한 다른 필터 조건 추가 예정
                 default -> null;
             };
         } else {
