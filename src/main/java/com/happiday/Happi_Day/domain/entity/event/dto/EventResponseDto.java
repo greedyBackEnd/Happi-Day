@@ -51,6 +51,8 @@ public class EventResponseDto {
 
     private int viewCount;
 
+    private String userProfileUrl;
+
 
     public static EventResponseDto fromEntity(Event event) {
         return EventResponseDto.builder()
@@ -72,6 +74,7 @@ public class EventResponseDto {
                 .joinCount(event.getJoinCount())
                 .likeCount(event.getLikeCount())
                 .viewCount(event.getViewCount())
+                .userProfileUrl(event.getUser().getImageUrl())
                 .build();
     }
 }
