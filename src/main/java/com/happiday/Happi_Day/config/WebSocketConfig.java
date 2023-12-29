@@ -2,6 +2,8 @@ package com.happiday.Happi_Day.config;
 
 import com.happiday.Happi_Day.domain.entity.user.CustomUserDetails;
 import com.happiday.Happi_Day.domain.service.JpaUserDetailsManager;
+import com.happiday.Happi_Day.exception.CustomException;
+import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.jwt.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,16 +67,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                                 userDetails.getAuthorities()
                         );
                         accessor.setUser(authentication);
-                    } else throw new AccessDeniedException("invalid token");
+                    } else throw new CustomException(ErrorCode.FORBIDDEN);
                 }
                 else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
                     try {
                         CustomUserDetails jwtUserDetails = (CustomUserDetails) ((Authentication) accessor.getUser()).getPrincipal();
                         if (!accessor.getDestination().endsWith(String.format("/%d", jwtUserDetails.getId())))
-                            throw new AccessDeniedException("forbidden");
+                            throw new CustomException(ErrorCode.FORBIDDEN);
                     } catch (ClassCastException | NullPointerException e) {
                         log.error(e.getMessage());
-                        throw new AccessDeniedException("invalid credentials");
+                        throw new CustomException(ErrorCode.FORBIDDEN);
                     }
                 }
                 return message;
