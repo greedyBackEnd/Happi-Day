@@ -22,7 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.*;
+
+import static com.happiday.Happi_Day.domain.entity.event.QEvent.event;
 
 @Service
 @Transactional(readOnly = true)
@@ -234,19 +237,29 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
+        // 이미 참여 중인 이벤트
         boolean isJoined = event.getJoinList().contains(user);
 
+        // 진행 중인 이벤트
+        boolean isOngoingEvent = event.getStartTime().isBefore(LocalDateTime.now())
+                && event.getEndTime().isAfter(LocalDateTime.now());
+
         String response = "";
-        if (isJoined) {
-            // 이미 참여한 경우, 취소
-            user.getEventJoinList().remove(event);
-            event.getJoinList().remove(user);
-            response = " 이벤트 참여 취소";
+
+        if (isOngoingEvent) {
+            if (isJoined) {
+                // 이미 참여한 경우, 취소
+                user.getEventJoinList().remove(event);
+                event.getJoinList().remove(user);
+                response = " 이벤트 참여 취소";
+            } else {
+                // 참여하지 않은 경우, 참여
+                user.getEventJoinList().add(event);
+                event.getJoinList().add(user);
+                response = " 이벤트 참여";
+            }
         } else {
-            // 참여하지 않은 경우, 참여
-            user.getEventJoinList().add(event);
-            event.getJoinList().add(user);
-            response = " 이벤트 참여";
+            throw new CustomException(ErrorCode.EVENT_NOT_ONGOING);
         }
 
         eventRepository.save(event);

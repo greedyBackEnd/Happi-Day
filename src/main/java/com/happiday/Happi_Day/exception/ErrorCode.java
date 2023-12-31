@@ -48,6 +48,7 @@ public enum ErrorCode {
     EVENT_ALREADY_DELETED(HttpStatus.NOT_FOUND, "삭제된 이벤트입니다."),
     EVENT_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이벤트 댓글을 찾을 수 없습니다."),
     EVENT_COMMENT_ALREADY_DELETED(HttpStatus.NOT_FOUND, "삭제된 댓글입니다."),
+    EVENT_NOT_ONGOING(HttpStatus.NO_CONTENT, "종료된 이벤트입니다."),
 
     // user
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다."),
