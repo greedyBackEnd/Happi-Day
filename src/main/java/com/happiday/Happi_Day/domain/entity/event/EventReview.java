@@ -29,7 +29,7 @@ public class EventReview extends BaseEntity {
     private User user;
 
     @Column(nullable = false)
-    private String content;
+    private String description;
 
     @Column(nullable = false)
     private int rating;
