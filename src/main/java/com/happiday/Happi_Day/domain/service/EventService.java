@@ -238,7 +238,8 @@ public class EventService {
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
         // 이미 참여 중인 이벤트
-        boolean isJoined = event.getJoinList().contains(user);
+        boolean isJoined = user.getEventJoinList().stream()
+                .anyMatch(joinList -> joinList.equals(event));
 
         // 진행 중인 이벤트
         boolean isOngoingEvent = event.getStartTime().isBefore(LocalDateTime.now())
