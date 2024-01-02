@@ -34,6 +34,10 @@ public class EventReview extends BaseEntity {
     @Column(nullable = false)
     private int rating;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id")
+    private Event event;
+
     @Setter
     private String imageUrl;
 
