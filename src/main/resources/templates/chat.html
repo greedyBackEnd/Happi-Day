@@ -160,7 +160,9 @@
         }).then(bodyJson => {
             const messageContainer = document.getElementById('message-container')
             messageContainer.innerHTML = ``
-            for (const message of bodyJson) {
+
+            const messages = bodyJson.content; // 이 부분을 수정
+            for (const message of messages) {
                 const messageElem = document.createElement('div')
                 const senderElem = document.createElement('h4')
                 const contentElem = document.createElement('p')
