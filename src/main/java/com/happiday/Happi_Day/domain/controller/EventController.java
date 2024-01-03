@@ -6,6 +6,7 @@ import com.happiday.Happi_Day.domain.entity.event.dto.EventResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventUpdateDto;
 import com.happiday.Happi_Day.domain.service.EventService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +42,12 @@ public class EventController {
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponseDto> readEvent(@PathVariable Long eventId){
-        EventResponseDto responseDto = eventService.readEvent(eventId);
+    public ResponseEntity<EventResponseDto> readEvent(HttpServletRequest request, @PathVariable Long eventId){
+
+        String clientAddress = request.getRemoteAddr();
+
+        EventResponseDto responseDto = eventService.readEvent(clientAddress, eventId);
+
         log.info("이벤트 단일 조회");
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }

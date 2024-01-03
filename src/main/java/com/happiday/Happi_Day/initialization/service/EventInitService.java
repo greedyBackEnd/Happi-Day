@@ -10,6 +10,7 @@ import com.happiday.Happi_Day.domain.repository.TeamRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
+import com.happiday.Happi_Day.utils.DefaultImageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class EventInitService {
     private final UserRepository userRepository;
     private final ArtistRepository artistRepository;
     private final TeamRepository teamRepository;
+    private final DefaultImageUtils defaultImageUtils;
 
     public void initEvents() {
         User writer = userRepository.findById(2L).orElse(null);
@@ -35,6 +37,7 @@ public class EventInitService {
         Artist artist4 = artistRepository.findById(4L).orElse(null);
         Team team1 = teamRepository.findById(1L).orElse(null);
         Team team2 = teamRepository.findById(1L).orElse(null);
+        String imageUrl = defaultImageUtils.getDefaultImageUrlEventThumbnail();
 
         List<Event> events = List.of(
                 Event.builder()
@@ -47,6 +50,7 @@ public class EventInitService {
                         .address("올림픽로 424")
                         .artists(List.of(artist1, artist2))
                         .teams(List.of(team1))
+                        .thumbnailUrl(imageUrl)
                         .build(),
                 Event.builder()
                         .user(writer)
@@ -58,6 +62,7 @@ public class EventInitService {
                         .address("엑스코로 10")
                         .artists(List.of(artist3, artist4))
                         .teams(List.of(team2))
+                        .thumbnailUrl(imageUrl)
                         .build()
         );
 

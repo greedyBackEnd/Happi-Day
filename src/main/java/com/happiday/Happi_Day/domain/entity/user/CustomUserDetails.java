@@ -25,6 +25,7 @@ public class CustomUserDetails implements UserDetails {
     private String realname; // 실명
     private String phone;
     private RoleType role;
+    private String imageUrl;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -72,6 +73,7 @@ public class CustomUserDetails implements UserDetails {
                 .realname(entity.getRealname())
                 .phone(entity.getPhone())
                 .role(entity.getRole())
+                .imageUrl(entity.getImageUrl())
                 .build();
     }
 
@@ -86,6 +88,7 @@ public class CustomUserDetails implements UserDetails {
                 .role(role)
                 .termsAt(LocalDateTime.now())
                 .isTermsAgreed(true)
+                .imageUrl(imageUrl)
                 .build();
 
     }

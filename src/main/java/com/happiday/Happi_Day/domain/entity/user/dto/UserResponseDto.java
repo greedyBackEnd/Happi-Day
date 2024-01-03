@@ -14,6 +14,7 @@ public class UserResponseDto {
     private String realname;
     private String phone;
     private RoleType role;
+    private String imageUrl;
 
     public static UserResponseDto fromEntity(User user) {
         return UserResponseDto.builder()
@@ -23,6 +24,7 @@ public class UserResponseDto {
                 .realname(user.getRealname())
                 .phone(user.getPhone())
                 .role(user.getRole())
+                .imageUrl(user.getImageUrl())
                 .build();
     }
 }

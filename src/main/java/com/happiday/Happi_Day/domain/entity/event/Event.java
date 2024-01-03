@@ -59,6 +59,9 @@ public class Event extends BaseEntity {
     @Setter
     private String imageUrl;
 
+    @Column(columnDefinition = "integer default 0", nullable = false)
+    private int viewCount;
+
     // 이벤트 댓글 관계 설정
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
     private List<EventComment> comments;

@@ -5,6 +5,7 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
+import com.happiday.Happi_Day.utils.DefaultImageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,9 +22,12 @@ public class UserInitService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final DefaultImageUtils defaultImageUtils;
 
     @Transactional
     public void initUsers() {
+        String imageUrl = defaultImageUtils.getDefaultImageUrlUserProfile();
+
         List<User> users = List.of(
                 // 어드민
                 User.builder()
@@ -36,6 +40,7 @@ public class UserInitService {
                         .isActive(true)
                         .isTermsAgreed(true)
                         .termsAt(LocalDateTime.now())
+                        .imageUrl(imageUrl)
                         .build(),
                 // 유저 1 : qwer (article writer, seller)
                 User.builder()
@@ -48,6 +53,7 @@ public class UserInitService {
                         .isActive(true)
                         .isTermsAgreed(true)
                         .termsAt(LocalDateTime.now())
+                        .imageUrl(imageUrl)
                         .build(),
                 // 유저 2 : asdf (comment writer, buyer)
                 User.builder()
@@ -60,6 +66,7 @@ public class UserInitService {
                         .isActive(true)
                         .isTermsAgreed(true)
                         .termsAt(LocalDateTime.now())
+                        .imageUrl(imageUrl)
                         .build()
         );
 

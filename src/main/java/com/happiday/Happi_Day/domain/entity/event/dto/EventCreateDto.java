@@ -1,11 +1,5 @@
 package com.happiday.Happi_Day.domain.entity.event.dto;
 
-import com.happiday.Happi_Day.domain.entity.artist.Artist;
-import com.happiday.Happi_Day.domain.entity.event.Event;
-import com.happiday.Happi_Day.domain.entity.team.Team;
-import com.happiday.Happi_Day.domain.repository.ArtistRepository;
-import com.happiday.Happi_Day.domain.repository.TeamRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +7,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter

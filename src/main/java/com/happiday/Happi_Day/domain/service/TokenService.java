@@ -24,11 +24,11 @@ public class TokenService {
     private final StringRedisTemplate redisTemplate;
     private String key = "refresh";
 
-    @PostConstruct
-    public void init() {
-        log.info("Token Service init");
-        redisTemplate.expire(key, Duration.ofHours(1));
-    }
+//    @PostConstruct
+//    public void init() {
+//        log.info("Token Service init");
+//        redisTemplate.expire(key, Duration.ofHours(1));
+//    }
 
     public String setToken(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));

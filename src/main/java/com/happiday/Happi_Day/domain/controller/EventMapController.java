@@ -19,7 +19,7 @@ public class EventMapController {
 
     @GetMapping("/detail/{id}")
     public String eventDetail(@PathVariable Long id, Model model) {
-        EventResponseDto responseDto = eventService.readEvent(id);
+        EventResponseDto responseDto = eventService.readMapEvent(id);
         model.addAttribute("event", responseDto);
         return "map-test";
     }

@@ -18,8 +18,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,11 +37,12 @@ public class UserController {
         UserResponseDto myProfile = userService.getUserProfile(username);
         return new ResponseEntity<>(myProfile,HttpStatus.OK);
     }
-
-    @PatchMapping("/info")
-    public ResponseEntity<UserResponseDto> updateUser(@RequestBody UserUpdateDto dto) {
+    @PatchMapping(value = "/info", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UserResponseDto> updateUser(
+            @RequestPart(value = "dto", required = false) UserUpdateDto dto,
+            @RequestPart(value = "multipartFile", required = false) MultipartFile multipartFile) {
         String username = SecurityUtils.getCurrentUsername();
-        UserResponseDto newProfile = userService.updateUserProfile(username, dto);
+        UserResponseDto newProfile = userService.updateUserProfile(username, dto, multipartFile);
         return new ResponseEntity<>(newProfile,HttpStatus.OK);
     }
 
@@ -97,6 +100,12 @@ public class UserController {
     public ResponseEntity<Page<ReadListSalesDto>> getMySales(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         String username = SecurityUtils.getCurrentUsername();
         return new ResponseEntity<>(myPageService.readMySales(username, pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/sales/like")
+    public ResponseEntity<Page<ReadListSalesDto>> getLikeSales(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.readLikeSales(username, pageable), HttpStatus.OK);
     }
 
     @GetMapping("/orders")

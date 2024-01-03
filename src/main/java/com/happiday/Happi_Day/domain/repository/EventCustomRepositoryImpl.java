@@ -1,14 +1,10 @@
 package com.happiday.Happi_Day.domain.repository;
 
-
-
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.team.Team;
-import com.happiday.Happi_Day.domain.entity.user.QUser;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,20 +16,16 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.happiday.Happi_Day.domain.entity.event.QEvent.event;
 import static com.happiday.Happi_Day.domain.entity.user.QUser.user;
-import static com.happiday.Happi_Day.domain.entity.artist.QArtist.artist;
-import static com.happiday.Happi_Day.domain.entity.team.QTeam.team;
 
+@Repository
 @Slf4j
 @RequiredArgsConstructor
-@Repository
-public class QueryRepository {
+public class EventCustomRepositoryImpl implements EventCustomRepository{
 
     private final JPAQueryFactory queryFactory;
-
 
     // 이벤트 목록
     public Page<Event> findEventsByFilterAndKeyword(Pageable pageable, String filter, String keyword) {
@@ -158,7 +150,12 @@ public class QueryRepository {
             return switch (filter) {
                 case "title" -> event.title.contains(keyword);
                 case "username" -> event.user.nickname.contains(keyword);
-                // TODO : 필요한 다른 필터 조건 추가 예정
+                case "artistAndTeam" -> event.artists.any().name.in(keyword)
+                            .or(event.teams.any().name.in(keyword));
+                case "all" -> event.title.contains(keyword)
+                            .or(event.user.nickname.contains(keyword))
+                            .or(event.artists.any().name.contains(keyword))
+                            .or(event.teams.any().name.contains(keyword));
                 default -> null;
             };
         } else {
@@ -185,6 +182,6 @@ public class QueryRepository {
         return event.artists.any().id.in(artistIds)
                 .or(event.teams.any().id.in(teamIds));
 
-        }
+    }
 
 }

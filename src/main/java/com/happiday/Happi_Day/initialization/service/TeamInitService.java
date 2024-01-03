@@ -4,6 +4,7 @@ import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.repository.TeamRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
+import com.happiday.Happi_Day.utils.DefaultImageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,16 +17,21 @@ import java.util.List;
 public class TeamInitService {
 
     private final TeamRepository teamRepository;
+    private final DefaultImageUtils defaultImageUtils;
 
     public void initTeams() {
+        String imageUrl = defaultImageUtils.getDefaultImageUrlTeamArtistProfile();
+
         List<Team> teams = List.of(
                 Team.builder()
                         .name("동방신기")
                         .description("동방신기입니다.")
+                        .logoUrl(imageUrl)
                         .build(),
                 Team.builder()
                         .name("god")
                         .description("god입니다.")
+                        .logoUrl(imageUrl)
                         .build()
         );
 

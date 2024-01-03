@@ -14,5 +14,7 @@ public interface SalesRepository extends JpaRepository<Sales, Long> {
 
     Page<Sales> findAllByUsers(User user, Pageable pageable);
 
+    Page<Sales> findAllBySalesLikesUsersContains(User user, Pageable pageable);
+
     boolean existsByName(String name);
 }

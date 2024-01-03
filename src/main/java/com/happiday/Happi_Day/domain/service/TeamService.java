@@ -13,6 +13,7 @@ import com.happiday.Happi_Day.domain.repository.TeamRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
+import com.happiday.Happi_Day.utils.DefaultImageUtils;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final FileUtils fileUtils;
     private final UserRepository userRepository;
+    private final DefaultImageUtils defaultImageUtils;
 
     // 팀 등록
     @Transactional
@@ -43,6 +45,8 @@ public class TeamService {
         if (imageFile != null && !imageFile.isEmpty()) {
             String saveFileUrl = fileUtils.uploadFile(imageFile);
             teamEntity.setLogoUrl(saveFileUrl);
+        } else {
+            teamEntity.setLogoUrl(defaultImageUtils.getDefaultImageUrlTeamArtistProfile());
         }
 
         teamEntity = teamRepository.save(teamEntity);
