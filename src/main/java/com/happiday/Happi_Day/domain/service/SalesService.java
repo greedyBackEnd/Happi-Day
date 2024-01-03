@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +37,7 @@ public class SalesService {
     private final TeamRepository teamRepository;
     private final HashtagRepository hashtagRepository;
     private final FileUtils fileUtils;
+    private final QuerySalesRepository querySalesRepository;
 
     @Transactional
     public ReadOneSalesDto createSales(Long categoryId, WriteSalesDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFile, String username) {
@@ -50,7 +50,6 @@ public class SalesService {
 
         List<Product> productList = new ArrayList<>();
 
-//        if(dto.getStartTime().isBefore(LocalDateTime.now())) throw new CustomException(ErrorCode.START_TIME_ERROR);
         if (dto.getEndTime().isBefore(dto.getStartTime())) throw new CustomException(ErrorCode.END_TIME_ERROR);
 
         Sales newSales = Sales.builder()
@@ -114,12 +113,46 @@ public class SalesService {
         return response;
     }
 
+    public Page<ReadListSalesDto> readOngoingSales(Long categoryId, Pageable pageable, String filter, String keyword) {
+        log.info(filter);
+        log.info(keyword);
+        SalesCategory category = salesCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        Page<Sales> salesList = querySalesRepository.findSalesByFilterAndKeywordOngoing(pageable, filter, keyword);
+
+        return salesList.map(ReadListSalesDto::fromEntity);
+    }
+
     public Page<ReadListSalesDto> readSalesList(Long categoryId, Pageable pageable) {
         SalesCategory category = salesCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         Page<Sales> salesList = salesRepository.findAllBySalesCategory(category, pageable);
         return salesList.map(ReadListSalesDto::fromEntity);
+    }
+
+    // 구독중인 아티스트의 굿즈/공구 리스트 조회
+    public Page<ReadListSalesDto> readEventsBySubscribedArtists(Pageable pageable, Long categoryId, String filter, String keyword, String username) {
+        SalesCategory category = salesCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Sales> salesList = querySalesRepository.findSalesByFilterAndKeywordAndSubscribedArtists(pageable, filter, keyword, user);
+
+        return salesList.map(ReadListSalesDto::fromEntity);
+    }
+
+    // 구독, 진행중인 굿즈/공구 리스트 조회
+    public Page<ReadListSalesDto> readOngoingSalesBySubscribedArtists(Pageable pageable, Long categoryId, String filter, String keyword, String username) {
+        SalesCategory category = salesCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Sales> saleList = querySalesRepository.findSalesByFilterAndKeywordAndOngoingAndSubscribedArtists(pageable, filter, keyword, user);
+
+        return saleList.map(ReadListSalesDto::fromEntity);
     }
 
     public ReadOneSalesDto readSalesOne(Long categoryId, Long salesId) {
