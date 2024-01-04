@@ -35,11 +35,51 @@ public class SalesController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    // 판매중인 굿즈/공구
+    @GetMapping("/{categoryId}/ongoing")
+    public ResponseEntity<Page<ReadListSalesDto>> readOngoingSales(
+            @PathVariable("categoryId") Long id,
+            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestPart(required = false) String filter,
+            @RequestPart(required = false) String keyword
+    ) {
+        Page<ReadListSalesDto> dtoList = salesService.readOngoingSales(id, pageable, filter, keyword);
+        return new ResponseEntity<>(dtoList, HttpStatus.OK);
+    }
+
+    // 구독중인 아티스트/팀 굿즈/공구 조회
+    @GetMapping("{categoryId}/subscribedArtists")
+    public ResponseEntity<Page<ReadListSalesDto>> readSalesBySubscribedArtists(
+            @PathVariable("categoryId") Long id,
+            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String keyword
+    ) {
+        String username = SecurityUtils.getCurrentUsername();
+
+        Page<ReadListSalesDto> responseDtoList = salesService.readEventsBySubscribedArtists(pageable, id, filter, keyword, username);
+        return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
+    }
+
+    // 구독, 진행중인 굿즈/공구 조회
+    @GetMapping("{categoryId}/subscribedArtists/ongoing")
+    public ResponseEntity<Page<ReadListSalesDto>> readOngoingSalesBySubscribedArtists(
+            @PathVariable("categoryId") Long id,
+            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String keyword
+    ) {
+        String username = SecurityUtils.getCurrentUsername();
+
+        Page<ReadListSalesDto> responseDtoList = salesService.readOngoingSalesBySubscribedArtists(pageable, id, filter, keyword, username);
+        return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
+    }
+
     // 판매글 목록 조회
     @GetMapping("/{categoryId}")
     public ResponseEntity<Page<ReadListSalesDto>> readSalesList(
             @PathVariable("categoryId") Long id,
-            @PageableDefault(size = 12, sort = "id", direction= Sort.Direction.DESC)Pageable pageable) {
+            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<ReadListSalesDto> responseSalesList = salesService.readSalesList(id, pageable);
         return new ResponseEntity<>(responseSalesList, HttpStatus.OK);
     }
@@ -69,7 +109,7 @@ public class SalesController {
     @PutMapping("/{salesId}/changeStatus")
     public void updateStatus(
             @PathVariable("salesId") Long salesId,
-            @RequestPart(name="status") String status){
+            @RequestPart(name = "status") String status) {
         String username = SecurityUtils.getCurrentUsername();
         salesService.updateStatus(salesId, username, status);
     }

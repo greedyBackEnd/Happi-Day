@@ -38,7 +38,7 @@ public class SalesInitService {
         Artist artist3 = artistRepository.findById(3L).orElse(null);
         Artist artist4 = artistRepository.findById(4L).orElse(null);
         Team team1 = teamRepository.findById(1L).orElse(null);
-        Team team2 = teamRepository.findById(1L).orElse(null);
+        Team team2 = teamRepository.findById(2L).orElse(null);
         String imageUrl = defaultImageUtils.getDefaultImageUrlSalesThumbnail();
 
 
@@ -51,7 +51,21 @@ public class SalesInitService {
                         .salesStatus(SalesStatus.ON_SALE)
                         .account("1234567890")
                         .startTime(LocalDateTime.of(2023,12,24,11,00))
+                        .endTime(LocalDateTime.of(2024,1,31,11,00))
+                        .artists(List.of(artist1, artist2))
+                        .teams(List.of(team1))
+                        .build(),
+                Sales.builder()
+                        .users(seller)
+                        .salesCategory(category1)
+                        .name("동방신기 티셔츠 팔아요.(판매 기간 종료)")
+                        .description("동방신기 콘서트 티셔츠 굿즈, 거의 새 것...")
+                        .salesStatus(SalesStatus.ON_SALE)
+                        .account("1234567890")
+                        .startTime(LocalDateTime.of(2023,12,24,11,00))
                         .endTime(LocalDateTime.of(2023,12,31,11,00))
+                        .artists(List.of(artist1, artist2))
+                        .teams(List.of(team1))
                         .thumbnailImage(imageUrl)
                         .build(),
                 Sales.builder()
@@ -61,8 +75,10 @@ public class SalesInitService {
                         .description("god 콘서트 자켓 굿즈, 거의 새 것...")
                         .salesStatus(SalesStatus.ON_SALE)
                         .account("1234567890")
-                        .startTime(LocalDateTime.of(2023,12,25,11,00))
-                        .endTime(LocalDateTime.of(2023,12,31,11,00))
+                        .startTime(LocalDateTime.of(2023,12,14,11,00))
+                        .endTime(LocalDateTime.of(2023,12,25,11,00))
+                        .artists(List.of(artist3, artist4))
+                        .teams(List.of(team2))
                         .thumbnailImage(imageUrl)
                         .build()
         );

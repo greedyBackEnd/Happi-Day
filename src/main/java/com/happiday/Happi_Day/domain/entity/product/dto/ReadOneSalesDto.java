@@ -24,8 +24,6 @@ public class ReadOneSalesDto {
     private String description;
     private String salesStatus;
     private List<ReadProductDto> products;
-//    private List<String> artists;
-//    private List<String> teams;
     private List<String> hashtag;
     private int likeNum;
     private List<String> imageList;
