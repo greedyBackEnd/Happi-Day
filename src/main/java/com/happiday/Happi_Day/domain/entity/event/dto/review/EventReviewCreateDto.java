@@ -1,7 +1,6 @@
 package com.happiday.Happi_Day.domain.entity.event.dto.review;
 
 
-import com.happiday.Happi_Day.domain.entity.event.EventReview;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

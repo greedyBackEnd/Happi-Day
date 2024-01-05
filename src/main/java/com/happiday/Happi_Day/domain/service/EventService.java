@@ -26,8 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.happiday.Happi_Day.domain.entity.event.QEvent.event;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
