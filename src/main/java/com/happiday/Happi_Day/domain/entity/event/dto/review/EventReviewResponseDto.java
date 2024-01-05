@@ -19,6 +19,8 @@ public class EventReviewResponseDto {
 
     private String description;
 
+    private int rating;
+
     private LocalDateTime updatedAt;
 
     private String imageUrl;
@@ -30,6 +32,7 @@ public class EventReviewResponseDto {
                 .id(review.getId())
                 .username(review.getUser().getNickname())
                 .description(review.getDescription())
+                .rating(review.getRating())
                 .updatedAt(review.getUpdatedAt())
                 .imageUrl(review.getImageUrl())
                 .userProfileUrl(review.getUser().getImageUrl())

@@ -4,6 +4,7 @@ import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.event.EventReview;
 import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewCreateDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewResponseDto;
+import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewUpdateDto;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.EventRepository;
 import com.happiday.Happi_Day.domain.repository.EventReviewRepository;
@@ -13,6 +14,8 @@ import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,7 +51,7 @@ public class EventReviewService {
                 .anyMatch(review -> review.getEvent().equals(event));
 
         if (isAlreadyWritten) {
-            throw new CustomException(ErrorCode.REVIEW_ALREADY_SUBMITTED);
+            throw new CustomException(ErrorCode.EVENT_REVIEW_ALREADY_SUBMITTED);
         }
 
         String imageUrl = fileUtils.uploadFile(imageFile);
@@ -64,6 +67,56 @@ public class EventReviewService {
         reviewRepository.save(review);
         return EventReviewResponseDto.fromEntity(review);
 
+    }
+
+    public Page<EventReviewResponseDto> readReviews(Long eventId, Pageable pageable) {
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
+
+        Page<EventReview> reviewList = reviewRepository.findAllByEvent(event, pageable);
+
+        return reviewList.map(EventReviewResponseDto::fromEntity);
+    }
+
+    @Transactional
+    public EventReviewResponseDto updateReview (
+            Long eventId, Long reviewId, EventReviewUpdateDto request, String username, MultipartFile imageFile
+    ) {
+        userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
+
+        EventReview review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_REVIEW_NOT_FOUND));
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String newImageUrl = fileUtils.uploadFile(imageFile);
+            review.setImageUrl(newImageUrl);
+        }
+
+        review.update(request.toEntity());
+        reviewRepository.save(review);
+
+        return EventReviewResponseDto.fromEntity(review);
+    }
+
+    @Transactional
+    public void deleteReview(Long eventId, Long reviewId, String username) {
+        userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
+
+        EventReview review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_REVIEW_NOT_FOUND));
+
+        reviewRepository.delete(review);
 
     }
+
+
 }

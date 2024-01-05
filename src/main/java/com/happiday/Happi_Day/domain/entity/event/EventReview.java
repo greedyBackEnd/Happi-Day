@@ -41,6 +41,15 @@ public class EventReview extends BaseEntity {
     @Setter
     private String imageUrl;
 
+    public void update(EventReview updateReview) {
+        if (updateReview.getDescription() != null && !updateReview.getDescription().isEmpty()) {
+            this.description = updateReview.getDescription();
+        }
+        if (updateReview.getRating() >= 1 && updateReview.getRating() <= 5) {
+            this.rating = updateReview.getRating();
+        }
+    }
+
 
 
 }
