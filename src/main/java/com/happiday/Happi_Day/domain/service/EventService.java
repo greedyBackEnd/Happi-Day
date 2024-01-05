@@ -12,6 +12,7 @@ import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
+import com.happiday.Happi_Day.utils.DefaultImageUtils;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class EventService {
     private final TeamRepository teamRepository;
     private final FileUtils fileUtils;
     private final RedisService redisService;
+    private final DefaultImageUtils defaultImageUtils;
 
 
     @Transactional
@@ -51,7 +53,7 @@ public class EventService {
 
 
         if (thumbnailFile == null || thumbnailFile.isEmpty()) {
-            thumbnailUrl = fileUtils.defaultThumbnail(thumbnailFile);
+            thumbnailUrl = defaultImageUtils.getDefaultImageUrlEventThumbnail();
         } else {
             thumbnailUrl = fileUtils.uploadFile(thumbnailFile);
         }
@@ -155,13 +157,11 @@ public class EventService {
 
         // 이미지 업로드 추가
         if (thumbnailFile != null && !thumbnailFile.isEmpty()) {
-            fileUtils.deleteFile(event.getThumbnailUrl());
             String newThumbnailUrl = fileUtils.uploadFile(thumbnailFile);
             event.setThumbnailUrl(newThumbnailUrl);
         }
 
         if (imageFile != null && !imageFile.isEmpty()) {
-            fileUtils.deleteFile(event.getImageUrl());
             String newImageUrl = fileUtils.uploadFile(imageFile);
             event.setImageUrl(newImageUrl);
         }
