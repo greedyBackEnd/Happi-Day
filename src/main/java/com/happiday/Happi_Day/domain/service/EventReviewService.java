@@ -38,14 +38,6 @@ public class EventReviewService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
-        // 참여한 이벤트인지 검증
-        boolean isJoined = user.getEventJoinList().stream()
-                .anyMatch(joinList -> joinList.equals(event));
-
-        if (!isJoined) {
-            throw new CustomException(ErrorCode.EVENT_NOT_JOINED);
-        }
-
         // 해당 이벤트에 리뷰를 이미 작성했는지 검증
         boolean isAlreadyWritten = user.getEventReviews().stream()
                 .anyMatch(review -> review.getEvent().equals(event));
