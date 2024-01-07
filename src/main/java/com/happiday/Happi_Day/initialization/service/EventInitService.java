@@ -63,6 +63,18 @@ public class EventInitService {
                         .artists(List.of(artist3, artist4))
                         .teams(List.of(team2))
                         .thumbnailUrl(imageUrl)
+                        .build(),
+                Event.builder()
+                        .user(writer)
+                        .title("god 사인회")
+                        .description("현재 진행중인 god 사인회")
+                        .startTime(LocalDateTime.now().minusMonths(5))
+                        .endTime(LocalDateTime.now().plusMonths(5).plusHours(6))
+                        .location("서울시립 북서울미술관")
+                        .address("서울특별시 노원구 동일로 1238")
+                        .artists(List.of(artist3, artist4))
+                        .teams(List.of(team2))
+                        .thumbnailUrl(imageUrl)
                         .build()
         );
 
