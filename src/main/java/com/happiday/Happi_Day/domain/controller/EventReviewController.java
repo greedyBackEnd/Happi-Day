@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/events/{eventId}/reviews")
 @RequiredArgsConstructor
@@ -30,10 +32,10 @@ public class EventReviewController {
     public ResponseEntity<EventReviewResponseDto> createReview(
             @PathVariable("eventId") Long eventId,
             @Valid @RequestPart(value = "review") EventReviewCreateDto reviewCreateDto,
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
+            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles
             ){
         String username = SecurityUtils.getCurrentUsername();
-        EventReviewResponseDto responseDto = reviewService.createReview(eventId, reviewCreateDto, imageFile, username);
+        EventReviewResponseDto responseDto = reviewService.createReview(eventId, reviewCreateDto, imageFiles, username);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
@@ -50,10 +52,10 @@ public class EventReviewController {
             @PathVariable("eventId") Long eventId,
             @PathVariable("reviewId") Long reviewId,
             @RequestPart(value = "review") EventReviewUpdateDto reviewUpdateDto,
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
+            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles
             ) {
         String username = SecurityUtils.getCurrentUsername();
-        EventReviewResponseDto responseDto = reviewService.updateReview(eventId, reviewId, reviewUpdateDto, username, imageFile);
+        EventReviewResponseDto responseDto = reviewService.updateReview(eventId, reviewId, reviewUpdateDto, username, imageFiles);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
@@ -62,6 +64,6 @@ public class EventReviewController {
                                                 @PathVariable("reviewId") Long reviewId) {
         String username = SecurityUtils.getCurrentUsername();
         reviewService.deleteReview(eventId, reviewId, username);
-        return ResponseEntity.ok("삭제 성공");
+        return new ResponseEntity<>("삭제 완료.", HttpStatus.OK);
     }
 }

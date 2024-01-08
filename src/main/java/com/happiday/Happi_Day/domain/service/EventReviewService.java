@@ -2,12 +2,14 @@ package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.event.EventReview;
+import com.happiday.Happi_Day.domain.entity.event.ReviewImage;
 import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewCreateDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewUpdateDto;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.EventRepository;
 import com.happiday.Happi_Day.domain.repository.EventReviewRepository;
+import com.happiday.Happi_Day.domain.repository.ReviewImageRepository;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
@@ -20,6 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -28,10 +34,12 @@ public class EventReviewService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventReviewRepository reviewRepository;
+    private final ReviewImageRepository imageRepository;
     private final FileUtils fileUtils;
 
     @Transactional
-    public EventReviewResponseDto createReview(Long eventId, EventReviewCreateDto request, MultipartFile imageFile, String username) {
+    public EventReviewResponseDto createReview(Long eventId, EventReviewCreateDto request, List<MultipartFile> imageFiles, String username) {
+        log.info("컨트롤러에서 넘어온 이미지 파일 : {}", imageFiles.size());
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -46,15 +54,29 @@ public class EventReviewService {
             throw new CustomException(ErrorCode.EVENT_REVIEW_ALREADY_SUBMITTED);
         }
 
-        String imageUrl = fileUtils.uploadFile(imageFile);
 
         EventReview review = EventReview.builder()
                 .user(user)
                 .event(event)
                 .description(request.getDescription())
                 .rating(request.getRating())
-                .imageUrl(imageUrl)
                 .build();
+
+        List<ReviewImage> reviewImages = new ArrayList<>();
+
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            List<String> imageUrls = fileUtils.uploadFiles(imageFiles);
+
+            for (String imgUrl : imageUrls) {
+                ReviewImage reviewImage = ReviewImage.builder()
+                        .imageUrl(imgUrl)
+                        .eventReview(review)
+                        .build();
+                reviewImages.add(reviewImage);
+            }
+        }
+
+        review.setImages(reviewImages);
 
         reviewRepository.save(review);
         return EventReviewResponseDto.fromEntity(review);
@@ -73,7 +95,7 @@ public class EventReviewService {
 
     @Transactional
     public EventReviewResponseDto updateReview (
-            Long eventId, Long reviewId, EventReviewUpdateDto request, String username, MultipartFile imageFile
+            Long eventId, Long reviewId, EventReviewUpdateDto request, String username, List<MultipartFile> imageFiles
     ) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -88,9 +110,18 @@ public class EventReviewService {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
-        if (imageFile != null && !imageFile.isEmpty()) {
-            String newImageUrl = fileUtils.uploadFile(imageFile);
-            review.setImageUrl(newImageUrl);
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            log.info("이미지 있음 ");
+            imageRepository.deleteAll(review.getImages());
+
+            List<String> imageUrls = fileUtils.uploadFiles(imageFiles);
+            List<ReviewImage> reviewImages = imageUrls.stream()
+                    .map(imgUrl -> ReviewImage.builder()
+                            .imageUrl(imgUrl)
+                            .eventReview(review)
+                            .build())
+                    .collect(Collectors.toList());
+            review.setImages(reviewImages);
         }
 
         review.update(request.toEntity());

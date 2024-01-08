@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import java.util.List;
+
 @Slf4j
 @Getter
 @Entity
@@ -39,7 +41,8 @@ public class EventReview extends BaseEntity {
     private Event event;
 
     @Setter
-    private String imageUrl;
+    @OneToMany(mappedBy = "eventReview", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ReviewImage> images;
 
     public void update(EventReview updateReview) {
         if (updateReview.getDescription() != null && !updateReview.getDescription().isEmpty()) {

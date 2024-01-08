@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -46,6 +47,17 @@ public class FileUtils {
         return amazonS3.getUrl(bucket, fileName).toString();
     }
 
+    // 다중 파일 업로드
+    public List<String> uploadFiles(List<MultipartFile> multipartFiles) {
+        List<String> fileUrls = new ArrayList<>();
+
+        for (MultipartFile multipartFile : multipartFiles) {
+            fileUrls.add(uploadFile(multipartFile));
+        }
+
+        return fileUrls;
+    }
+
     public S3Object downloadFile(String fileName) {
         return amazonS3.getObject(new GetObjectRequest(bucket, fileName));
     }
@@ -74,12 +86,6 @@ public class FileUtils {
             log.error("잘못된 파일 확장자. 이미지만 허용. filename : " + filename);
             throw new CustomException(ErrorCode.FILE_INVALID_EXTENSION);
         }
-    }
-
-
-    public String defaultThumbnail(MultipartFile multipartFile) {
-        String defaultThumbnailKey = S3_BUCKET_DIRECTORY_NAME + "/" + "default-thumbnail.jpg"; // 기본 이미지 파일 이름
-        return amazonS3.getUrl(bucket, defaultThumbnailKey).toString();
     }
 
 }
