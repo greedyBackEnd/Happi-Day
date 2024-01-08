@@ -75,7 +75,7 @@ public class EventReviewService {
     public EventReviewResponseDto updateReview (
             Long eventId, Long reviewId, EventReviewUpdateDto request, String username, MultipartFile imageFile
     ) {
-        userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         eventRepository.findById(eventId)
@@ -83,6 +83,10 @@ public class EventReviewService {
 
         EventReview review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_REVIEW_NOT_FOUND));
+
+        if (!user.getUsername().equals(username)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         if (imageFile != null && !imageFile.isEmpty()) {
             String newImageUrl = fileUtils.uploadFile(imageFile);
@@ -97,7 +101,7 @@ public class EventReviewService {
 
     @Transactional
     public void deleteReview(Long eventId, Long reviewId, String username) {
-        userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         eventRepository.findById(eventId)
@@ -105,6 +109,10 @@ public class EventReviewService {
 
         EventReview review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_REVIEW_NOT_FOUND));
+
+        if (!user.getUsername().equals(username)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         reviewRepository.delete(review);
 
