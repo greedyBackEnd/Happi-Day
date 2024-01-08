@@ -5,6 +5,7 @@ import com.happiday.Happi_Day.domain.entity.user.dto.*;
 import com.happiday.Happi_Day.domain.repository.UserRepository;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
+import com.happiday.Happi_Day.utils.DefaultImageUtils;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ public class UserService {
     private final MailService mailService;
     private final StringRedisTemplate stringRedisTemplate;
     private final FileUtils fileUtils;
+    private final DefaultImageUtils defaultImageUtils;
 
     public UserResponseDto getUserProfile(String username) {
         User user = userRepository.findByUsername(username)
@@ -55,6 +57,15 @@ public class UserService {
             user.setImageUrl(url);
         }
 
+        userRepository.save(user);
+        return UserResponseDto.fromEntity(user);
+    }
+
+    @Transactional
+    public UserResponseDto resetImage(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        user.setImageUrl(defaultImageUtils.getDefaultImageUrlUserProfile());
         userRepository.save(user);
         return UserResponseDto.fromEntity(user);
     }

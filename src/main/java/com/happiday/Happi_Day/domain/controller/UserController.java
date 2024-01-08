@@ -46,6 +46,13 @@ public class UserController {
         return new ResponseEntity<>(newProfile,HttpStatus.OK);
     }
 
+    @PatchMapping("/info/default")
+    public ResponseEntity<UserResponseDto> resetImage() {
+        String username = SecurityUtils.getCurrentUsername();
+        UserResponseDto profile = userService.resetImage(username);
+        return new ResponseEntity<>(profile, HttpStatus.OK);
+    }
+
     @DeleteMapping("/withdrawal")
     public ResponseEntity<String> withdrawUser(@RequestBody UserPWDto dto) {
         String username = SecurityUtils.getCurrentUsername();
