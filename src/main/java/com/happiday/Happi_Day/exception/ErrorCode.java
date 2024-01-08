@@ -58,6 +58,8 @@ public enum ErrorCode {
     MAIL_ENCODING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 인코딩 중 오류가 발생했습니다."),
     CODE_TIME_ERROR(HttpStatus.BAD_REQUEST, "코드의 인증시간이 다 되었습니다."),
     CODE_NOT_MATCHED(HttpStatus.BAD_REQUEST, "코드가 일치하지 않습니다."),
+    NICKNAME_CONFLICT(HttpStatus.CONFLICT, "중복된 닉네임입니다."),
+    PHONE_CONFLICT(HttpStatus.CONFLICT, "중복된 전화번호입니다."),
 
     // chat
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),

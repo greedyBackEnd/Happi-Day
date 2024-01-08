@@ -51,7 +51,6 @@ public class UserController {
         String username = SecurityUtils.getCurrentUsername();
         userService.deleteUser(username, dto);
         return new ResponseEntity<>("회원탈퇴되었습니다.", HttpStatus.OK);
-
     }
 
     @GetMapping("/articles")

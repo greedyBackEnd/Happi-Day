@@ -8,6 +8,7 @@ import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,10 +41,16 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (dto != null) {
-            user.update(dto.toEntity(), passwordEncoder);
+            if (userRepository.existsByNickname(dto.getNickname())) {
+                throw new CustomException(ErrorCode.NICKNAME_CONFLICT);
+            }
+            if (userRepository.existsByPhone(dto.getPhone())) {
+                throw new CustomException(ErrorCode.PHONE_CONFLICT);
+            }
+            else user.update(dto.toEntity(), passwordEncoder);
         }
 
-        if (!multipartFile.isEmpty()) {
+        if (multipartFile != null && !multipartFile.isEmpty()) {
             String url = fileUtils.uploadFile(multipartFile);
             user.setImageUrl(url);
         }
