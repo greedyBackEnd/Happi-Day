@@ -122,7 +122,7 @@ public class EventController {
     public ResponseEntity<String> deleteEvent(@PathVariable Long eventId){
         String username = SecurityUtils.getCurrentUsername();
         eventService.deleteEvent(eventId, username);
-        return ResponseEntity.ok("삭제 성공");
+        return new ResponseEntity<>("삭제 완료.", HttpStatus.OK);
     }
 
     @PostMapping("/{eventId}/like")

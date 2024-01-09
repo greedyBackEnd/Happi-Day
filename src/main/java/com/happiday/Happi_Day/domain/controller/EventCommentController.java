@@ -55,6 +55,6 @@ public class EventCommentController {
         log.info("댓글 삭제 Controller");
         String username = SecurityUtils.getCurrentUsername();
         commentService.deleteComment(eventId, commentId, username);
-        return ResponseEntity.ok("삭제 성공");
+        return new ResponseEntity<>("삭제 완료.", HttpStatus.OK);
     }
 }
