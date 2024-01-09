@@ -38,25 +38,31 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDto updateUserProfile(String username, UserUpdateDto dto, MultipartFile multipartFile) {
+    public UserResponseDto updateUserProfile(String username, UserUpdateDto dto) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (dto != null) {
-            if (userRepository.existsByNickname(dto.getNickname())) {
-                throw new CustomException(ErrorCode.NICKNAME_CONFLICT);
-            }
-            if (userRepository.existsByPhone(dto.getPhone())) {
-                throw new CustomException(ErrorCode.PHONE_CONFLICT);
-            }
-            else user.update(dto.toEntity(), passwordEncoder);
+        if (userRepository.existsByNickname(dto.getNickname())) {
+            throw new CustomException(ErrorCode.NICKNAME_CONFLICT);
         }
+        if (userRepository.existsByPhone(dto.getPhone())) {
+            throw new CustomException(ErrorCode.PHONE_CONFLICT);
+        }
+        else
+            user.update(dto.toEntity(), passwordEncoder);
 
+        userRepository.save(user);
+        return UserResponseDto.fromEntity(user);
+    }
+
+    @Transactional
+    public UserResponseDto changeImage(String username, MultipartFile multipartFile) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         if (multipartFile != null && !multipartFile.isEmpty()) {
             String url = fileUtils.uploadFile(multipartFile);
             user.setImageUrl(url);
         }
-
         userRepository.save(user);
         return UserResponseDto.fromEntity(user);
     }
@@ -106,8 +112,7 @@ public class UserService {
 
         if (storedCode == null) {
             throw new CustomException(ErrorCode.CODE_TIME_ERROR);
-        }
-        else if (!dto.getCode().equals(storedCode)) {
+        } else if (!dto.getCode().equals(storedCode)) {
             throw new CustomException(ErrorCode.CODE_NOT_MATCHED);
         }
         return true;
