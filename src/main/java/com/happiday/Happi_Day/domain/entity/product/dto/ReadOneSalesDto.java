@@ -30,6 +30,7 @@ public class ReadOneSalesDto {
     private List<ReadDeliveryDto> deliveries;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private int viewCount;
 
     public static ReadOneSalesDto fromEntity(Sales sales, List<ReadProductDto> productList){
         List<String> keywords = new ArrayList<>();
@@ -58,6 +59,7 @@ public class ReadOneSalesDto {
                 .deliveries(deliveries)
                 .startTime(sales.getStartTime())
                 .endTime(sales.getEndTime())
+                .viewCount(sales.getViewCount())
                 .build();
     }
 }

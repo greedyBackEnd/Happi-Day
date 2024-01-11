@@ -10,7 +10,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -65,11 +64,8 @@ public class Sales extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-//    @Column
-//    private String ectArtists;
-//
-//    @Column
-//    private String ectTeams;
+    @Column(columnDefinition = "integer default 0", nullable = false)
+    private int viewCount;
 
     // 상품
     @OneToMany(mappedBy = "sales")
@@ -125,8 +121,6 @@ public class Sales extends BaseEntity {
         if (sales.getArtists() != null) this.artists = sales.getArtists();
         if (sales.getTeams() != null) this.teams = sales.getTeams();
         if (sales.getHashtags() != null) this.hashtags = sales.getHashtags();
-//        if (sales.getEctArtists() != null) this.ectArtists = sales.getEctArtists();
-//        if (sales.getEctTeams() != null) this.ectTeams = sales.getEctTeams();
         if (sales.getAccount() != null) this.account = sales.getAccount();
     }
 

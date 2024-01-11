@@ -113,6 +113,7 @@ public class ArticleService {
     }
 
     // 글 상세 조회
+    @Transactional
     public ReadOneArticleDto readOne(String clientAddress, Long articleId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
