@@ -27,6 +27,7 @@ public class ReadOneArticleDto {
     private List<ReadCommentDto> comments;
     private int likeUsersNum;
     private List<String> imageUrl;
+    private int viewCount;
 
     public static ReadOneArticleDto fromEntity(Article article) {
         List<String> keywords = new ArrayList<>();
@@ -44,6 +45,7 @@ public class ReadOneArticleDto {
                 .likeUsersNum(article.getLikeUsers().size())
                 .imageUrl(article.getImageUrl())
                 .updatedAt(article.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .viewCount(article.getViewCount())
                 .build();
     }
 }

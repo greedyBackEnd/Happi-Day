@@ -42,6 +42,7 @@ public class ArticleService {
     private final TeamRepository teamRepository;
     private final HashtagRepository hashtagRepository;
     private final FileUtils fileUtils;
+    private final RedisService redisService;
 
     @Transactional
     public ReadOneArticleDto writeArticle(Long categoryId, WriteArticleDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFileList, String username) {
@@ -112,9 +113,14 @@ public class ArticleService {
     }
 
     // 글 상세 조회
-    public ReadOneArticleDto readOne(Long articleId) {
+    public ReadOneArticleDto readOne(String clientAddress, Long articleId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
+
+        if(redisService.isFirstIpRequest(clientAddress, articleId)){
+            log.debug("same user requests duplicate in 24hours: {}, {}", clientAddress, articleId);
+            increaseViewCount(clientAddress, articleId);
+        }
 
         return ReadOneArticleDto.fromEntity(article);
     }
@@ -268,5 +274,11 @@ public class ArticleService {
 
         articleRepository.save(article);
         return response;
+    }
+
+    @Transactional
+    public void increaseViewCount(String clientAddress, Long articleId){
+        articleRepository.increaseViewCount(articleId);
+        redisService.clientRequest(clientAddress, articleId);
     }
 }
