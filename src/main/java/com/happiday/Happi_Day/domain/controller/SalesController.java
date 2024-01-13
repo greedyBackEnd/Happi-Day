@@ -3,6 +3,7 @@ package com.happiday.Happi_Day.domain.controller;
 import com.happiday.Happi_Day.domain.entity.product.dto.*;
 import com.happiday.Happi_Day.domain.service.SalesService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -87,9 +88,11 @@ public class SalesController {
     // 판매글 상세 조회
     @GetMapping("/{categoryId}/{salesId}")
     public ResponseEntity<ReadOneSalesDto> readSalesOne(
+            HttpServletRequest request,
             @PathVariable("categoryId") Long categoryId,
             @PathVariable("salesId") Long salesId) {
-        ReadOneSalesDto responseSales = salesService.readSalesOne(categoryId, salesId);
+        String clientAddress = request.getRemoteAddr();
+        ReadOneSalesDto responseSales = salesService.readSalesOne(clientAddress, categoryId, salesId);
         return new ResponseEntity<>(responseSales, HttpStatus.OK);
     }
 

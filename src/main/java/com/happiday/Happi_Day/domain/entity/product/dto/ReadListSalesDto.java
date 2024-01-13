@@ -18,6 +18,7 @@ public class ReadListSalesDto {
     private Integer orderNum;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private int viewCount;
 
     public static ReadListSalesDto fromEntity(Sales sales){
         return ReadListSalesDto.builder()
@@ -30,6 +31,7 @@ public class ReadListSalesDto {
                 .orderNum(sales.getOrders().size())
                 .startTime(sales.getStartTime())
                 .endTime(sales.getEndTime())
+                .viewCount(sales.getViewCount())
                 .build();
     }
 }

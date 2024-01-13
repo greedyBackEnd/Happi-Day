@@ -13,7 +13,8 @@ public class ReadListArticleDto {
     private String nickname;
     private String date;
     private String thumbnailUrl;
-    private Integer commentNum;
+    private int commentNum;
+    private int viewCount;
 
     public static ReadListArticleDto fromEntity(Article article) {
         return ReadListArticleDto.builder()
@@ -22,6 +23,7 @@ public class ReadListArticleDto {
                 .date(article.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .thumbnailUrl(article.getThumbnailUrl())
                 .commentNum(article.getArticleComments().size())
+                .viewCount(article.getViewCount())
                 .build();
     }
 }

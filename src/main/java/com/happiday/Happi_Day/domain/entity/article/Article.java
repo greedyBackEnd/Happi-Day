@@ -51,6 +51,9 @@ public class Article extends BaseEntity {
     @Column
     private String ectArtists;
 
+    @Column(columnDefinition = "integer default 0", nullable = false)
+    private int viewCount;
+
     // 카테고리 홍보 에만 필요
     private String eventAddress;
 

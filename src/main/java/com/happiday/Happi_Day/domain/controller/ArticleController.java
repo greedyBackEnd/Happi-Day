@@ -6,8 +6,10 @@ import com.happiday.Happi_Day.domain.entity.article.dto.ReadOneArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.WriteArticleDto;
 import com.happiday.Happi_Day.domain.service.ArticleService;
 import com.happiday.Happi_Day.utils.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/articles")
 @RequiredArgsConstructor
@@ -40,8 +43,10 @@ public class ArticleController {
 
     // 글 상세 조회
     @GetMapping("/{articleId}")
-    public ResponseEntity<ReadOneArticleDto> readOne(@PathVariable("articleId") Long id) {
-        ReadOneArticleDto responseDto = articleService.readOne(id);
+    public ResponseEntity<ReadOneArticleDto> readOne(HttpServletRequest request, @PathVariable("articleId") Long id) {
+        log.info("글 상세 조회");
+        String clientAddress = request.getRemoteAddr();
+        ReadOneArticleDto responseDto = articleService.readOne(clientAddress, id);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 

@@ -38,6 +38,7 @@ public class SalesService {
     private final HashtagRepository hashtagRepository;
     private final FileUtils fileUtils;
     private final QuerySalesRepository querySalesRepository;
+    private final RedisService redisService;
 
     @Transactional
     public ReadOneSalesDto createSales(Long categoryId, WriteSalesDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFile, String username) {
@@ -155,12 +156,18 @@ public class SalesService {
         return saleList.map(ReadListSalesDto::fromEntity);
     }
 
-    public ReadOneSalesDto readSalesOne(Long categoryId, Long salesId) {
+    @Transactional
+    public ReadOneSalesDto readSalesOne(String clientAddress, Long categoryId, Long salesId) {
         SalesCategory category = salesCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         Sales sales = salesRepository.findById(salesId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
+
+        if(redisService.isFirstIpRequest(clientAddress, salesId)){
+            log.debug("same user requests duplicate in 24hours: {}, {}", clientAddress, salesId);
+            increaseViewCount(clientAddress, salesId);
+        }
 
         List<ReadProductDto> dtoList = new ArrayList<>();
         for (Product product : sales.getProducts()) {
@@ -336,5 +343,11 @@ public class SalesService {
             resposne = "찜하기를 눌렀습니다. 현재 찜하기 수 : " + sales.getSalesLikesUsers().size();
         }
         return resposne;
+    }
+
+    @Transactional
+    public void increaseViewCount(String clientAddress, Long salesId){
+        salesRepository.increaseViewCount(salesId);
+        redisService.clientRequest(clientAddress, salesId);
     }
 }
