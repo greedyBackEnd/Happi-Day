@@ -98,7 +98,6 @@ public class EventService {
 
     public Page<EventListResponseDto> readEventsBySubscribedArtists(Pageable pageable, String filter, String keyword, String username) {
         log.info("내가 구독한 아티스트의 이벤트 리스트 조회");
-        log.info("username : " + username);
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Page<Event> events = eventRepository.findEventsByFilterAndKeywordAndSubscribedArtists(pageable, filter, keyword, user);
