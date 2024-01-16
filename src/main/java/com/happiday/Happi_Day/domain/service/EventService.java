@@ -145,12 +145,13 @@ public class EventService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (!user.getUsername().equals(username)) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }
-
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
+
+        if (!event.getUser().equals(user)) {
+                throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
 
         // 이미지 업로드 추가
         if (thumbnailFile != null && !thumbnailFile.isEmpty()) {

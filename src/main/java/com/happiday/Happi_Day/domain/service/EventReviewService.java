@@ -106,7 +106,7 @@ public class EventReviewService {
         EventReview review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_REVIEW_NOT_FOUND));
 
-        if (!user.getUsername().equals(username)) {
+        if (!review.getUser().equals(user)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
@@ -141,7 +141,7 @@ public class EventReviewService {
         EventReview review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_REVIEW_NOT_FOUND));
 
-        if (!user.getUsername().equals(username)) {
+        if (!review.getUser().equals(user)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
