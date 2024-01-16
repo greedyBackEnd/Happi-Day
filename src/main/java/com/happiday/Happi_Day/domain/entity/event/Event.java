@@ -152,4 +152,6 @@ public class Event extends BaseEntity {
     public int getCommentCount() {
         return comments != null ? comments.size() : 0;
     }
+
+    public int getReviewCount() { return reviews != null ? reviews.size() : 0;}
 }
