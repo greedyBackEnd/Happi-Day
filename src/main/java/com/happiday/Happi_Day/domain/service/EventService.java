@@ -40,6 +40,7 @@ public class EventService {
     private final DefaultImageUtils defaultImageUtils;
 
 
+
     @Transactional
     public EventResponseDto createEvent(
             EventCreateDto request, MultipartFile thumbnailFile, MultipartFile imageFile, String username) {

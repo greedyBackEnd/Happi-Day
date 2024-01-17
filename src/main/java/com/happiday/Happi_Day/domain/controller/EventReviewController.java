@@ -47,6 +47,13 @@ public class EventReviewController {
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 
+    @GetMapping("/{reviewId}")
+    public ResponseEntity<EventReviewResponseDto> readReview(@PathVariable("eventId") Long eventId, @PathVariable("reviewId") Long reviewId) {
+
+        EventReviewResponseDto responseDto = reviewService.readReview(eventId, reviewId);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
     @PutMapping("/{reviewId}")
     public ResponseEntity<EventReviewResponseDto> updateReview(
             @PathVariable("eventId") Long eventId,

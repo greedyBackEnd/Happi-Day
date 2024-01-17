@@ -93,6 +93,18 @@ public class EventReviewService {
         return reviewList.map(EventReviewResponseDto::fromEntity);
     }
 
+    public EventReviewResponseDto readReview(Long eventId, Long reviewId) {
+        log.info("이벤트 리뷰 단일 조회");
+
+        eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
+
+        EventReview review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.EVENT_REVIEW_NOT_FOUND));
+
+        return EventReviewResponseDto.fromEntity(review);
+    }
+
     @Transactional
     public EventReviewResponseDto updateReview (
             Long eventId, Long reviewId, EventReviewUpdateDto request, String username, List<MultipartFile> imageFiles
