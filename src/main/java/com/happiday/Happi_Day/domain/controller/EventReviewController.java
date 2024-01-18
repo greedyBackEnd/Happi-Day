@@ -2,6 +2,7 @@ package com.happiday.Happi_Day.domain.controller;
 
 
 import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewCreateDto;
+import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewListResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewUpdateDto;
 import com.happiday.Happi_Day.domain.service.EventReviewService;
@@ -40,10 +41,10 @@ public class EventReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<EventReviewResponseDto>> readReviews(
+    public ResponseEntity<Page<EventReviewListResponseDto>> readReviews(
             @PathVariable("eventId") Long eventId,
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<EventReviewResponseDto> responseDtoList = reviewService.readReviews(eventId, pageable);
+        Page<EventReviewListResponseDto> responseDtoList = reviewService.readReviews(eventId, pageable);
         return new ResponseEntity<>(responseDtoList, HttpStatus.OK);
     }
 

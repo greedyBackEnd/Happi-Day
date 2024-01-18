@@ -4,6 +4,7 @@ import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.event.EventReview;
 import com.happiday.Happi_Day.domain.entity.event.ReviewImage;
 import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewCreateDto;
+import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewListResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewUpdateDto;
 import com.happiday.Happi_Day.domain.entity.user.User;
@@ -83,14 +84,14 @@ public class EventReviewService {
 
     }
 
-    public Page<EventReviewResponseDto> readReviews(Long eventId, Pageable pageable) {
+    public Page<EventReviewListResponseDto> readReviews(Long eventId, Pageable pageable) {
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
         Page<EventReview> reviewList = reviewRepository.findAllByEvent(event, pageable);
 
-        return reviewList.map(EventReviewResponseDto::fromEntity);
+        return reviewList.map(EventReviewListResponseDto::fromEntity);
     }
 
     public EventReviewResponseDto readReview(Long eventId, Long reviewId) {
