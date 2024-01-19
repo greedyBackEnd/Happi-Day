@@ -69,4 +69,12 @@ public class ChatRoomController {
         return new ResponseEntity<>("채팅방이 삭제되었습니다.", HttpStatus.OK);
     }
 
+    @PutMapping("/rooms/{roomId}/read")
+    public ResponseEntity<String> readMessage(@PathVariable("roomId") Long roomId) {
+        String username = SecurityUtils.getCurrentUsername();
+        chatService.readMessage(username, roomId);
+        return new ResponseEntity<>("채팅을 읽었습니다.", HttpStatus.OK);
+
+    }
+
 }

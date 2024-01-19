@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
     Page<ChatMessage> findAllByChatRoom_IdOrderByIdDesc(Long roomId, Pageable pageable);
+    List<ChatMessage> findAllByChatRoom_IdOrderByIdDesc(Long roomId);
 }

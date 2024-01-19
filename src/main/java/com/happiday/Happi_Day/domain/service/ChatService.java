@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,5 +63,13 @@ public class ChatService {
         );
 
         return payload;
+    }
+
+    @Transactional
+    public void readMessage(String username, Long roomId) {
+        User sender = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoom_IdOrderByIdDesc(roomId);
+        chatMessageList.stream().peek(chatMessage -> chatMessage.setChecked()).collect(Collectors.toList());
+        chatMessageRepository.saveAll(chatMessageList);
     }
 }
