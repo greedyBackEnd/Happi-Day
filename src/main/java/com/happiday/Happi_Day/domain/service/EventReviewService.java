@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,6 +47,13 @@ public class EventReviewService {
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
+
+        // 진행되지 않은 이벤트인지 검증
+        boolean isEventStarted = event.getStartTime().isBefore(LocalDateTime.now());
+
+        if (isEventStarted) {
+            throw new CustomException(ErrorCode.EVENT_NOT_STARTED);
+        }
 
         // 해당 이벤트에 리뷰를 이미 작성했는지 검증
         boolean isAlreadyWritten = user.getEventReviews().stream()
