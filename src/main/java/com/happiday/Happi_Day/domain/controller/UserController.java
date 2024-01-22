@@ -37,13 +37,25 @@ public class UserController {
         UserResponseDto myProfile = userService.getUserProfile(username);
         return new ResponseEntity<>(myProfile,HttpStatus.OK);
     }
-    @PatchMapping(value = "/info", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<UserResponseDto> updateUser(
-            @RequestPart(value = "dto", required = false) UserUpdateDto dto,
-            @RequestPart(value = "multipartFile", required = false) MultipartFile multipartFile) {
+    @PatchMapping("/info")
+    public ResponseEntity<UserResponseDto> updateUser(@RequestBody UserUpdateDto dto) {
         String username = SecurityUtils.getCurrentUsername();
-        UserResponseDto newProfile = userService.updateUserProfile(username, dto, multipartFile);
+        UserResponseDto newProfile = userService.updateUserProfile(username, dto);
         return new ResponseEntity<>(newProfile,HttpStatus.OK);
+    }
+
+    @PatchMapping("/info/image")
+    public ResponseEntity<UserResponseDto> changeImage(@RequestPart("multipartFile") MultipartFile multipartFile) {
+        String username = SecurityUtils.getCurrentUsername();
+        UserResponseDto profile = userService.changeImage(username, multipartFile);
+        return new ResponseEntity<>(profile, HttpStatus.OK);
+    }
+
+    @PatchMapping("/info/default")
+    public ResponseEntity<UserResponseDto> resetImage() {
+        String username = SecurityUtils.getCurrentUsername();
+        UserResponseDto profile = userService.resetImage(username);
+        return new ResponseEntity<>(profile, HttpStatus.OK);
     }
 
     @DeleteMapping("/withdrawal")
@@ -51,7 +63,6 @@ public class UserController {
         String username = SecurityUtils.getCurrentUsername();
         userService.deleteUser(username, dto);
         return new ResponseEntity<>("회원탈퇴되었습니다.", HttpStatus.OK);
-
     }
 
     @GetMapping("/articles")
