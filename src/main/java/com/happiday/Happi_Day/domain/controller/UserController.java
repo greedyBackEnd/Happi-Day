@@ -4,6 +4,7 @@ import com.happiday.Happi_Day.domain.entity.article.dto.ReadListArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadListCommentDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.comment.EventCommentListResponseDto;
+import com.happiday.Happi_Day.domain.entity.event.dto.review.EventReviewResponseDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadListOrderDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.ReadListSalesDto;
 import com.happiday.Happi_Day.domain.entity.user.dto.UserPWDto;
@@ -105,6 +106,12 @@ public class UserController {
     public ResponseEntity<Page<EventListResponseDto>> getJoinEvents(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         String username = SecurityUtils.getCurrentUsername();
         return new ResponseEntity<>(myPageService.readJoinEvents(username, pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/reviews")
+    public ResponseEntity<Page<EventReviewResponseDto>> getMyReviews(@PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        String username = SecurityUtils.getCurrentUsername();
+        return new ResponseEntity<>(myPageService.getMyReviews(username, pageable), HttpStatus.OK);
     }
 
     @GetMapping("/sales")

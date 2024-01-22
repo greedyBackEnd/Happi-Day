@@ -53,6 +53,7 @@ public enum ErrorCode {
     EVENT_REVIEW_ALREADY_SUBMITTED(HttpStatus.FORBIDDEN, "이미 리뷰를 작성한 이벤트입니다."),
     EVENT_REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 리뷰를 찾을 수 없습니다."),
     EVENT_REVIEW_ALREADY_DELETED(HttpStatus.NOT_FOUND, "이미 삭제된 리뷰입니다."),
+    EVENT_NOT_STARTED(HttpStatus.FORBIDDEN, "아직 진행되지 않은 이벤트입니다."),
 
     // user
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다."),
