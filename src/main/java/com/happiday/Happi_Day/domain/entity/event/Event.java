@@ -100,7 +100,7 @@ public class Event extends BaseEntity {
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "event_hashtag",
-            joinColumns = @JoinColumn(name = "article_id"),
+            joinColumns = @JoinColumn(name = "event_id"),
             inverseJoinColumns = @JoinColumn(name = "hashtag_id")
     )
     private List<Hashtag> hashtags = new ArrayList<>();
