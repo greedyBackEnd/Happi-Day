@@ -91,7 +91,7 @@ API, 라이브러리 :
     <tr>
      <td><img src="./docs/profile/김도영.jpg" width="130px;" alt=""/><br> </td>
      <td><img src="./docs/profile/김소영.jpg" width="130px;" alt=""/><br> </td>
-     <td><img src="./docs/profile/이용준.png" width="130px;" alt=""/><br> </td>
+     <td><img src="./docs/profile/이용준.jpg" width="130px;" alt=""/><br> </td>
      <td><img src="./docs/profile/최수민.jpg" width="130px;" alt=""/><br> </td>
 
    </tr>
