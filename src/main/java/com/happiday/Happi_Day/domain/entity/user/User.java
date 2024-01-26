@@ -7,6 +7,8 @@ import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.chat.ChatMessage;
 import com.happiday.Happi_Day.domain.entity.chat.ChatRoom;
 import com.happiday.Happi_Day.domain.entity.event.Event;
+import com.happiday.Happi_Day.domain.entity.event.EventLike;
+import com.happiday.Happi_Day.domain.entity.event.EventParticipation;
 import com.happiday.Happi_Day.domain.entity.event.EventReview;
 import com.happiday.Happi_Day.domain.entity.product.Order;
 import com.happiday.Happi_Day.domain.entity.product.Sales;
@@ -18,7 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -134,23 +135,32 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<EventReview> eventReviews = new ArrayList<>();
 
-    // 유저-이벤트 참가하기 매핑
-    @ManyToMany
-    @JoinTable(
-            name = "user_event_participation",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "event_id")
-    )
-    private List<Event> eventJoinList = new ArrayList<>();
+//    // 유저-이벤트 참가하기 매핑
+//    @ManyToMany
+//    @JoinTable(
+//            name = "user_event_participation",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "event_id")
+//    )
+//    private List<Event> eventJoinList = new ArrayList<>();
+//
+//    // 유저-이벤트 좋아요 매핑
+//    @ManyToMany
+//    @JoinTable(
+//            name = "user_event_likes",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "event_id")
+//    )
+//    private List<Event> eventLikes = new ArrayList<>();
 
-    // 유저-이벤트 좋아요 매핑
-    @ManyToMany
-    @JoinTable(
-            name = "user_event_likes",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "event_id")
-    )
-    private List<Event> eventLikes = new ArrayList<>();
+    // 이벤트 참가하기 매핑
+    @OneToMany(mappedBy = "user")
+    private List<EventParticipation> eventParticipationList = new ArrayList<>();
+
+    // 이벤트 좋아요 매핑
+    @OneToMany(mappedBy = "user")
+    private List<EventLike> eventLikes = new ArrayList<>();
+
 
     // 유저-아티스트 구독 매핑
     @ManyToMany

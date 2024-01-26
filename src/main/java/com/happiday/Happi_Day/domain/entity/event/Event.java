@@ -71,12 +71,12 @@ public class Event extends BaseEntity {
     private List<EventReview> reviews;
 
     // 이벤트 좋아요 매핑
-    @ManyToMany(mappedBy = "eventLikes")
-    private List<User> likes = new ArrayList<>();
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    private List<EventLike> likes;
 
-    // 이벤트 참여하기 매핑
-    @ManyToMany(mappedBy = "eventJoinList")
-    private List<User> joinList = new ArrayList<>();
+    // 이벤트 참가하기 매핑
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    private List<EventParticipation> eventParticipationList;
 
     // 이벤트 팀 매핑
     @ManyToMany
@@ -146,7 +146,7 @@ public class Event extends BaseEntity {
     }
 
     public int getJoinCount() {
-        return joinList != null ? joinList.size() : 0;
+        return eventParticipationList != null ? eventParticipationList.size() : 0;
     }
 
     public int getCommentCount() {

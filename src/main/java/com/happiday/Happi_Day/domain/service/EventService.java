@@ -2,6 +2,8 @@ package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.event.EventLike;
+import com.happiday.Happi_Day.domain.entity.event.EventParticipation;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventCreateDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventResponseDto;
@@ -33,6 +35,8 @@ import java.util.*;
 @Slf4j
 public class EventService {
     private final EventRepository eventRepository;
+    private final EventParticipationRepository participationRepository;
+    private final EventLikeRepository likeRepository;
     private final UserRepository userRepository;
     private final ArtistRepository artistRepository;
     private final TeamRepository teamRepository;
@@ -213,23 +217,24 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
-        boolean isLiked = event.getLikes().contains(user);
+        Optional<EventLike> existingLike = likeRepository.findByUserAndEvent(user, event);
 
-        String response = "";
-        if (isLiked) {
+        String response;
+        if (existingLike.isPresent()) {
             // 이미 좋아요를 한 경우, 좋아요 취소
-            user.getEventLikes().remove(event);
-            event.getLikes().remove(user);
+            likeRepository.delete(existingLike.get());
             response = "좋아요 취소";
         } else {
-            // 좋아요를 하지 않은 경우, 좋아요
-            user.getEventLikes().add(event);
-            event.getLikes().add(user);
+            EventLike likeEvent = EventLike.builder()
+                    .user(user)
+                    .event(event)
+                    .build();
+            likeRepository.save(likeEvent);
+
             response = "좋아요 성공";
         }
-
-        eventRepository.save(event);
-        return response + " / 좋아요 개수 : " + event.getLikeCount();
+        long likeCount = likeRepository.countByEvent(event);
+        return response + " / 좋아요 개수 : " + likeCount;
     }
 
     @Transactional
@@ -241,33 +246,34 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
-        // 이미 참여 중인 이벤트
-        boolean isJoined = user.getEventJoinList().stream()
-                .anyMatch(joinList -> joinList.equals(event));
+        // 이미 참가 중인 이벤트
+        Optional<EventParticipation> existingParticipation = participationRepository.findByUserAndEvent(user, event);
 
         // 진행 중인 이벤트
-        boolean isOngoingEvent = event.getStartTime().isBefore(LocalDateTime.now())
+        boolean isOngoingEvent =
+                event.getStartTime().isBefore(LocalDateTime.now())
                 && event.getEndTime().isAfter(LocalDateTime.now());
 
-        String response = "";
+        String response;
 
         if (isOngoingEvent) {
-            if (isJoined) {
-                // 이미 참여한 경우, 취소
-                user.getEventJoinList().remove(event);
-                event.getJoinList().remove(user);
-                response = " 이벤트 참여 취소";
+            if (existingParticipation.isPresent()) {
+                // 이미 참가한 경우, 취소
+                participationRepository.delete(existingParticipation.get());
+                response = " 이벤트 참가 취소";
             } else {
-                // 참여하지 않은 경우, 참여
-                user.getEventJoinList().add(event);
-                event.getJoinList().add(user);
-                response = " 이벤트 참여";
+                // 참가하지 않은 경우, 참가
+                EventParticipation participateEvent = EventParticipation.builder()
+                        .user(user)
+                        .event(event)
+                        .build();
+                participationRepository.save(participateEvent);
+                response = " 이벤트 참가";
             }
         } else {
             throw new CustomException(ErrorCode.EVENT_NOT_ONGOING);
         }
 
-        eventRepository.save(event);
         return event.getTitle() + response;
     }
 
