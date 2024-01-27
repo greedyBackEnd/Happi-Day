@@ -125,11 +125,12 @@ public class SalesService {
         return salesList.map(ReadListSalesDto::fromEntity);
     }
 
-    public Page<ReadListSalesDto> readSalesList(Long categoryId, Pageable pageable) {
+    // 판매글 목록 조회
+    public Page<ReadListSalesDto> readSalesList(Long categoryId, Pageable pageable, String filter, String keyword) {
         SalesCategory category = salesCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        Page<Sales> salesList = salesRepository.findAllBySalesCategory(category, pageable);
+        Page<Sales> salesList = querySalesRepository.findSalesByFilterAndKeyword(pageable, categoryId, filter, keyword);
         return salesList.map(ReadListSalesDto::fromEntity);
     }
 
