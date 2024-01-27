@@ -120,7 +120,7 @@ public class ArticleService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
-        if(redisService.isFirstIpRequest(clientAddress, articleId)){
+        if (redisService.isFirstIpRequest(clientAddress, articleId)) {
             log.debug("same user requests duplicate in 24hours: {}, {}", clientAddress, articleId);
             increaseViewCount(clientAddress, articleId);
         }
@@ -129,14 +129,15 @@ public class ArticleService {
     }
 
     // 글 목록 조회
-    public Page<ReadListArticleDto> readList(Long categoryId, Pageable pageable) {
+    public Page<ReadListArticleDto> readList(Long categoryId, Pageable pageable, String filter, String keyword) {
         BoardCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        Page<Article> articles = articleRepository.findAllByCategory(category, pageable);
-        return articles.map(ReadListArticleDto::fromEntity);
+        Page<Article> articleList = queryArticleRepository.findArticleByFilterAndKeyword(pageable,categoryId, filter, keyword);
+        return articleList.map(ReadListArticleDto::fromEntity);
     }
 
+    // 전체글 구독중인 아티스트 글 조회
     public Page<ReadListArticleDto> readArticleBySubscribedArtists(Pageable pageable, Long id, String filter, String keyword, String username) {
         BoardCategory category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -149,8 +150,8 @@ public class ArticleService {
     }
 
     // 글 전체글 조회
-    public Page<ReadListArticleDto> readList(Pageable pageable) {
-        Page<Article> articles = articleRepository.findAll(pageable);
+    public Page<ReadListArticleDto> readList(Pageable pageable, String filter, String keyword) {
+        Page<Article> articles = queryArticleRepository.findArticleByFilterAndKeyword(pageable,null, filter, keyword);
         return articles.map(ReadListArticleDto::fromEntity);
 
     }
@@ -291,7 +292,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public void increaseViewCount(String clientAddress, Long articleId){
+    public void increaseViewCount(String clientAddress, Long articleId) {
         articleRepository.increaseViewCount(articleId);
         redisService.clientRequest(clientAddress, articleId);
     }
