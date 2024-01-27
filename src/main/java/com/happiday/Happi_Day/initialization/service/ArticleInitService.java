@@ -31,9 +31,9 @@ public class ArticleInitService {
         User writer = userRepository.findById(2L).orElse(null);
         BoardCategory category = boardCategoryRepository.findById(1L).orElse(null);
         Artist artist1 = artistRepository.findById(1L).orElse(null);
-        Artist artist2 = artistRepository.findById(1L).orElse(null);
-        Artist artist3 = artistRepository.findById(2L).orElse(null);
-        Artist artist4 = artistRepository.findById(2L).orElse(null);
+        Artist artist2 = artistRepository.findById(2L).orElse(null);
+        Artist artist3 = artistRepository.findById(3L).orElse(null);
+        Artist artist4 = artistRepository.findById(4L).orElse(null);
         Team team1 = teamRepository.findById(1L).orElse(null);
         Team team2 = teamRepository.findById(2L).orElse(null);
         String imageUrl = defaultImageUtils.getDefaultImageUrlArticleThumbnail();
