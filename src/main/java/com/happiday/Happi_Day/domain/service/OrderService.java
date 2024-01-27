@@ -119,8 +119,8 @@ public class OrderService {
 
         if (!user.equals(order.getUser())) throw new CustomException(ErrorCode.FORBIDDEN);
 
-        // 배송중이거나 배송완료일 경우 취소 불가
-        if (order.getOrderStatus().equals(OrderStatus.DELIVERING) || order.getOrderStatus().equals(OrderStatus.DELIVERY_COMPLETED)) {
+        // 주문취소, 배송준비중, 배송중, 배송완료 상태일 경우 취소 불가
+        if (order.getOrderStatus().equals(OrderStatus.DELIVERING) || order.getOrderStatus().equals(OrderStatus.DELIVERY_COMPLETED) || order.getOrderStatus().equals(OrderStatus.READY_TO_SHIP) || order.getOrderStatus().equals(OrderStatus.ORDER_CANCEL)) {
             throw new CustomException(ErrorCode.ORDER_FAILED);
         }
 
