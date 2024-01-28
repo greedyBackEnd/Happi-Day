@@ -32,6 +32,6 @@ public class Hashtag {
     @ManyToMany(mappedBy = "hashtags")
     private List<Sales> sales = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "hashtags")
+    @OneToMany(mappedBy = "hashtags")
     private List<Event> events = new ArrayList<>();
 }

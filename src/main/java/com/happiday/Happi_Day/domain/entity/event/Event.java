@@ -97,13 +97,8 @@ public class Event extends BaseEntity {
     private List<Artist> artists = new ArrayList<>();
 
     // 이벤트 해시태그 매핑
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "event_hashtag",
-            joinColumns = @JoinColumn(name = "event_id"),
-            inverseJoinColumns = @JoinColumn(name = "hashtag_id")
-    )
-    private List<Hashtag> hashtags = new ArrayList<>();
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    private List<EventHashtag> hashtags;
 
 
 
