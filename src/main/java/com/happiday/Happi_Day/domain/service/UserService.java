@@ -107,7 +107,7 @@ public class UserService {
     }
 
     public void checkValidPhone(String phone) {
-        String phoneRegex = "\\d{3}-\\d{4}-\\d{4}";
+        String phoneRegex = "\\d{11}";
         Pattern pattern = Pattern.compile(phoneRegex);
         Matcher matcher = pattern.matcher(phone);
 
