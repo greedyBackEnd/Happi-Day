@@ -1,7 +1,6 @@
 package com.happiday.Happi_Day.domain.entity.event;
 
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
-import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
@@ -131,10 +130,6 @@ public class Event extends BaseEntity {
             this.artists.clear();
             this.artists = updateEvent.getArtists();
         }
-//        if (updateEvent.getEventHashtags() != null && !updateEvent.getEventHashtags().isEmpty()) {
-//            this.eventHashtags.clear();
-//            this.eventHashtags = updateEvent.getEventHashtags();
-//        }
     }
 
     public int getLikeCount() {
