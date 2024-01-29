@@ -41,8 +41,13 @@ public class OrderService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Sales sales = salesRepository.findById(salesId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
+
         Delivery delivery = deliveryRepository.findByName(orderRequest.getDelivery().toString())
                 .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
+        if(!sales.getDeliveries().contains(delivery)){
+            throw new CustomException(ErrorCode.DELIVERY_NOT_FOUND);
+        }
+
 
         Order newOrder = Order.builder()
                 .user(user)
