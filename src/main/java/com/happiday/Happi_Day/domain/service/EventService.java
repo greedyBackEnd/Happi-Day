@@ -195,6 +195,7 @@ public class EventService {
 
         if (processedTags.getRight() != null) {
             eventHashtagRepository.deleteByEvent(event);
+            event.getEventHashtags().clear();
 
             List<Hashtag> hashtags = processedTags.getRight();
             for (Hashtag hashtag : hashtags) {
@@ -203,6 +204,7 @@ public class EventService {
                         .hashtag(hashtag)
                         .build();
                 eventHashtagRepository.save(eventHashtag);
+                event.getEventHashtags().add(eventHashtag);
             }
         }
 
