@@ -97,8 +97,9 @@ public class Event extends BaseEntity {
     private List<Artist> artists = new ArrayList<>();
 
     // 이벤트 해시태그 매핑
+    @Setter
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
-    private List<EventHashtag> hashtags;
+    private List<EventHashtag> eventHashtags;
 
 
 
@@ -130,10 +131,10 @@ public class Event extends BaseEntity {
             this.artists.clear();
             this.artists = updateEvent.getArtists();
         }
-        if (updateEvent.getHashtags() != null && !updateEvent.getHashtags().isEmpty()) {
-            this.hashtags.clear();
-            this.hashtags = updateEvent.getHashtags();
-        }
+//        if (updateEvent.getEventHashtags() != null && !updateEvent.getEventHashtags().isEmpty()) {
+//            this.eventHashtags.clear();
+//            this.eventHashtags = updateEvent.getEventHashtags();
+//        }
     }
 
     public int getLikeCount() {
@@ -149,4 +150,6 @@ public class Event extends BaseEntity {
     }
 
     public int getReviewCount() { return reviews != null ? reviews.size() : 0;}
+
+
 }

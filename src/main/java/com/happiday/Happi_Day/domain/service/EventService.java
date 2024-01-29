@@ -2,6 +2,7 @@ package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.event.EventHashtag;
 import com.happiday.Happi_Day.domain.entity.event.EventLike;
 import com.happiday.Happi_Day.domain.entity.event.EventParticipation;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventCreateDto;
@@ -40,6 +41,8 @@ public class EventService {
     private final UserRepository userRepository;
     private final ArtistRepository artistRepository;
     private final TeamRepository teamRepository;
+    private final HashtagRepository hashtagRepository;
+    private final EventHashtagRepository eventHashtagRepository;
     private final FileUtils fileUtils;
     private final RedisService redisService;
     private final DefaultImageUtils defaultImageUtils;
@@ -66,7 +69,7 @@ public class EventService {
 
         // hashTag 처리
         //get Left, Middle, Right가 각각 1, 2, 3번째 요소 반환
-        HashtagUtils hashtagUtils = new HashtagUtils(artistRepository, teamRepository);
+        HashtagUtils hashtagUtils = new HashtagUtils(artistRepository, teamRepository, hashtagRepository);
         Triple<List<Artist>, List<Team>, List<Hashtag>> processedTags = hashtagUtils.processTags(request.getHashtags());
 
         Event event = Event.builder()
@@ -76,7 +79,6 @@ public class EventService {
                 .thumbnailUrl(thumbnailUrl)
                 .artists(processedTags.getLeft())
                 .teams(processedTags.getMiddle())
-                .hashtags(processedTags.getRight())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
                 .description(request.getDescription())
@@ -84,7 +86,22 @@ public class EventService {
                 .location(request.getLocation())
                 .build();
 
+        List<EventHashtag> eventHashtags = new ArrayList<>();
+        List<Hashtag> hashtags = processedTags.getRight();
+
+        for (Hashtag hashtag : hashtags) {
+            EventHashtag eventHashtag = EventHashtag.builder()
+                    .event(event)
+                    .hashtag(hashtag)
+                    .build();
+            eventHashtags.add(eventHashtag);
+            eventHashtagRepository.save(eventHashtag);
+        }
+        event.setEventHashtags(eventHashtags);
+
         eventRepository.save(event);
+
+
         return EventResponseDto.fromEntity(event);
     }
 
@@ -147,7 +164,7 @@ public class EventService {
     }
 
 
-        @Transactional
+    @Transactional
     public EventResponseDto updateEvent(Long eventId, EventUpdateDto request, MultipartFile thumbnailFile, MultipartFile imageFile, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -171,10 +188,23 @@ public class EventService {
             event.setImageUrl(newImageUrl);
         }
 
-            // hashTag 처리
-            //get Left, Middle, Right가 각각 1, 2, 3번째 요소 반환
-            HashtagUtils hashtagUtils = new HashtagUtils(artistRepository, teamRepository);
-            Triple<List<Artist>, List<Team>, List<Hashtag>> processedTags = hashtagUtils.processTags(request.getHashtags());
+        // hashTag 처리
+        //get Left, Middle, Right가 각각 1, 2, 3번째 요소 반환
+        HashtagUtils hashtagUtils = new HashtagUtils(artistRepository, teamRepository, hashtagRepository);
+        Triple<List<Artist>, List<Team>, List<Hashtag>> processedTags = hashtagUtils.processTags(request.getHashtags());
+
+        if (processedTags.getRight() != null) {
+            eventHashtagRepository.deleteByEvent(event);
+
+            List<Hashtag> hashtags = processedTags.getRight();
+            for (Hashtag hashtag : hashtags) {
+                EventHashtag eventHashtag = EventHashtag.builder()
+                        .event(event)
+                        .hashtag(hashtag)
+                        .build();
+                eventHashtagRepository.save(eventHashtag);
+            }
+        }
 
             event.update(Event.builder()
                 .user(user)
@@ -186,10 +216,10 @@ public class EventService {
                 .description(request.getDescription())
                 .location(request.getLocation())
                 .address(request.getAddress())
-                .hashtags(processedTags.getRight())
                 .build());
 
         eventRepository.save(event);
+
         return EventResponseDto.fromEntity(event);
     }
 

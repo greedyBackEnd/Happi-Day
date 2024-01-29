@@ -30,16 +30,30 @@ public class HashtagUtils {
         List<Team> teams = new ArrayList<>();
         List<Hashtag> hashtags = new ArrayList<>();
 
-        hashtagRequests.forEach(hashtagRequest -> {
-            artistRepository.findByName(hashtagRequest)
-                    .ifPresent(artists::add);
+        for (String hashtagRequest : hashtagRequests) {
+            boolean isFound = artistRepository.findByName(hashtagRequest)
+                    .map(artists::add)
+                    .isPresent();
 
-            teamRepository.findByName(hashtagRequest)
-                    .ifPresent(teams::add);
+            if (!isFound) {
+                isFound = teamRepository.findByName(hashtagRequest)
+                        .map(teams::add)
+                        .isPresent();
+            }
 
-            hashtagRepository.findByTag(hashtagRequest)
-                    .ifPresent(hashtags::add);
-        });
+            if (!isFound) {
+                hashtagRepository.findByTag(hashtagRequest)
+                        .ifPresentOrElse(
+                                hashtags::add,
+                                () -> {
+                                    Hashtag newHashtag = Hashtag.builder()
+                                            .tag(hashtagRequest)
+                                            .build();
+                                    hashtagRepository.save(newHashtag);
+                                    hashtags.add(newHashtag);
+                                });
+            }
+        }
 
         return Triple.of(artists, teams, hashtags);
     }
