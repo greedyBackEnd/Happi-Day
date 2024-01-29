@@ -59,6 +59,29 @@ public class UserService {
         manager.createUser(userDetails);
     }
 
+    @Transactional
+    public void createAdmin(UserRegisterDto dto) {
+        // 유효성 검사
+        checkValidEmail(dto.getUsername());
+        checkValidPhone(dto.getPhone());
+
+        // DB 확인
+        checkDuplicatedUsername(dto.getUsername());
+        checkDuplicatedNickname(dto.getNickname());
+        checkDuplicatedPhone(dto.getPhone());
+
+        CustomUserDetails userDetails = CustomUserDetails.builder()
+                .username(dto.getUsername())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .nickname(dto.getNickname())
+                .realname(dto.getRealname())
+                .phone(dto.getPhone())
+                .role(RoleType.ADMIN)
+                .imageUrl(defaultImageUtils.getDefaultImageUrlUserProfile())
+                .build();
+        manager.createUser(userDetails);
+    }
+
     public UserResponseDto getUserProfile(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
