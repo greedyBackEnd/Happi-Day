@@ -67,8 +67,8 @@ public class Article extends BaseEntity {
     private List<ArticleComment> articleComments = new ArrayList<>();
 
     // 게시글 좋아요 매핑
-    @ManyToMany(mappedBy = "articleLikes")
-    private List<User> likeUsers = new ArrayList<>();
+    @OneToMany(mappedBy = "article")
+    private List<ArticleLike> articleLikes = new ArrayList<>();
 
     // 게시글 아티스트 매핑
     @ManyToMany
@@ -89,13 +89,8 @@ public class Article extends BaseEntity {
     private List<Team> teams = new ArrayList<>();
 
     // 해시태그 매핑
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "article_hashtag",
-            joinColumns = @JoinColumn(name = "article_id"),
-            inverseJoinColumns = @JoinColumn(name = "hashtag_id")
-    )
-    private List<Hashtag> hashtags = new ArrayList<>();
+    @OneToMany(mappedBy = "article")
+    private List<ArticleHashtag> articleHashtags = new ArrayList<>();
 
     public void update(Article updateArticle) {
         if (updateArticle.getTitle() != null) this.title = updateArticle.getTitle();
@@ -103,7 +98,6 @@ public class Article extends BaseEntity {
         if (updateArticle.getEventAddress() != null) this.eventAddress = updateArticle.getEventAddress();
         if (updateArticle.getArtists() != null) this.artists = updateArticle.getArtists();
         if (updateArticle.getTeams() != null) this.teams = updateArticle.getTeams();
-        if (updateArticle.getHashtags() != null) this.hashtags = updateArticle.getHashtags();
         if (updateArticle.getEctArtists() != null) this.ectArtists = updateArticle.getEctArtists();
         if (updateArticle.getEctTeams() != null) this.ectTeams = updateArticle.getEctTeams();
     }
@@ -112,9 +106,8 @@ public class Article extends BaseEntity {
         this.thumbnailUrl = thumbnailImage;
     }
 
-    public void setHashtag(List<Artist> artists, List<Team> teams, List<Hashtag> hashtags) {
+    public void setArtists(List<Artist> artists, List<Team> teams) {
         if (artists != null) this.artists = artists;
         if (teams != null) this.teams = teams;
-        if (hashtags != null) this.hashtags = hashtags;
     }
 }

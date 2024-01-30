@@ -28,11 +28,12 @@ public class QuerySalesRepository {
     private final JPAQueryFactory queryFactory;
 
     // 필터링
-    public Page<Sales> findSalesByFilterAndKeyword(Pageable pageable, String filter, String keyword) {
+    public Page<Sales> findSalesByFilterAndKeyword(Pageable pageable,Long categoryId, String filter, String keyword) {
         List<Sales> salesList = queryFactory
                 .selectFrom(sales)
                 .join(sales.users, user).fetchJoin()
-                .where(salesSearchFilter(filter, keyword))
+                .where(salesSearchFilter(filter, keyword),
+                        sales.salesCategory.id.eq(categoryId))
                 .orderBy(sales.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

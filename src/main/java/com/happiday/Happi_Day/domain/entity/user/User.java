@@ -3,6 +3,7 @@ package com.happiday.Happi_Day.domain.entity.user;
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.article.Article;
 import com.happiday.Happi_Day.domain.entity.article.ArticleComment;
+import com.happiday.Happi_Day.domain.entity.article.ArticleLike;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.chat.ChatMessage;
 import com.happiday.Happi_Day.domain.entity.chat.ChatRoom;
@@ -12,6 +13,7 @@ import com.happiday.Happi_Day.domain.entity.event.EventParticipation;
 import com.happiday.Happi_Day.domain.entity.event.EventReview;
 import com.happiday.Happi_Day.domain.entity.product.Order;
 import com.happiday.Happi_Day.domain.entity.product.Sales;
+import com.happiday.Happi_Day.domain.entity.product.SalesLike;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -84,23 +86,27 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Article> articles = new ArrayList<>();
 
-    // 게시글 좋아요 매핑
-    @ManyToMany
-    @JoinTable(
-            name = "user_article_likes",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "article_id")
-    )
-    private List<Article> articleLikes = new ArrayList<>();
+//    // 게시글 좋아요 매핑
+//    @ManyToMany
+//    @JoinTable(
+//            name = "user_article_likes",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "article_id")
+//    )
+//    private List<Article> articleLikes = new ArrayList<>();
 
-    // 게시글 스크랩 매핑
-    @ManyToMany
-    @JoinTable(
-            name = "user_article_scrap",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "article_id")
-    )
-    private List<Article> articleScraps = new ArrayList<>();
+    // 게시글 좋아요 매핑
+    @OneToMany(mappedBy = "user")
+    private List<ArticleLike> articleLikes = new ArrayList<>();
+
+////     게시글 스크랩 매핑
+//    @ManyToMany
+//    @JoinTable(
+//            name = "user_article_scrap",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "article_id")
+//    )
+//    private List<Article> articleScraps = new ArrayList<>();
 
     // 댓글 매핑
     @OneToMany(mappedBy = "user")
@@ -114,14 +120,18 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "users") // mappedBy user => users로 수정
     private List<Sales> salesList = new ArrayList<>();
 
+//    // 판매글 찜하기 매핑
+//    @ManyToMany
+//    @JoinTable(
+//            name = "user_sale_likes",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "sales_id")
+//    )
+//    private List<Sales> salesLikes = new ArrayList<>();
+
     // 판매글 찜하기 매핑
-    @ManyToMany
-    @JoinTable(
-            name = "user_sale_likes",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "sales_id")
-    )
-    private List<Sales> salesLikes = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<SalesLike> salesLikes = new ArrayList<>();
 
     // 이벤트 작성 매핑 => (별개)
     @OneToMany(mappedBy = "user")

@@ -1,14 +1,11 @@
 package com.happiday.Happi_Day.domain.service;
 
-import com.happiday.Happi_Day.domain.entity.article.Article;
-import com.happiday.Happi_Day.domain.entity.article.ArticleComment;
-import com.happiday.Happi_Day.domain.entity.article.Hashtag;
+import com.happiday.Happi_Day.domain.entity.article.*;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadListArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadOneArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.WriteArticleDto;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.board.BoardCategory;
-import com.happiday.Happi_Day.domain.entity.product.Sales;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
@@ -18,7 +15,6 @@ import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -45,6 +41,8 @@ public class ArticleService {
     private final FileUtils fileUtils;
     private final RedisService redisService;
     private final QueryArticleRepository queryArticleRepository;
+    private final ArticleLikeRepository articleLikeRepository;
+    private final ArticleHashtagRepository articleHashtagRepository;
 
     @Transactional
     public ReadOneArticleDto writeArticle(Long categoryId, WriteArticleDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFileList, String username) {
@@ -61,8 +59,9 @@ public class ArticleService {
                 .category(category)
                 .title(dto.getTitle())
                 .content(dto.getContent())
+                .articleHashtags(new ArrayList<>())
                 .eventAddress(dto.getEventAddress())
-                .likeUsers(new ArrayList<>())
+                .articleLikes(new ArrayList<>())
                 .articleComments(new ArrayList<>())
                 .imageUrl(new ArrayList<>())
                 .build();
@@ -90,10 +89,19 @@ public class ArticleService {
             Hashtag newHashtag = Hashtag.builder()
                     .tag(keyword)
                     .build();
+            hashtagRepository.save(newHashtag);
             hashtags.add(newHashtag);
         }
 
-        newArticle.setHashtag(artists, teams, hashtags);
+        for (Hashtag hashtag: hashtags) {
+            ArticleHashtag articleHashtag = ArticleHashtag.builder()
+                    .hashtag(hashtag)
+                    .article(newArticle)
+                    .build();
+            articleHashtagRepository.save(articleHashtag);
+        }
+
+        newArticle.setArtists(artists, teams);
 
         // 이미지 저장
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
@@ -120,7 +128,7 @@ public class ArticleService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
-        if(redisService.isFirstIpRequest(clientAddress, articleId)){
+        if (redisService.isFirstIpRequest(clientAddress, articleId)) {
             log.debug("same user requests duplicate in 24hours: {}, {}", clientAddress, articleId);
             increaseViewCount(clientAddress, articleId);
         }
@@ -129,14 +137,15 @@ public class ArticleService {
     }
 
     // 글 목록 조회
-    public Page<ReadListArticleDto> readList(Long categoryId, Pageable pageable) {
+    public Page<ReadListArticleDto> readList(Long categoryId, Pageable pageable, String filter, String keyword) {
         BoardCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        Page<Article> articles = articleRepository.findAllByCategory(category, pageable);
-        return articles.map(ReadListArticleDto::fromEntity);
+        Page<Article> articleList = queryArticleRepository.findArticleByFilterAndKeyword(pageable,categoryId, filter, keyword);
+        return articleList.map(ReadListArticleDto::fromEntity);
     }
 
+    // 전체글 구독중인 아티스트 글 조회
     public Page<ReadListArticleDto> readArticleBySubscribedArtists(Pageable pageable, Long id, String filter, String keyword, String username) {
         BoardCategory category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -149,8 +158,8 @@ public class ArticleService {
     }
 
     // 글 전체글 조회
-    public Page<ReadListArticleDto> readList(Pageable pageable) {
-        Page<Article> articles = articleRepository.findAll(pageable);
+    public Page<ReadListArticleDto> readList(Pageable pageable, String filter, String keyword) {
+        Page<Article> articles = queryArticleRepository.findArticleByFilterAndKeyword(pageable,null, filter, keyword);
         return articles.map(ReadListArticleDto::fromEntity);
 
     }
@@ -199,7 +208,15 @@ public class ArticleService {
             hashtags.add(newHashtag);
         }
 
-        article.setHashtag(artists, teams, hashtags);
+        for (Hashtag hashtag: hashtags) {
+            ArticleHashtag articleHashtag = ArticleHashtag.builder()
+                    .hashtag(hashtag)
+                    .article(article)
+                    .build();
+            articleHashtagRepository.save(articleHashtag);
+        }
+
+        article.setArtists(artists, teams);
 
 
         // 썸네일 이미지 저장
@@ -276,22 +293,26 @@ public class ArticleService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String response = "";
-        if (article.getLikeUsers().contains(user)) {
-            article.getLikeUsers().remove(user);
-            user.getArticleLikes().remove(article);
-            response = "좋아요가 취소되었습니다. 현재 좋아요 수 : " + article.getLikeUsers().size();
-        } else {
-            article.getLikeUsers().add(user);
-            user.getArticleLikes().add(article);
-            response = "좋아요를 눌렀습니다. 현재 좋아요 수 : " + article.getLikeUsers().size();
-        }
+        Optional<ArticleLike> articleLike = articleLikeRepository.findByUserAndArticle(user, article);
 
-        articleRepository.save(article);
+        if (articleLike.isPresent()) {
+            articleLikeRepository.delete(articleLike.get());
+            List<ArticleLike> articleLikeUser = articleLikeRepository.findByArticle(article);
+            response = "좋아요가 취소되었습니다. 현재 좋아요 수 : " + articleLikeUser.size();
+        } else {
+            ArticleLike newArticleLike = ArticleLike.builder()
+                    .article(article)
+                    .user(user)
+                    .build();
+            articleLikeRepository.save(newArticleLike);
+            List<ArticleLike> articleLikeUser = articleLikeRepository.findByArticle(article);
+            response = "좋아요를 눌렀습니다. 현재 좋아요 수 : " + articleLikeUser.size();
+        }
         return response;
     }
 
     @Transactional
-    public void increaseViewCount(String clientAddress, Long articleId){
+    public void increaseViewCount(String clientAddress, Long articleId) {
         articleRepository.increaseViewCount(articleId);
         redisService.clientRequest(clientAddress, articleId);
     }
