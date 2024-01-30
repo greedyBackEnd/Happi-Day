@@ -8,7 +8,6 @@ import lombok.Getter;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Builder
 @Getter
@@ -37,7 +36,7 @@ public class ReadOneOrderDto {
         private int count;
         private int individualProductPrice;
 
-        private OrderedProductDto(String productName, int count, int individualProductPrice){
+        private OrderedProductDto(String productName, int count, int individualProductPrice) {
             this.productName = productName;
             this.count = count;
             this.individualProductPrice = individualProductPrice;
@@ -46,11 +45,11 @@ public class ReadOneOrderDto {
 
     @Builder
     @Getter
-    private static class DeliveryDto{
+    private static class DeliveryDto {
         private String deliveryWay;
         private int price;
 
-        private DeliveryDto(String deliveryWay, int price){
+        private DeliveryDto(String deliveryWay, int price) {
             this.deliveryWay = deliveryWay;
             this.price = price;
         }
@@ -58,18 +57,8 @@ public class ReadOneOrderDto {
 
 
     public static ReadOneOrderDto fromEntity(Sales sales, Order order, User user) {
-//        Map<String, Integer> productList = new HashMap<>();
-//        Map<String, Integer> priceList = new HashMap<>();
-//        for (OrderedProduct orderedProduct : order.getOrderedProducts()) {
-//            productList.put(orderedProduct.getProduct().getName(), orderedProduct.getQuantity());
-//            priceList.put(orderedProduct.getProduct().getName(), orderedProduct.getProduct().getPrice() * orderedProduct.getQuantity());
-//        }
-//        Map<String, Integer> delivery = new HashMap<>();
-//        delivery.put(order.getDelivery().getName(), order.getDelivery().getPrice());
-
         List<OrderedProductDto> productList = new ArrayList<>();
-        for(OrderedProduct orderedProduct : order.getOrderedProducts()){
-//            productList.add(new Product(orderedProduct.getProduct().getName(),orderedProduct.getQuantity(), orderedProduct.getProduct().getPrice()));
+        for (OrderedProduct orderedProduct : order.getOrderedProducts()) {
             OrderedProductDto orderedProductDto = OrderedProductDto.builder()
                     .productName(orderedProduct.getProduct().getName())
                     .count(orderedProduct.getQuantity())
@@ -95,7 +84,7 @@ public class ReadOneOrderDto {
                 .refundAccount(order.getRefundAccount())
                 .orderAt(order.getOrderedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .orderedProducts(productList)
-                .productPrice(order.getTotalPrice()-order.getDelivery().getPrice())
+                .productPrice(order.getTotalPrice() - order.getDelivery().getPrice())
                 .delivery(deliveryDto)
                 .totalPrice(order.getTotalPrice())
                 .orderStatus(order.getOrderStatus())
