@@ -1,12 +1,14 @@
 package com.happiday.Happi_Day.domain.entity.article.dto;
 
 import com.happiday.Happi_Day.domain.entity.article.Article;
+import com.happiday.Happi_Day.domain.entity.article.ArticleHashtag;
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Builder
+@Slf4j
 public class ReadOneArticleDto {
     private String title;
     private String content;
@@ -32,7 +35,7 @@ public class ReadOneArticleDto {
 
         keywords.addAll(article.getArtists().stream().map(Artist::getName).collect(Collectors.toList()));
         keywords.addAll(article.getTeams().stream().map(Team::getName).collect(Collectors.toList()));
-        keywords.addAll(article.getHashtags().stream().map(Hashtag::getTag).collect(Collectors.toList()));
+        keywords.addAll(article.getArticleHashtags().stream().map(ArticleHashtag::getHashtag).map(Hashtag::getTag).collect(Collectors.toList()));
 
         return ReadOneArticleDto.builder()
                 .user(article.getUser().getNickname())

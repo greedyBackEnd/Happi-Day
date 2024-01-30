@@ -1,9 +1,6 @@
 package com.happiday.Happi_Day.domain.service;
 
-import com.happiday.Happi_Day.domain.entity.article.Article;
-import com.happiday.Happi_Day.domain.entity.article.ArticleComment;
-import com.happiday.Happi_Day.domain.entity.article.ArticleLike;
-import com.happiday.Happi_Day.domain.entity.article.Hashtag;
+import com.happiday.Happi_Day.domain.entity.article.*;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadListArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadOneArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.WriteArticleDto;
@@ -45,6 +42,7 @@ public class ArticleService {
     private final RedisService redisService;
     private final QueryArticleRepository queryArticleRepository;
     private final ArticleLikeRepository articleLikeRepository;
+    private final ArticleHashtagRepository articleHashtagRepository;
 
     @Transactional
     public ReadOneArticleDto writeArticle(Long categoryId, WriteArticleDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFileList, String username) {
@@ -61,6 +59,7 @@ public class ArticleService {
                 .category(category)
                 .title(dto.getTitle())
                 .content(dto.getContent())
+                .articleHashtags(new ArrayList<>())
                 .eventAddress(dto.getEventAddress())
                 .articleLikes(new ArrayList<>())
                 .articleComments(new ArrayList<>())
@@ -90,10 +89,19 @@ public class ArticleService {
             Hashtag newHashtag = Hashtag.builder()
                     .tag(keyword)
                     .build();
+            hashtagRepository.save(newHashtag);
             hashtags.add(newHashtag);
         }
 
-        newArticle.setHashtag(artists, teams, hashtags);
+        for (Hashtag hashtag: hashtags) {
+            ArticleHashtag articleHashtag = ArticleHashtag.builder()
+                    .hashtag(hashtag)
+                    .article(newArticle)
+                    .build();
+            articleHashtagRepository.save(articleHashtag);
+        }
+
+        newArticle.setArtists(artists, teams);
 
         // 이미지 저장
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
@@ -200,7 +208,15 @@ public class ArticleService {
             hashtags.add(newHashtag);
         }
 
-        article.setHashtag(artists, teams, hashtags);
+        for (Hashtag hashtag: hashtags) {
+            ArticleHashtag articleHashtag = ArticleHashtag.builder()
+                    .hashtag(hashtag)
+                    .article(article)
+                    .build();
+            articleHashtagRepository.save(articleHashtag);
+        }
+
+        article.setArtists(artists, teams);
 
 
         // 썸네일 이미지 저장
