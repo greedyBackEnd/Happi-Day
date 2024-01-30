@@ -40,6 +40,7 @@ public class SalesService {
     private final QuerySalesRepository querySalesRepository;
     private final RedisService redisService;
     private final SalesLikeRepository salesLikeRepository;
+    private final SalesHashtagRepository salesHashtagRepository;
 
     @Transactional
     public ReadOneSalesDto createSales(Long categoryId, WriteSalesDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFile, String username) {
@@ -59,6 +60,7 @@ public class SalesService {
                 .salesStatus(SalesStatus.ON_SALE)
                 .salesCategory(category)
                 .name(dto.getName())
+                .salesHashtags(new ArrayList<>())
                 .description(dto.getDescription())
                 .products(productList)
                 .salesLikes(new ArrayList<>())
@@ -91,10 +93,19 @@ public class SalesService {
             Hashtag newHashtag = Hashtag.builder()
                     .tag(keyword)
                     .build();
+            hashtagRepository.save(newHashtag);
             hashtags.add(newHashtag);
         }
 
-        newSales.setHashtag(artists, teams, hashtags);
+        for (Hashtag hashtag: hashtags) {
+            SalesHashtag salesHashtag = SalesHashtag.builder()
+                    .hashtag(hashtag)
+                    .sales(newSales)
+                    .build();
+            salesHashtagRepository.save(salesHashtag);
+        }
+
+        newSales.setHashtag(artists, teams);
 
         // 이미지 저장
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
@@ -228,7 +239,15 @@ public class SalesService {
             hashtags.add(newHashtag);
         }
 
-        sales.setHashtag(artists, teams, hashtags);
+        for (Hashtag hashtag: hashtags) {
+            SalesHashtag salesHashtag = SalesHashtag.builder()
+                    .hashtag(hashtag)
+                    .sales(sales)
+                    .build();
+            salesHashtagRepository.save(salesHashtag);
+        }
+
+        sales.setHashtag(artists, teams);
 
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
             if (sales.getThumbnailImage() != null && !sales.getThumbnailImage().isEmpty()) {
