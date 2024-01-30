@@ -66,9 +66,13 @@ public class Article extends BaseEntity {
     @OneToMany(mappedBy = "article")
     private List<ArticleComment> articleComments = new ArrayList<>();
 
+//    // 게시글 좋아요 매핑
+//    @ManyToMany(mappedBy = "articleLikes")
+//    private List<User> likeUsers = new ArrayList<>();
+
     // 게시글 좋아요 매핑
-    @ManyToMany(mappedBy = "articleLikes")
-    private List<User> likeUsers = new ArrayList<>();
+    @OneToMany(mappedBy = "article")
+    private List<ArticleLike> articleLikes = new ArrayList<>();
 
     // 게시글 아티스트 매핑
     @ManyToMany

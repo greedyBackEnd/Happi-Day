@@ -10,8 +10,6 @@ import lombok.Setter;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +40,7 @@ public class ReadOneArticleDto {
                 .content(article.getContent())
                 .comments(ReadCommentDto.toReadCommentDto(article.getArticleComments()))
                 .hashtags(keywords)
-                .likeUsersNum(article.getLikeUsers().size())
+                .likeUsersNum(article.getArticleLikes().size())
                 .imageUrl(article.getImageUrl())
                 .updatedAt(article.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .viewCount(article.getViewCount())

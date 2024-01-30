@@ -3,6 +3,7 @@ package com.happiday.Happi_Day.domain.entity.user;
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.article.Article;
 import com.happiday.Happi_Day.domain.entity.article.ArticleComment;
+import com.happiday.Happi_Day.domain.entity.article.ArticleLike;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.chat.ChatMessage;
 import com.happiday.Happi_Day.domain.entity.chat.ChatRoom;
@@ -19,7 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -84,23 +84,27 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Article> articles = new ArrayList<>();
 
-    // 게시글 좋아요 매핑
-    @ManyToMany
-    @JoinTable(
-            name = "user_article_likes",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "article_id")
-    )
-    private List<Article> articleLikes = new ArrayList<>();
+//    // 게시글 좋아요 매핑
+//    @ManyToMany
+//    @JoinTable(
+//            name = "user_article_likes",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "article_id")
+//    )
+//    private List<Article> articleLikes = new ArrayList<>();
 
-    // 게시글 스크랩 매핑
-    @ManyToMany
-    @JoinTable(
-            name = "user_article_scrap",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "article_id")
-    )
-    private List<Article> articleScraps = new ArrayList<>();
+    // 게시글 좋아요 매핑
+    @OneToMany(mappedBy = "user")
+    private List<ArticleLike> articleLikes = new ArrayList<>();
+
+////     게시글 스크랩 매핑
+//    @ManyToMany
+//    @JoinTable(
+//            name = "user_article_scrap",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "article_id")
+//    )
+//    private List<Article> articleScraps = new ArrayList<>();
 
     // 댓글 매핑
     @OneToMany(mappedBy = "user")

@@ -53,7 +53,8 @@ public class MyPageService {
 
     public Page<ReadListArticleDto> readLikeArticles(String username, Pageable pageable) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        Page<Article> articles = articleRepository.findAllByLikeUsersContains(user, pageable);
+//        Page<Article> articles = articleRepository.findAllByLikeUsersContains(user, pageable);
+        Page<Article> articles = articleRepository.findAllByArticleLikesUserContains(user, pageable);
 
         return articles.map(ReadListArticleDto::fromEntity);
     }

@@ -2,13 +2,13 @@ package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.article.Article;
 import com.happiday.Happi_Day.domain.entity.article.ArticleComment;
+import com.happiday.Happi_Day.domain.entity.article.ArticleLike;
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadListArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadOneArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.WriteArticleDto;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.board.BoardCategory;
-import com.happiday.Happi_Day.domain.entity.product.Sales;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
@@ -18,7 +18,6 @@ import com.happiday.Happi_Day.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -45,6 +44,7 @@ public class ArticleService {
     private final FileUtils fileUtils;
     private final RedisService redisService;
     private final QueryArticleRepository queryArticleRepository;
+    private final ArticleLikeRepository articleLikeRepository;
 
     @Transactional
     public ReadOneArticleDto writeArticle(Long categoryId, WriteArticleDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFileList, String username) {
@@ -62,7 +62,7 @@ public class ArticleService {
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .eventAddress(dto.getEventAddress())
-                .likeUsers(new ArrayList<>())
+                .articleLikes(new ArrayList<>())
                 .articleComments(new ArrayList<>())
                 .imageUrl(new ArrayList<>())
                 .build();
@@ -277,17 +277,21 @@ public class ArticleService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String response = "";
-        if (article.getLikeUsers().contains(user)) {
-            article.getLikeUsers().remove(user);
-            user.getArticleLikes().remove(article);
-            response = "좋아요가 취소되었습니다. 현재 좋아요 수 : " + article.getLikeUsers().size();
-        } else {
-            article.getLikeUsers().add(user);
-            user.getArticleLikes().add(article);
-            response = "좋아요를 눌렀습니다. 현재 좋아요 수 : " + article.getLikeUsers().size();
-        }
+        Optional<ArticleLike> articleLike = articleLikeRepository.findByUserAndArticle(user, article);
 
-        articleRepository.save(article);
+        if (articleLike.isPresent()) {
+            articleLikeRepository.delete(articleLike.get());
+            List<ArticleLike> articleLikeUser = articleLikeRepository.findByArticle(article);
+            response = "좋아요가 취소되었습니다. 현재 좋아요 수 : " + articleLikeUser.size();
+        } else {
+            ArticleLike newArticleLike = ArticleLike.builder()
+                    .article(article)
+                    .user(user)
+                    .build();
+            articleLikeRepository.save(newArticleLike);
+            List<ArticleLike> articleLikeUser = articleLikeRepository.findByArticle(article);
+            response = "좋아요를 눌렀습니다. 현재 좋아요 수 : " + articleLikeUser.size();
+        }
         return response;
     }
 
