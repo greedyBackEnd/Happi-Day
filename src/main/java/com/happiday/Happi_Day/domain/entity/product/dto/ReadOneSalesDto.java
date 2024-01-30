@@ -53,7 +53,7 @@ public class ReadOneSalesDto {
                 .description(sales.getDescription())
                 .salesStatus(sales.getSalesStatus().getValue())
                 .products(productList)
-                .likeNum(sales.getSalesLikesUsers().size())
+                .likeNum(sales.getSalesLikes().size())
                 .imageList(sales.getImageUrl())
                 .hashtag(keywords)
                 .deliveries(deliveries)

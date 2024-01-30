@@ -39,6 +39,7 @@ public class SalesService {
     private final FileUtils fileUtils;
     private final QuerySalesRepository querySalesRepository;
     private final RedisService redisService;
+    private final SalesLikeRepository salesLikeRepository;
 
     @Transactional
     public ReadOneSalesDto createSales(Long categoryId, WriteSalesDto dto, MultipartFile thumbnailImage, List<MultipartFile> imageFile, String username) {
@@ -60,7 +61,7 @@ public class SalesService {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .products(productList)
-                .salesLikesUsers(new ArrayList<>())
+                .salesLikes(new ArrayList<>())
                 .imageUrl(new ArrayList<>())
                 .account(dto.getAccount())
                 .startTime(dto.getStartTime())
@@ -165,7 +166,7 @@ public class SalesService {
         Sales sales = salesRepository.findById(salesId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SALES_NOT_FOUND));
 
-        if(redisService.isFirstIpRequest(clientAddress, salesId)){
+        if (redisService.isFirstIpRequest(clientAddress, salesId)) {
             log.debug("same user requests duplicate in 24hours: {}, {}", clientAddress, salesId);
             increaseViewCount(clientAddress, salesId);
         }
@@ -334,20 +335,26 @@ public class SalesService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String resposne = "";
-        if (sales.getSalesLikesUsers().contains(user)) {
-            sales.getSalesLikesUsers().remove(user);
-            user.getSalesLikes().remove(sales);
-            resposne = "찜하기가 취소되었습니다. 현재 찜하기 수 : " + sales.getSalesLikesUsers().size();
+        Optional<SalesLike> salesLike = salesLikeRepository.findByUserAndSales(user, sales);
+
+        if (salesLike.isPresent()) {
+            salesLikeRepository.delete(salesLike.get());
+            List<SalesLike> salesLikeUser = salesLikeRepository.findBySales(sales);
+            resposne = "찜하기가 취소되었습니다. 현재 찜하기 수 : " + salesLikeUser.size();
         } else {
-            sales.getSalesLikesUsers().add(user);
-            user.getSalesLikes().add(sales);
-            resposne = "찜하기를 눌렀습니다. 현재 찜하기 수 : " + sales.getSalesLikesUsers().size();
+            SalesLike newSalesLike = SalesLike.builder()
+                    .sales(sales)
+                    .user(user)
+                    .build();
+            salesLikeRepository.save(newSalesLike);
+            List<SalesLike> salesLikeUser = salesLikeRepository.findBySales(sales);
+            resposne = "찜하기를 눌렀습니다. 현재 찜하기 수 : " + salesLikeUser.size();
         }
         return resposne;
     }
 
     @Transactional
-    public void increaseViewCount(String clientAddress, Long salesId){
+    public void increaseViewCount(String clientAddress, Long salesId) {
         salesRepository.increaseViewCount(salesId);
         redisService.clientRequest(clientAddress, salesId);
     }

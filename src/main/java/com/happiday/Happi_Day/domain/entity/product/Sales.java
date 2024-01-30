@@ -79,9 +79,13 @@ public class Sales extends BaseEntity {
     @OneToMany(mappedBy = "sales")
     private List<Order> orders = new ArrayList<>();
 
+//    // 판매글 찜하기
+//    @ManyToMany(mappedBy = "salesLikes")
+//    private List<User> salesLikesUsers = new ArrayList<>();
+
     // 판매글 찜하기
-    @ManyToMany(mappedBy = "salesLikes")
-    private List<User> salesLikesUsers = new ArrayList<>();
+    @OneToMany(mappedBy = "sales")
+    private List<SalesLike> salesLikes = new ArrayList<>();
 
     // 아티스트-판매글 매핑
     @ManyToMany
