@@ -3,6 +3,7 @@ package com.happiday.Happi_Day.domain.entity.event.dto;
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.event.Event;
+import com.happiday.Happi_Day.domain.entity.event.EventHashtag;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import lombok.*;
 
@@ -55,6 +56,7 @@ public class EventResponseDto {
 
 
     public static EventResponseDto fromEntity(Event event) {
+
         return EventResponseDto.builder()
                 .id(event.getId())
                 .username(event.getUser().getNickname())
@@ -69,7 +71,7 @@ public class EventResponseDto {
                 .imageUrl(event.getImageUrl())
                 .artists(event.getArtists().stream().map(Artist::getName).collect(Collectors.toList()))
                 .teams(event.getTeams().stream().map(Team::getName).collect(Collectors.toList()))
-                .hashtags(event.getHashtags().stream().map(Hashtag::getTag).collect(Collectors.toList()))
+                .hashtags(event.getEventHashtags().stream().map(EventHashtag::getHashtag).map(Hashtag::getTag).collect(Collectors.toList()))
                 .commentCount(event.getCommentCount())
                 .joinCount(event.getJoinCount())
                 .likeCount(event.getLikeCount())
