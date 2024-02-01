@@ -7,12 +7,10 @@ import com.happiday.Happi_Day.domain.entity.subscription.dto.CombinedSubscriptio
 import com.happiday.Happi_Day.domain.entity.subscription.dto.SubscriptionRequestDto;
 import com.happiday.Happi_Day.domain.entity.subscription.dto.SubscriptionsResponseDto;
 import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamSubscription;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamListResponseDto;
 import com.happiday.Happi_Day.domain.entity.user.User;
-import com.happiday.Happi_Day.domain.repository.ArtistRepository;
-import com.happiday.Happi_Day.domain.repository.ArtistSubscriptionRepository;
-import com.happiday.Happi_Day.domain.repository.TeamRepository;
-import com.happiday.Happi_Day.domain.repository.UserRepository;
+import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +31,7 @@ public class SubscriptionService {
     private final UserRepository userRepository;
     private final ArtistRepository artistRepository;
     private final ArtistSubscriptionRepository artistSubscriptionRepository;
+    private final TeamSubscriptionRepository teamSubscriptionRepository;
     private final TeamRepository teamRepository;
 
     // 구독 페이지 조회 (구독 중 팀/아티스트 + 구독 중이지 않은 팀/아티스트 목록 조회)
@@ -45,7 +44,8 @@ public class SubscriptionService {
                 .map(ArtistSubscription::getArtist)
                 .map(ArtistListResponseDto::of)
                 .collect(Collectors.toList());
-        List<TeamListResponseDto> subscribedTeams = user.getSubscribedTeams().stream()
+        List<TeamListResponseDto> subscribedTeams = user.getTeamSubscriptionList().stream()
+                .map(TeamSubscription::getTeam)
                 .map(TeamListResponseDto::of)
                 .collect(Collectors.toList());
 
@@ -71,7 +71,8 @@ public class SubscriptionService {
                 .map(ArtistListResponseDto::of)
                 .collect(Collectors.toList());
 
-        List<TeamListResponseDto> subscribedTeams = user.getSubscribedTeams().stream()
+        List<TeamListResponseDto> subscribedTeams = user.getTeamSubscriptionList().stream()
+                .map(TeamSubscription::getTeam)
                 .map(TeamListResponseDto::of)
                 .collect(Collectors.toList());
 
@@ -102,8 +103,15 @@ public class SubscriptionService {
         if (requestDto.getTeamId() != null) {
             Team team = teamRepository.findById(requestDto.getTeamId())
                     .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
-            if (!user.getSubscribedTeams().contains(team)) {
-                user.getSubscribedTeams().add(team);
+
+            boolean isAlreadySubscribed = teamSubscriptionRepository.existsByUserAndTeam(user, team);
+
+            if (!isAlreadySubscribed) {
+                TeamSubscription subscription = TeamSubscription.builder()
+                        .user(user)
+                        .team(team)
+                        .build();
+                teamSubscriptionRepository.save(subscription);
             }
         }
 
@@ -129,7 +137,11 @@ public class SubscriptionService {
         if (teamId != null) {
             Team team = teamRepository.findById(teamId)
                     .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
-            user.getSubscribedTeams().remove(team);
+
+            TeamSubscription teamSubscription = teamSubscriptionRepository.findByUserAndTeam(user, team)
+                    .orElseThrow(() -> new CustomException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+
+            teamSubscriptionRepository.delete(teamSubscription);
         }
 
         userRepository.save(user);

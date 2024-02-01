@@ -48,8 +48,8 @@ public class Team extends BaseEntity {
     private List<Sales> salesList = new ArrayList<>();
 
     // 유저 구독
-    @ManyToMany(mappedBy = "subscribedTeams")
-    private List<User> subscribers = new ArrayList<>();
+    @OneToMany(mappedBy = "team")
+    private List<TeamSubscription> subscribers = new ArrayList<>();
 
     // 게시판
     @ManyToMany(mappedBy = "teams")

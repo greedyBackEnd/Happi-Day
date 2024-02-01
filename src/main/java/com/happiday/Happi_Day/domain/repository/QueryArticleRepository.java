@@ -4,6 +4,7 @@ import com.happiday.Happi_Day.domain.entity.article.Article;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.artist.ArtistSubscription;
 import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamSubscription;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -97,7 +98,8 @@ public class QueryArticleRepository {
                 .map(Artist::getId)
                 .toList();
 
-        List<Long> teamIds = loginUser.getSubscribedTeams().stream()
+        List<Long> teamIds = loginUser.getTeamSubscriptionList().stream()
+                .map(TeamSubscription::getTeam)
                 .map(Team::getId)
                 .toList();
 
