@@ -4,7 +4,7 @@ import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.article.Article;
 import com.happiday.Happi_Day.domain.entity.article.ArticleComment;
 import com.happiday.Happi_Day.domain.entity.article.ArticleLike;
-import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistSubscription;
 import com.happiday.Happi_Day.domain.entity.chat.ChatMessage;
 import com.happiday.Happi_Day.domain.entity.chat.ChatRoom;
 import com.happiday.Happi_Day.domain.entity.event.Event;
@@ -173,13 +173,8 @@ public class User extends BaseEntity {
 
 
     // 유저-아티스트 구독 매핑
-    @ManyToMany
-    @JoinTable(
-            name = "user_artist_subscription",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "artist_id")
-    )
-    private List<Artist> subscribedArtists = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<ArtistSubscription> artistSubscriptionList = new ArrayList<>();
 
     // 유저-팀 구독 매핑
     @ManyToMany

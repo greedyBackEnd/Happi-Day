@@ -1,6 +1,7 @@
 package com.happiday.Happi_Day.domain.repository;
 
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistSubscription;
 import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
@@ -77,7 +78,6 @@ public class EventCustomRepositoryImpl implements EventCustomRepository{
     public Page<Event> findEventsByFilterAndKeywordAndSubscribedArtists(Pageable pageable, String filter, String keyword, User loginUser) {
 
         log.info("이건 !!!! userId : " + loginUser.getId());
-        log.info("이건 !!!! user.subscribedArtists : {}", user.subscribedArtists.any().id);
 
         List<Event> events = queryFactory
                 .selectFrom(event)
@@ -171,7 +171,8 @@ public class EventCustomRepositoryImpl implements EventCustomRepository{
 
     // 구독한 아티스트/팀의 이벤트 필터링 메서드
     private BooleanExpression subscribedArtistsCondition(User loginUser) {
-        List<Long> artistIds = loginUser.getSubscribedArtists().stream()
+        List<Long> artistIds = loginUser.getArtistSubscriptionList().stream()
+                .map(ArtistSubscription::getArtist)
                 .map(Artist::getId)
                 .toList();
 

@@ -2,6 +2,7 @@ package com.happiday.Happi_Day.domain.repository;
 
 import com.happiday.Happi_Day.domain.entity.article.Article;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistSubscription;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.querydsl.core.BooleanBuilder;
@@ -91,7 +92,8 @@ public class QueryArticleRepository {
     }
 
     private BooleanExpression subscribedArtistsCondition(User loginUser) {
-        List<Long> artistIds = loginUser.getSubscribedArtists().stream()
+        List<Long> artistIds = loginUser.getArtistSubscriptionList().stream()
+                .map(ArtistSubscription::getArtist)
                 .map(Artist::getId)
                 .toList();
 

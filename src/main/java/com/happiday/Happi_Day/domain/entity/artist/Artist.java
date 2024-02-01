@@ -54,8 +54,8 @@ public class Artist extends BaseEntity {
     private List<Sales> salesList = new ArrayList<>();
 
     // 유저 구독
-    @ManyToMany(mappedBy = "subscribedArtists")
-    private List<User> subscribers = new ArrayList<>();
+    @OneToMany(mappedBy = "artist")
+    private List<ArtistSubscription> subscribers = new ArrayList<>();
 
     // 게시판
     @ManyToMany(mappedBy = "artists")
