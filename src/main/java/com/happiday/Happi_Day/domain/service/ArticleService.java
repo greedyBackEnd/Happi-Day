@@ -194,11 +194,11 @@ public class ArticleService {
         List<ArtistArticle> artistArticleList = new ArrayList<>();
         List<Team> teams = new ArrayList<>();
         List<Hashtag> hashtags = new ArrayList<>();
+        artistArticleRepository.deleteByArticle(article);
 
         for (String keyword : dto.getHashtag()) {
             Optional<Artist> artist = artistRepository.findByName(keyword);
             if (artist.isPresent()) {
-                artistArticleRepository.deleteByArticleAndArtist(article, artist.get());
                 article.getArtistArticleList().clear();
                 ArtistArticle artistArticle = ArtistArticle.builder()
                         .article(article)
@@ -213,15 +213,13 @@ public class ArticleService {
                 teams.add(team.get());
                 continue;
             }
-            Optional<Hashtag> hashtag = hashtagRepository.findByTag(keyword);
-            if (hashtag.isPresent()) {
-                hashtags.add(hashtag.get());
-                continue;
-            }
-            Hashtag newHashtag = Hashtag.builder()
-                    .tag(keyword)
-                    .build();
-            hashtags.add(newHashtag);
+            Hashtag hashtag = hashtagRepository.findByTag(keyword)
+                    .orElseGet(() -> {
+                        Hashtag newHashtag = Hashtag.builder().tag(keyword).build();
+                        hashtagRepository.save(newHashtag);
+                        return newHashtag;
+                    });
+            hashtags.add(hashtag);
         }
 
         for (Hashtag hashtag: hashtags) {

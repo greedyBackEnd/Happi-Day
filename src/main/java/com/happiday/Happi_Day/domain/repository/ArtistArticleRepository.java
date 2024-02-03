@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ArtistArticleRepository extends JpaRepository<ArtistArticle, Long> {
     void deleteByArticleAndArtist(Article article, Artist artist);
+    void deleteByArticle(Article article);
 }
