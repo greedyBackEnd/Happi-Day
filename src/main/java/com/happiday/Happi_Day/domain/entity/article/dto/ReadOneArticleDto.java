@@ -4,6 +4,7 @@ import com.happiday.Happi_Day.domain.entity.article.Article;
 import com.happiday.Happi_Day.domain.entity.article.ArticleHashtag;
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistArticle;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,7 +34,7 @@ public class ReadOneArticleDto {
     public static ReadOneArticleDto fromEntity(Article article) {
         List<String> keywords = new ArrayList<>();
 
-        keywords.addAll(article.getArtists().stream().map(Artist::getName).collect(Collectors.toList()));
+        keywords.addAll(article.getArtistArticleList().stream().map(ArtistArticle::getArtist).map(Artist::getName).collect(Collectors.toList()));
         keywords.addAll(article.getTeams().stream().map(Team::getName).collect(Collectors.toList()));
         keywords.addAll(article.getArticleHashtags().stream().map(ArticleHashtag::getHashtag).map(Hashtag::getTag).collect(Collectors.toList()));
 
