@@ -2,6 +2,7 @@ package com.happiday.Happi_Day.domain.entity.event.dto;
 
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistEvent;
 import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.event.EventHashtag;
 import com.happiday.Happi_Day.domain.entity.team.Team;
@@ -69,7 +70,7 @@ public class EventResponseDto {
                 .location(event.getLocation())
                 .thumbnailUrl(event.getThumbnailUrl())
                 .imageUrl(event.getImageUrl())
-                .artists(event.getArtists().stream().map(Artist::getName).collect(Collectors.toList()))
+                .artists(event.getArtistsEventList().stream().map(ArtistEvent::getArtist).map(Artist::getName).collect(Collectors.toList()))
                 .teams(event.getTeams().stream().map(Team::getName).collect(Collectors.toList()))
                 .hashtags(event.getEventHashtags().stream().map(EventHashtag::getHashtag).map(Hashtag::getTag).collect(Collectors.toList()))
                 .commentCount(event.getCommentCount())

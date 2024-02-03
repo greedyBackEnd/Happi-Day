@@ -151,11 +151,11 @@ public class EventCustomRepositoryImpl implements EventCustomRepository{
             return switch (filter) {
                 case "title" -> event.title.contains(keyword);
                 case "username" -> event.user.nickname.contains(keyword);
-                case "artistAndTeam" -> event.artists.any().name.in(keyword)
-                            .or(event.teams.any().name.in(keyword));
+                case "artistAndTeam" -> event.artistsEventList.any().artist.name.contains(keyword)
+                            .or(event.teams.any().name.contains(keyword));
                 case "all" -> event.title.contains(keyword)
                             .or(event.user.nickname.contains(keyword))
-                            .or(event.artists.any().name.contains(keyword))
+                            .or(event.artistsEventList.any().artist.name.contains(keyword))
                             .or(event.teams.any().name.contains(keyword));
                 default -> null;
             };
@@ -182,7 +182,7 @@ public class EventCustomRepositoryImpl implements EventCustomRepository{
                 .map(Team::getId)
                 .toList();
 
-        return event.artists.any().id.in(artistIds)
+        return event.artistsEventList.any().id.in(artistIds)
                 .or(event.teams.any().id.in(teamIds));
 
     }

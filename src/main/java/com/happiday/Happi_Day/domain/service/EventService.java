@@ -2,6 +2,7 @@ package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistEvent;
 import com.happiday.Happi_Day.domain.entity.event.EventHashtag;
 import com.happiday.Happi_Day.domain.entity.event.EventLike;
 import com.happiday.Happi_Day.domain.entity.event.EventParticipation;
@@ -40,6 +41,7 @@ public class EventService {
     private final EventLikeRepository likeRepository;
     private final UserRepository userRepository;
     private final ArtistRepository artistRepository;
+    private final ArtistEventRepository artistEventRepository;
     private final TeamRepository teamRepository;
     private final HashtagRepository hashtagRepository;
     private final EventHashtagRepository eventHashtagRepository;
@@ -77,7 +79,6 @@ public class EventService {
                 .title(request.getTitle())
                 .imageUrl(imageUrl)
                 .thumbnailUrl(thumbnailUrl)
-                .artists(processedTags.getLeft())
                 .teams(processedTags.getMiddle())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
@@ -101,6 +102,16 @@ public class EventService {
 
         eventRepository.save(event);
 
+        // 아티스트와 이벤트의 관계 설정
+        List<Artist> artists = processedTags.getLeft();
+        for (Artist artist : artists) {
+            ArtistEvent artistEvent = ArtistEvent.builder()
+                    .event(event)
+                    .artist(artist)
+                    .build();
+            artistEventRepository.save(artistEvent);
+            event.getArtistsEventList().add(artistEvent);
+        }
 
         return EventResponseDto.fromEntity(event);
     }
@@ -211,7 +222,6 @@ public class EventService {
             event.update(Event.builder()
                 .user(user)
                 .title(request.getTitle())
-                .artists(processedTags.getLeft())
                 .teams(processedTags.getMiddle())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
@@ -221,6 +231,19 @@ public class EventService {
                 .build());
 
         eventRepository.save(event);
+
+        // 아티스트와 이벤트의 관계 설정
+        List<Artist> artists = processedTags.getLeft();
+        artistEventRepository.deleteByEvent(event);
+        event.getArtistsEventList().clear();
+        for (Artist artist : artists) {
+            ArtistEvent artistEvent = ArtistEvent.builder()
+                    .event(event)
+                    .artist(artist)
+                    .build();
+            artistEventRepository.save(artistEvent);
+            event.getArtistsEventList().add(artistEvent);
+        }
 
         return EventResponseDto.fromEntity(event);
     }
