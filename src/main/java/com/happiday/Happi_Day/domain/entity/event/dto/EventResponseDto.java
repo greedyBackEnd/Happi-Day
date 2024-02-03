@@ -6,6 +6,7 @@ import com.happiday.Happi_Day.domain.entity.artist.ArtistEvent;
 import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.event.EventHashtag;
 import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamEvent;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -71,7 +72,7 @@ public class EventResponseDto {
                 .thumbnailUrl(event.getThumbnailUrl())
                 .imageUrl(event.getImageUrl())
                 .artists(event.getArtistsEventList().stream().map(ArtistEvent::getArtist).map(Artist::getName).collect(Collectors.toList()))
-                .teams(event.getTeams().stream().map(Team::getName).collect(Collectors.toList()))
+                .teams(event.getTeamsEventList().stream().map(TeamEvent::getTeam).map(Team::getName).collect(Collectors.toList()))
                 .hashtags(event.getEventHashtags().stream().map(EventHashtag::getHashtag).map(Hashtag::getTag).collect(Collectors.toList()))
                 .commentCount(event.getCommentCount())
                 .joinCount(event.getJoinCount())

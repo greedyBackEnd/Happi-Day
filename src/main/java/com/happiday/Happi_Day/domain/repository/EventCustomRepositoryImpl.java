@@ -152,11 +152,11 @@ public class EventCustomRepositoryImpl implements EventCustomRepository{
                 case "title" -> event.title.contains(keyword);
                 case "username" -> event.user.nickname.contains(keyword);
                 case "artistAndTeam" -> event.artistsEventList.any().artist.name.contains(keyword)
-                            .or(event.teams.any().name.contains(keyword));
+                            .or(event.teamsEventList.any().team.name.contains(keyword));
                 case "all" -> event.title.contains(keyword)
                             .or(event.user.nickname.contains(keyword))
                             .or(event.artistsEventList.any().artist.name.contains(keyword))
-                            .or(event.teams.any().name.contains(keyword));
+                            .or(event.teamsEventList.any().team.name.contains(keyword));
                 default -> null;
             };
         } else {
@@ -183,7 +183,7 @@ public class EventCustomRepositoryImpl implements EventCustomRepository{
                 .toList();
 
         return event.artistsEventList.any().id.in(artistIds)
-                .or(event.teams.any().id.in(teamIds));
+                .or(event.teamsEventList.any().id.in(teamIds));
 
     }
 

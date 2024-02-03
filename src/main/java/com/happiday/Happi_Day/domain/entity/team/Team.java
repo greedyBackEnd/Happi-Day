@@ -3,9 +3,7 @@ package com.happiday.Happi_Day.domain.entity.team;
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.article.Article;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
-import com.happiday.Happi_Day.domain.entity.event.Event;
 import com.happiday.Happi_Day.domain.entity.product.Sales;
-import com.happiday.Happi_Day.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -40,8 +38,8 @@ public class Team extends BaseEntity {
     private List<Artist> artists = new ArrayList<>();
 
     // 이벤트
-    @ManyToMany(mappedBy = "teams")
-    private List<Event> events = new ArrayList<>();
+    @OneToMany(mappedBy = "team")
+    private List<TeamEvent> events = new ArrayList<>();
 
     // 판매글
     @ManyToMany(mappedBy = "teams")
