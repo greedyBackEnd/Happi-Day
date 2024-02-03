@@ -86,6 +86,8 @@ public class EventService {
                 .description(request.getDescription())
                 .address(request.getAddress())
                 .location(request.getLocation())
+                .artistsEventList(new ArrayList<>())
+                .teamsEventList(new ArrayList<>())
                 .build();
 
         List<EventHashtag> eventHashtags = new ArrayList<>();
