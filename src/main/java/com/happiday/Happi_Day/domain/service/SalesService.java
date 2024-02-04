@@ -214,42 +214,6 @@ public class SalesService {
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
                 .build());
-//
-//        List<Artist> artists = new ArrayList<>();
-//        List<Team> teams = new ArrayList<>();
-//        List<Hashtag> hashtags = new ArrayList<>();
-//
-//        for (String keyword : dto.getHashtag()) {
-//            Optional<Artist> artist = artistRepository.findByName(keyword);
-//            if (artist.isPresent()) {
-//                artists.add(artist.get());
-//                continue;
-//            }
-//            Optional<Team> team = teamRepository.findByName(keyword);
-//            if (team.isPresent()) {
-//                teams.add(team.get());
-//                continue;
-//            }
-//            Optional<Hashtag> hashtag = hashtagRepository.findByTag(keyword);
-//            if (hashtag.isPresent()) {
-//                hashtags.add(hashtag.get());
-//                continue;
-//            }
-//            Hashtag newHashtag = Hashtag.builder()
-//                    .tag(keyword)
-//                    .build();
-//            hashtags.add(newHashtag);
-//        }
-//
-//        for (Hashtag hashtag: hashtags) {
-//            SalesHashtag salesHashtag = SalesHashtag.builder()
-//                    .hashtag(hashtag)
-//                    .sales(sales)
-//                    .build();
-//            salesHashtagRepository.save(salesHashtag);
-//        }
-//
-//        sales.setHashtag(artists, teams);
 
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
             if (sales.getThumbnailImage() != null && !sales.getThumbnailImage().isEmpty()) {
