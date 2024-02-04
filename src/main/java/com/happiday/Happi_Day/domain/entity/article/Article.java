@@ -89,6 +89,7 @@ public class Article extends BaseEntity {
     private List<Team> teams = new ArrayList<>();
 
     // 해시태그 매핑
+    @Setter
     @OneToMany(mappedBy = "article")
     private List<ArticleHashtag> articleHashtags = new ArrayList<>();
 

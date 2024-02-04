@@ -12,7 +12,9 @@ import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.utils.FileUtils;
+import com.happiday.Happi_Day.utils.HashtagUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +56,9 @@ public class ArticleService {
         BoardCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
+        HashtagUtils hashtagUtils = new HashtagUtils(artistRepository, teamRepository, hashtagRepository);
+        Triple<List<Artist>, List<Team>, List<Hashtag>> processedTags = hashtagUtils.processTags(dto.getHashtag());
+
         Article newArticle = Article.builder()
                 .user(user)
                 .category(category)
@@ -66,42 +71,20 @@ public class ArticleService {
                 .imageUrl(new ArrayList<>())
                 .build();
 
-        List<Artist> artists = new ArrayList<>();
-        List<Team> teams = new ArrayList<>();
-        List<Hashtag> hashtags = new ArrayList<>();
-
-        for (String keyword : dto.getHashtag()) {
-            Optional<Artist> artist = artistRepository.findByName(keyword);
-            if (artist.isPresent()) {
-                artists.add(artist.get());
-                continue;
-            }
-            Optional<Team> team = teamRepository.findByName(keyword);
-            if (team.isPresent()) {
-                teams.add(team.get());
-                continue;
-            }
-            Optional<Hashtag> hashtag = hashtagRepository.findByTag(keyword);
-            if (hashtag.isPresent()) {
-                hashtags.add(hashtag.get());
-                continue;
-            }
-            Hashtag newHashtag = Hashtag.builder()
-                    .tag(keyword)
-                    .build();
-            hashtagRepository.save(newHashtag);
-            hashtags.add(newHashtag);
-        }
+        List<ArticleHashtag> articleHashtags = new ArrayList<>();
+        List<Hashtag> hashtags = processedTags.getRight();
 
         for (Hashtag hashtag: hashtags) {
             ArticleHashtag articleHashtag = ArticleHashtag.builder()
-                    .hashtag(hashtag)
                     .article(newArticle)
+                    .hashtag(hashtag)
                     .build();
+            articleHashtags.add(articleHashtag);
             articleHashtagRepository.save(articleHashtag);
         }
+        newArticle.setArticleHashtags(articleHashtags);
 
-        newArticle.setArtists(artists, teams);
+        articleRepository.save(newArticle);
 
         // 이미지 저장
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
