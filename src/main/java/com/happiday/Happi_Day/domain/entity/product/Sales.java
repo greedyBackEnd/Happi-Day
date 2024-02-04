@@ -115,6 +115,7 @@ public class Sales extends BaseEntity {
 //    private List<Hashtag> hashtags = new ArrayList<>();
 
     // 해시태그 매핑
+    @Setter
     @OneToMany(mappedBy = "sales")
     private List<SalesHashtag> salesHashtags = new ArrayList<>();
 
