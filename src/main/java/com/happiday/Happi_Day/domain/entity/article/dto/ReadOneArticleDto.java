@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 public class ReadOneArticleDto {
     private String title;
     private String content;
+    private List<String> artists;
+    private List<String> teams;
     private List<String> hashtags;
     private String user;
     private String updatedAt;
@@ -31,18 +33,14 @@ public class ReadOneArticleDto {
     private int viewCount;
 
     public static ReadOneArticleDto fromEntity(Article article) {
-        List<String> keywords = new ArrayList<>();
-
-        keywords.addAll(article.getArtists().stream().map(Artist::getName).collect(Collectors.toList()));
-        keywords.addAll(article.getTeams().stream().map(Team::getName).collect(Collectors.toList()));
-        keywords.addAll(article.getArticleHashtags().stream().map(ArticleHashtag::getHashtag).map(Hashtag::getTag).collect(Collectors.toList()));
-
         return ReadOneArticleDto.builder()
                 .user(article.getUser().getNickname())
                 .title(article.getTitle())
                 .content(article.getContent())
                 .comments(ReadCommentDto.toReadCommentDto(article.getArticleComments()))
-                .hashtags(keywords)
+                .artists(article.getArtists().stream().map(Artist::getName).collect(Collectors.toList()))
+                .teams(article.getTeams().stream().map(Team::getName).collect(Collectors.toList()))
+                .hashtags(article.getArticleHashtags().stream().map(ArticleHashtag::getHashtag).map(Hashtag::getTag).collect(Collectors.toList()))
                 .likeUsersNum(article.getArticleLikes().size())
                 .imageUrl(article.getImageUrl())
                 .updatedAt(article.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))

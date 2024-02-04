@@ -64,6 +64,8 @@ public class ArticleService {
                 .category(category)
                 .title(dto.getTitle())
                 .content(dto.getContent())
+                .artists(processedTags.getLeft())
+                .teams(processedTags.getMiddle())
                 .articleHashtags(new ArrayList<>())
                 .eventAddress(dto.getEventAddress())
                 .articleLikes(new ArrayList<>())
@@ -74,7 +76,7 @@ public class ArticleService {
         List<ArticleHashtag> articleHashtags = new ArrayList<>();
         List<Hashtag> hashtags = processedTags.getRight();
 
-        for (Hashtag hashtag: hashtags) {
+        for (Hashtag hashtag : hashtags) {
             ArticleHashtag articleHashtag = ArticleHashtag.builder()
                     .article(newArticle)
                     .hashtag(hashtag)
@@ -124,7 +126,7 @@ public class ArticleService {
         BoardCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        Page<Article> articleList = queryArticleRepository.findArticleByFilterAndKeyword(pageable,categoryId, filter, keyword);
+        Page<Article> articleList = queryArticleRepository.findArticleByFilterAndKeyword(pageable, categoryId, filter, keyword);
         return articleList.map(ReadListArticleDto::fromEntity);
     }
 
@@ -142,7 +144,7 @@ public class ArticleService {
 
     // 글 전체글 조회
     public Page<ReadListArticleDto> readList(Pageable pageable, String filter, String keyword) {
-        Page<Article> articles = queryArticleRepository.findArticleByFilterAndKeyword(pageable,null, filter, keyword);
+        Page<Article> articles = queryArticleRepository.findArticleByFilterAndKeyword(pageable, null, filter, keyword);
         return articles.map(ReadListArticleDto::fromEntity);
 
     }
@@ -157,49 +159,32 @@ public class ArticleService {
 
         if (!user.equals(article.getUser())) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
-        article.update(Article.builder()
+        HashtagUtils hashtagUtils = new HashtagUtils(artistRepository, teamRepository, hashtagRepository);
+        Triple<List<Artist>, List<Team>, List<Hashtag>> processedTags = hashtagUtils.processTags(dto.getHashtag());
+
+        if (processedTags.getRight() != null) {
+            articleHashtagRepository.deleteByArticle(article);
+            article.getArticleHashtags().clear();
+
+            List<Hashtag> hashtags = processedTags.getRight();
+            for (Hashtag hashtag : hashtags) {
+                ArticleHashtag articleHashtag = ArticleHashtag.builder()
+                        .article(article)
+                        .hashtag(hashtag)
+                        .build();
+                articleHashtagRepository.save(articleHashtag);
+                article.getArticleHashtags().add(articleHashtag);
+            }
+        }
+
+            article.update(Article.builder()
                 .user(user)
                 .title(dto.getTitle())
+                .artists(processedTags.getLeft())
+                .teams(processedTags.getMiddle())
                 .content(dto.getContent())
                 .eventAddress(dto.getEventAddress())
-                .build()
-        );
-
-        List<Artist> artists = new ArrayList<>();
-        List<Team> teams = new ArrayList<>();
-        List<Hashtag> hashtags = new ArrayList<>();
-
-        for (String keyword : dto.getHashtag()) {
-            Optional<Artist> artist = artistRepository.findByName(keyword);
-            if (artist.isPresent()) {
-                artists.add(artist.get());
-                continue;
-            }
-            Optional<Team> team = teamRepository.findByName(keyword);
-            if (team.isPresent()) {
-                teams.add(team.get());
-                continue;
-            }
-            Optional<Hashtag> hashtag = hashtagRepository.findByTag(keyword);
-            if (hashtag.isPresent()) {
-                hashtags.add(hashtag.get());
-                continue;
-            }
-            Hashtag newHashtag = Hashtag.builder()
-                    .tag(keyword)
-                    .build();
-            hashtags.add(newHashtag);
-        }
-
-        for (Hashtag hashtag: hashtags) {
-            ArticleHashtag articleHashtag = ArticleHashtag.builder()
-                    .hashtag(hashtag)
-                    .article(article)
-                    .build();
-            articleHashtagRepository.save(articleHashtag);
-        }
-
-        article.setArtists(artists, teams);
+                .build());
 
 
         // 썸네일 이미지 저장
