@@ -8,6 +8,7 @@ import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.artist.ArtistArticle;
 import com.happiday.Happi_Day.domain.entity.board.BoardCategory;
 import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamArticle;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
@@ -39,6 +40,7 @@ public class ArticleService {
     private final ArtistRepository artistRepository;
     private final ArtistArticleRepository artistArticleRepository;
     private final TeamRepository teamRepository;
+    private final TeamArticleRepository teamArticleRepository;
     private final HashtagRepository hashtagRepository;
     private final FileUtils fileUtils;
     private final RedisService redisService;
@@ -71,7 +73,7 @@ public class ArticleService {
         articleRepository.save(newArticle);
 
         List<ArtistArticle> artistArticleList = new ArrayList<>();
-        List<Team> teams = new ArrayList<>();
+        List<TeamArticle> teamArticleList = new ArrayList<>();
         List<Hashtag> hashtags = new ArrayList<>();
 
         for (String keyword : dto.getHashtag()) {
@@ -87,7 +89,12 @@ public class ArticleService {
             }
             Optional<Team> team = teamRepository.findByName(keyword);
             if (team.isPresent()) {
-                teams.add(team.get());
+                TeamArticle teamArticle = TeamArticle.builder()
+                        .article(newArticle)
+                        .team(team.get())
+                        .build();
+                teamArticleRepository.save(teamArticle);
+                teamArticleList.add(teamArticle);
                 continue;
             }
             Optional<Hashtag> hashtag = hashtagRepository.findByTag(keyword);
@@ -110,7 +117,7 @@ public class ArticleService {
             articleHashtagRepository.save(articleHashtag);
         }
 
-        newArticle.setArtists(artistArticleList, teams);
+        newArticle.setArtists(artistArticleList, teamArticleList);
 
         // 이미지 저장
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
@@ -192,9 +199,10 @@ public class ArticleService {
         );
 
         List<ArtistArticle> artistArticleList = new ArrayList<>();
-        List<Team> teams = new ArrayList<>();
+        List<TeamArticle> teamArticleList = new ArrayList<>();
         List<Hashtag> hashtags = new ArrayList<>();
         artistArticleRepository.deleteByArticle(article);
+        teamArticleRepository.deleteByArticle(article);
 
         for (String keyword : dto.getHashtag()) {
             Optional<Artist> artist = artistRepository.findByName(keyword);
@@ -210,7 +218,13 @@ public class ArticleService {
             }
             Optional<Team> team = teamRepository.findByName(keyword);
             if (team.isPresent()) {
-                teams.add(team.get());
+                article.getTeamArticleList().clear();
+                TeamArticle teamArticle = TeamArticle.builder()
+                        .article(article)
+                        .team(team.get())
+                        .build();
+                teamArticleRepository.save(teamArticle);
+                teamArticleList.add(teamArticle);
                 continue;
             }
             Hashtag hashtag = hashtagRepository.findByTag(keyword)
@@ -230,7 +244,7 @@ public class ArticleService {
             articleHashtagRepository.save(articleHashtag);
         }
 
-        article.setArtists(artistArticleList, teams);
+        article.setArtists(artistArticleList, teamArticleList);
 
 
         // 썸네일 이미지 저장
@@ -296,6 +310,10 @@ public class ArticleService {
         }
 
         articleRepository.deleteById(articleId);
+
+        // 게시글 - 팀/아티스트 연관 관계 삭제
+        artistArticleRepository.deleteByArticle(article);
+        teamArticleRepository.deleteByArticle(article);
     }
 
     @Transactional

@@ -3,7 +3,7 @@ package com.happiday.Happi_Day.domain.entity.article;
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.artist.ArtistArticle;
 import com.happiday.Happi_Day.domain.entity.board.BoardCategory;
-import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamArticle;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -75,13 +75,8 @@ public class Article extends BaseEntity {
     private List<ArtistArticle> artistArticleList = new ArrayList<>();
 
     // 게시글 팀 매핑
-    @ManyToMany
-    @JoinTable(
-            name = "article_team",
-            joinColumns = @JoinColumn(name = "article_id"),
-            inverseJoinColumns = @JoinColumn(name = "artist_id")
-    )
-    private List<Team> teams = new ArrayList<>();
+    @OneToMany(mappedBy = "article")
+    private List<TeamArticle> teamArticleList = new ArrayList<>();
 
     // 해시태그 매핑
     @OneToMany(mappedBy = "article")
@@ -92,7 +87,7 @@ public class Article extends BaseEntity {
         if (updateArticle.getContent() != null) this.content = updateArticle.getContent();
         if (updateArticle.getEventAddress() != null) this.eventAddress = updateArticle.getEventAddress();
         if (updateArticle.getArtistArticleList() != null) this.artistArticleList = updateArticle.getArtistArticleList();
-        if (updateArticle.getTeams() != null) this.teams = updateArticle.getTeams();
+        if (updateArticle.getTeamArticleList() != null) this.teamArticleList = updateArticle.getTeamArticleList();
         if (updateArticle.getEctArtists() != null) this.ectArtists = updateArticle.getEctArtists();
         if (updateArticle.getEctTeams() != null) this.ectTeams = updateArticle.getEctTeams();
     }
@@ -101,8 +96,8 @@ public class Article extends BaseEntity {
         this.thumbnailUrl = thumbnailImage;
     }
 
-    public void setArtists(List<ArtistArticle> artistArticleList, List<Team> teams) {
+    public void setArtists(List<ArtistArticle> artistArticleList, List<TeamArticle> teamArticleList) {
         if (artistArticleList != null) this.artistArticleList = artistArticleList;
-        if (teams != null) this.teams = teams;
+        if (teamArticleList != null) this .teamArticleList = teamArticleList;
     }
 }

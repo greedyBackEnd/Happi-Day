@@ -5,6 +5,7 @@ import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.artist.ArtistArticle;
 import com.happiday.Happi_Day.domain.entity.board.BoardCategory;
 import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamArticle;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
@@ -26,22 +27,25 @@ public class ArticleInitService {
     private final BoardCategoryRepository boardCategoryRepository;
     private final ArtistRepository artistRepository;
     private final ArtistArticleRepository artistArticleRepository;
+    private final TeamArticleRepository teamArticleRepository;
     private final TeamRepository teamRepository;
     private final DefaultImageUtils defaultImageUtils;
 
     public void initArticles() {
         User writer = userRepository.findById(2L).orElse(null);
         BoardCategory category = boardCategoryRepository.findById(1L).orElse(null);
-        Artist artist1 = artistRepository.findById(1L).orElse(null);
-        Artist artist2 = artistRepository.findById(2L).orElse(null);
-        Artist artist3 = artistRepository.findById(3L).orElse(null);
-        Artist artist4 = artistRepository.findById(4L).orElse(null);
-        Team team1 = teamRepository.findById(1L).orElse(null);
-        Team team2 = teamRepository.findById(2L).orElse(null);
+//        Artist artist1 = artistRepository.findById(1L).orElse(null);
+//        Artist artist2 = artistRepository.findById(2L).orElse(null);
+//        Artist artist3 = artistRepository.findById(3L).orElse(null);
+//        Artist artist4 = artistRepository.findById(4L).orElse(null);
+//        Team team1 = teamRepository.findById(1L).orElse(null);
+//        Team team2 = teamRepository.findById(2L).orElse(null);
         String imageUrl = defaultImageUtils.getDefaultImageUrlArticleThumbnail();
 
         List<Long> artistForArticle1 = List.of(1L, 2L);
         List<Long> artistForArticle2 = List.of(3L, 4L);
+        List<Long> teamForArticle1 = List.of(1L);
+        List<Long> teamForArticle2 = List.of(2L);
 
         Article article1 = createArticle(writer, "동방신기 제목", "동방신기 내용", category, imageUrl);
         Article article2 = createArticle(writer, "god 제목", "god 내용", category, imageUrl);
@@ -54,8 +58,10 @@ public class ArticleInitService {
                     articleRepository.save(article);
                     if (article == article1) {
                         linkArtistsToArticle(article, artistForArticle1);
+                        linkTeamToArticle(article, teamForArticle1);
                     } else {
                         linkArtistsToArticle(article, artistForArticle2);
+                        linkTeamToArticle(article, teamForArticle2);
                     }
                 }
             } catch (Exception e) {
@@ -83,6 +89,18 @@ public class ArticleInitService {
                         .artist(artist)
                         .build();
                 artistArticleRepository.save(artistArticle);
+            });
+        });
+    }
+
+    private void linkTeamToArticle(Article article, List<Long> teamIds) {
+        teamIds.forEach(teamId -> {
+            teamRepository.findById(teamId).ifPresent(team -> {
+                TeamArticle teamArticle = TeamArticle.builder()
+                        .article(article)
+                        .team(team)
+                        .build();
+                teamArticleRepository.save(teamArticle);
             });
         });
     }

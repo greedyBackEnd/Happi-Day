@@ -104,7 +104,7 @@ public class QueryArticleRepository {
                 .toList();
 
         return article.artistArticleList.any().id.in(artistIds)
-                .or(article.teams.any().id.in(teamIds));
+                .or(article.teamArticleList.any().id.in(teamIds));
 
     }
 }
