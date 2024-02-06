@@ -5,8 +5,10 @@ import com.happiday.Happi_Day.domain.entity.article.dto.ReadListArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadOneArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.WriteArticleDto;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistArticle;
 import com.happiday.Happi_Day.domain.entity.board.BoardCategory;
 import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamArticle;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
@@ -38,7 +40,9 @@ public class ArticleService {
     private final BoardCategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final ArtistRepository artistRepository;
+    private final ArtistArticleRepository artistArticleRepository;
     private final TeamRepository teamRepository;
+    private final TeamArticleRepository teamArticleRepository;
     private final HashtagRepository hashtagRepository;
     private final FileUtils fileUtils;
     private final RedisService redisService;
@@ -186,7 +190,6 @@ public class ArticleService {
                 .eventAddress(dto.getEventAddress())
                 .build());
 
-
         // 썸네일 이미지 저장
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
             if (article.getThumbnailUrl() != null && !article.getThumbnailUrl().isEmpty()) {
@@ -250,6 +253,10 @@ public class ArticleService {
         }
 
         articleRepository.deleteById(articleId);
+
+        // 게시글 - 팀/아티스트 연관 관계 삭제
+        artistArticleRepository.deleteByArticle(article);
+        teamArticleRepository.deleteByArticle(article);
     }
 
     @Transactional
