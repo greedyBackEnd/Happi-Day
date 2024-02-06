@@ -5,8 +5,10 @@ import com.happiday.Happi_Day.domain.entity.article.dto.ReadListArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.ReadOneArticleDto;
 import com.happiday.Happi_Day.domain.entity.article.dto.WriteArticleDto;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistArticle;
 import com.happiday.Happi_Day.domain.entity.board.BoardCategory;
 import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamArticle;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
@@ -36,7 +38,9 @@ public class ArticleService {
     private final BoardCategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final ArtistRepository artistRepository;
+    private final ArtistArticleRepository artistArticleRepository;
     private final TeamRepository teamRepository;
+    private final TeamArticleRepository teamArticleRepository;
     private final HashtagRepository hashtagRepository;
     private final FileUtils fileUtils;
     private final RedisService redisService;
@@ -66,19 +70,31 @@ public class ArticleService {
                 .imageUrl(new ArrayList<>())
                 .build();
 
-        List<Artist> artists = new ArrayList<>();
-        List<Team> teams = new ArrayList<>();
+        articleRepository.save(newArticle);
+
+        List<ArtistArticle> artistArticleList = new ArrayList<>();
+        List<TeamArticle> teamArticleList = new ArrayList<>();
         List<Hashtag> hashtags = new ArrayList<>();
 
         for (String keyword : dto.getHashtag()) {
             Optional<Artist> artist = artistRepository.findByName(keyword);
             if (artist.isPresent()) {
-                artists.add(artist.get());
+                ArtistArticle artistArticle = ArtistArticle.builder()
+                        .article(newArticle)
+                        .artist(artist.get())
+                        .build();
+                artistArticleRepository.save(artistArticle);
+                artistArticleList.add(artistArticle);
                 continue;
             }
             Optional<Team> team = teamRepository.findByName(keyword);
             if (team.isPresent()) {
-                teams.add(team.get());
+                TeamArticle teamArticle = TeamArticle.builder()
+                        .article(newArticle)
+                        .team(team.get())
+                        .build();
+                teamArticleRepository.save(teamArticle);
+                teamArticleList.add(teamArticle);
                 continue;
             }
             Optional<Hashtag> hashtag = hashtagRepository.findByTag(keyword);
@@ -101,7 +117,7 @@ public class ArticleService {
             articleHashtagRepository.save(articleHashtag);
         }
 
-        newArticle.setArtists(artists, teams);
+        newArticle.setArtists(artistArticleList, teamArticleList);
 
         // 이미지 저장
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
@@ -182,30 +198,42 @@ public class ArticleService {
                 .build()
         );
 
-        List<Artist> artists = new ArrayList<>();
-        List<Team> teams = new ArrayList<>();
+        List<ArtistArticle> artistArticleList = new ArrayList<>();
+        List<TeamArticle> teamArticleList = new ArrayList<>();
         List<Hashtag> hashtags = new ArrayList<>();
+        artistArticleRepository.deleteByArticle(article);
+        teamArticleRepository.deleteByArticle(article);
 
         for (String keyword : dto.getHashtag()) {
             Optional<Artist> artist = artistRepository.findByName(keyword);
             if (artist.isPresent()) {
-                artists.add(artist.get());
+                article.getArtistArticleList().clear();
+                ArtistArticle artistArticle = ArtistArticle.builder()
+                        .article(article)
+                        .artist(artist.get())
+                        .build();
+                artistArticleRepository.save(artistArticle);
+                artistArticleList.add(artistArticle);
                 continue;
             }
             Optional<Team> team = teamRepository.findByName(keyword);
             if (team.isPresent()) {
-                teams.add(team.get());
+                article.getTeamArticleList().clear();
+                TeamArticle teamArticle = TeamArticle.builder()
+                        .article(article)
+                        .team(team.get())
+                        .build();
+                teamArticleRepository.save(teamArticle);
+                teamArticleList.add(teamArticle);
                 continue;
             }
-            Optional<Hashtag> hashtag = hashtagRepository.findByTag(keyword);
-            if (hashtag.isPresent()) {
-                hashtags.add(hashtag.get());
-                continue;
-            }
-            Hashtag newHashtag = Hashtag.builder()
-                    .tag(keyword)
-                    .build();
-            hashtags.add(newHashtag);
+            Hashtag hashtag = hashtagRepository.findByTag(keyword)
+                    .orElseGet(() -> {
+                        Hashtag newHashtag = Hashtag.builder().tag(keyword).build();
+                        hashtagRepository.save(newHashtag);
+                        return newHashtag;
+                    });
+            hashtags.add(hashtag);
         }
 
         for (Hashtag hashtag: hashtags) {
@@ -216,7 +244,7 @@ public class ArticleService {
             articleHashtagRepository.save(articleHashtag);
         }
 
-        article.setArtists(artists, teams);
+        article.setArtists(artistArticleList, teamArticleList);
 
 
         // 썸네일 이미지 저장
@@ -282,6 +310,10 @@ public class ArticleService {
         }
 
         articleRepository.deleteById(articleId);
+
+        // 게시글 - 팀/아티스트 연관 관계 삭제
+        artistArticleRepository.deleteByArticle(article);
+        teamArticleRepository.deleteByArticle(article);
     }
 
     @Transactional
