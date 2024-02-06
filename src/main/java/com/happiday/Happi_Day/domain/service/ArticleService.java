@@ -68,8 +68,8 @@ public class ArticleService {
                 .category(category)
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .artists(processedTags.getLeft())
-                .teams(processedTags.getMiddle())
+                .artistArticleList(new ArrayList<>())
+                .teamArticleList(new ArrayList<>())
                 .articleHashtags(new ArrayList<>())
                 .eventAddress(dto.getEventAddress())
                 .articleLikes(new ArrayList<>())
@@ -91,6 +91,28 @@ public class ArticleService {
         newArticle.setArticleHashtags(articleHashtags);
 
         articleRepository.save(newArticle);
+
+        // 아티스트와 게시글 관계 설정
+        List<Artist> artists = processedTags.getLeft();
+        for (Artist artist: artists) {
+            ArtistArticle artistArticle = ArtistArticle.builder()
+                    .article(newArticle)
+                    .artist(artist)
+                    .build();
+            artistArticleRepository.save(artistArticle);
+            newArticle.getArtistArticleList().add(artistArticle);
+        }
+
+        // 팀과 게시글 관계 설정
+        List<Team> teams = processedTags.getMiddle();
+        for (Team team: teams) {
+            TeamArticle teamArticle = TeamArticle.builder()
+                    .article(newArticle)
+                    .team(team)
+                    .build();
+            teamArticleRepository.save(teamArticle);
+            newArticle.getTeamArticleList().add(teamArticle);
+        }
 
         // 이미지 저장
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
@@ -181,14 +203,38 @@ public class ArticleService {
             }
         }
 
-            article.update(Article.builder()
+        article.update(Article.builder()
                 .user(user)
                 .title(dto.getTitle())
-                .artists(processedTags.getLeft())
-                .teams(processedTags.getMiddle())
                 .content(dto.getContent())
                 .eventAddress(dto.getEventAddress())
                 .build());
+
+        // 아티스트와 게시글 관계 설정
+        List<Artist> artists = processedTags.getLeft();
+        artistArticleRepository.deleteByArticle(article);
+        article.getArtistArticleList().clear();
+        for (Artist artist: artists) {
+            ArtistArticle artistArticle = ArtistArticle.builder()
+                    .article(article)
+                    .artist(artist)
+                    .build();
+            artistArticleRepository.save(artistArticle);
+            article.getArtistArticleList().add(artistArticle);
+        }
+
+        // 팀과 게시글의 관계 설정
+        List<Team> teams = processedTags.getMiddle();
+        teamArticleRepository.deleteByArticle(article);
+        article.getTeamArticleList().clear();
+        for (Team team: teams) {
+            TeamArticle teamArticle = TeamArticle.builder()
+                    .article(article)
+                    .team(team)
+                    .build();
+            teamArticleRepository.save(teamArticle);
+            article.getTeamArticleList().add(teamArticle);
+        }
 
         // 썸네일 이미지 저장
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
