@@ -10,8 +10,10 @@ import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
 import com.happiday.Happi_Day.exception.ErrorCode;
 import com.happiday.Happi_Day.utils.FileUtils;
+import com.happiday.Happi_Day.utils.HashtagUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -55,11 +57,16 @@ public class SalesService {
 
         if (dto.getEndTime().isBefore(dto.getStartTime())) throw new CustomException(ErrorCode.END_TIME_ERROR);
 
+        HashtagUtils hashtagUtils = new HashtagUtils(artistRepository, teamRepository, hashtagRepository);
+        Triple<List<Artist>, List<Team>, List<Hashtag>> processedTags = hashtagUtils.processTags(dto.getHashtag());
+
         Sales newSales = Sales.builder()
                 .users(user)
                 .salesStatus(SalesStatus.ON_SALE)
                 .salesCategory(category)
                 .name(dto.getName())
+                .artists(processedTags.getLeft())
+                .teams(processedTags.getMiddle())
                 .salesHashtags(new ArrayList<>())
                 .description(dto.getDescription())
                 .products(productList)
@@ -70,42 +77,18 @@ public class SalesService {
                 .endTime(dto.getEndTime())
                 .build();
 
-        List<Artist> artists = new ArrayList<>();
-        List<Team> teams = new ArrayList<>();
-        List<Hashtag> hashtags = new ArrayList<>();
+        List<SalesHashtag> salesHashtags = new ArrayList<>();
+        List<Hashtag> hashtags = processedTags.getRight();
 
-        for (String keyword : dto.getHashtag()) {
-            Optional<Artist> artist = artistRepository.findByName(keyword);
-            if (artist.isPresent()) {
-                artists.add(artist.get());
-                continue;
-            }
-            Optional<Team> team = teamRepository.findByName(keyword);
-            if (team.isPresent()) {
-                teams.add(team.get());
-                continue;
-            }
-            Optional<Hashtag> hashtag = hashtagRepository.findByTag(keyword);
-            if (hashtag.isPresent()) {
-                hashtags.add(hashtag.get());
-                continue;
-            }
-            Hashtag newHashtag = Hashtag.builder()
-                    .tag(keyword)
-                    .build();
-            hashtagRepository.save(newHashtag);
-            hashtags.add(newHashtag);
-        }
-
-        for (Hashtag hashtag: hashtags) {
+        for (Hashtag hashtag : hashtags) {
             SalesHashtag salesHashtag = SalesHashtag.builder()
-                    .hashtag(hashtag)
                     .sales(newSales)
+                    .hashtag(hashtag)
                     .build();
+            salesHashtags.add(salesHashtag);
             salesHashtagRepository.save(salesHashtag);
         }
-
-        newSales.setHashtag(artists, teams);
+        newSales.setSalesHashtags(salesHashtags);
 
         // 이미지 저장
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
@@ -122,8 +105,8 @@ public class SalesService {
         }
 
         salesRepository.save(newSales);
-        ReadOneSalesDto response = ReadOneSalesDto.fromEntity(newSales, new ArrayList<>());
-        return response;
+        ReadOneSalesDto.fromEntity(newSales, new ArrayList<>());
+        return ReadOneSalesDto.fromEntity(newSales, new ArrayList<>());
     }
 
     public Page<ReadListSalesDto> readOngoingSales(Long categoryId, Pageable pageable, String filter, String keyword) {
@@ -203,51 +186,34 @@ public class SalesService {
 
         if (dto.getEndTime().isBefore(dto.getStartTime())) throw new CustomException(ErrorCode.END_TIME_ERROR);
 
-        sales.updateSales(Sales.builder()
+        HashtagUtils hashtagUtils = new HashtagUtils(artistRepository, teamRepository, hashtagRepository);
+        Triple<List<Artist>, List<Team>, List<Hashtag>> processedTags = hashtagUtils.processTags(dto.getHashtag());
+
+        if (processedTags.getRight() != null) {
+            salesHashtagRepository.deleteBySales(sales);
+            sales.getSalesHashtags().clear();
+
+            List<Hashtag> hashtags = processedTags.getRight();
+            for (Hashtag hashtag : hashtags) {
+                SalesHashtag salesHashtag = SalesHashtag.builder()
+                        .sales(sales)
+                        .hashtag(hashtag)
+                        .build();
+                salesHashtagRepository.save(salesHashtag);
+                sales.getSalesHashtags().add(salesHashtag);
+            }
+        }
+
+            sales.updateSales(Sales.builder()
                 .users(user)
                 .name(dto.getName())
                 .description(dto.getDescription())
+                .artists(processedTags.getLeft())
+                .teams(processedTags.getMiddle())
                 .account(dto.getAccount())
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
-                .build()
-        );
-
-        List<Artist> artists = new ArrayList<>();
-        List<Team> teams = new ArrayList<>();
-        List<Hashtag> hashtags = new ArrayList<>();
-
-        for (String keyword : dto.getHashtag()) {
-            Optional<Artist> artist = artistRepository.findByName(keyword);
-            if (artist.isPresent()) {
-                artists.add(artist.get());
-                continue;
-            }
-            Optional<Team> team = teamRepository.findByName(keyword);
-            if (team.isPresent()) {
-                teams.add(team.get());
-                continue;
-            }
-            Optional<Hashtag> hashtag = hashtagRepository.findByTag(keyword);
-            if (hashtag.isPresent()) {
-                hashtags.add(hashtag.get());
-                continue;
-            }
-            Hashtag newHashtag = Hashtag.builder()
-                    .tag(keyword)
-                    .build();
-            hashtags.add(newHashtag);
-        }
-
-        for (Hashtag hashtag: hashtags) {
-            SalesHashtag salesHashtag = SalesHashtag.builder()
-                    .hashtag(hashtag)
-                    .sales(sales)
-                    .build();
-            salesHashtagRepository.save(salesHashtag);
-        }
-
-        sales.setHashtag(artists, teams);
+                .build());
 
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
             if (sales.getThumbnailImage() != null && !sales.getThumbnailImage().isEmpty()) {
