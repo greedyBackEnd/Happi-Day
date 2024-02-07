@@ -1,6 +1,7 @@
 package com.happiday.Happi_Day.initialization.service;
 
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistSales;
 import com.happiday.Happi_Day.domain.entity.product.Sales;
 import com.happiday.Happi_Day.domain.entity.product.SalesCategory;
 import com.happiday.Happi_Day.domain.entity.product.SalesStatus;
@@ -26,6 +27,7 @@ public class SalesInitService {
     private final UserRepository userRepository;
     private final SalesCategoryRepository salesCategoryRepository;
     private final ArtistRepository artistRepository;
+    private final ArtistSalesRepository artistSalesRepository;
     private final TeamRepository teamRepository;
     private final DefaultImageUtils defaultImageUtils;
 
@@ -41,57 +43,70 @@ public class SalesInitService {
         Team team2 = teamRepository.findById(2L).orElse(null);
         String imageUrl = defaultImageUtils.getDefaultImageUrlSalesThumbnail();
 
+        List<Long> artistForSales1 = List.of(1L, 2L);
+        List<Long> artistForSales2 = List.of(3L, 4L);
 
-        List<Sales> salesList = List.of(
-                Sales.builder()
-                        .users(seller)
-                        .salesCategory(category1)
-                        .name("동방신기 티셔츠 팔아요.")
-                        .description("동방신기 콘서트 티셔츠 굿즈, 거의 새 것...")
-                        .salesStatus(SalesStatus.ON_SALE)
-                        .account("1234567890")
-                        .startTime(LocalDateTime.of(2023,12,24,11,00))
-                        .endTime(LocalDateTime.of(2024,1,31,11,00))
-                        .artists(List.of(artist1, artist2))
-                        .teams(List.of(team1))
-                        .build(),
-                Sales.builder()
-                        .users(seller)
-                        .salesCategory(category1)
-                        .name("동방신기 티셔츠 팔아요.(판매 기간 종료)")
-                        .description("동방신기 콘서트 티셔츠 굿즈, 거의 새 것...")
-                        .salesStatus(SalesStatus.ON_SALE)
-                        .account("1234567890")
-                        .startTime(LocalDateTime.of(2023,12,24,11,00))
-                        .endTime(LocalDateTime.of(2023,12,31,11,00))
-                        .artists(List.of(artist1, artist2))
-                        .teams(List.of(team1))
-                        .thumbnailImage(imageUrl)
-                        .build(),
-                Sales.builder()
-                        .users(seller)
-                        .salesCategory(category2)
-                        .name("god 자켓 팔아요.")
-                        .description("god 콘서트 자켓 굿즈, 거의 새 것...")
-                        .salesStatus(SalesStatus.ON_SALE)
-                        .account("1234567890")
-                        .startTime(LocalDateTime.of(2023,12,14,11,00))
-                        .endTime(LocalDateTime.of(2023,12,25,11,00))
-                        .artists(List.of(artist3, artist4))
-                        .teams(List.of(team2))
-                        .thumbnailImage(imageUrl)
-                        .build()
-        );
+        Sales sales1 = createSales(seller, category1, "동방신기 티셔츠 팔아요.",
+                "동방신기 콘서트 티셔츠 굿즈, 거의 새 것...",
+                SalesStatus.ON_SALE, "1234567890",
+                LocalDateTime.of(2023, 12, 24, 11, 00),
+                LocalDateTime.of(2024, 1, 31, 11, 00), imageUrl);
+
+        Sales sales2 = createSales(seller, category1, "동방신기 티셔츠 팔아요.(판매 기간 종료)",
+                "동방신기 콘서트 티셔츠 굿즈, 거의 새 것...",
+                SalesStatus.ON_SALE, "1234567890",
+                LocalDateTime.of(2023, 12, 24, 11, 00),
+                LocalDateTime.of(2023, 12, 31, 11, 00), imageUrl);
+
+        Sales sales3 = createSales(seller, category2, "god 자켓 팔아요.",
+                "god 콘서트 자켓 굿즈, 거의 새 것...",
+                SalesStatus.ON_SALE, "1234567890",
+                LocalDateTime.of(2023, 12, 14, 11, 00),
+                LocalDateTime.of(2023, 12, 25, 11, 00), imageUrl);
+
+        List<Sales> salesList = List.of(sales1, sales2, sales3);
 
         salesList.forEach(sales -> {
             try {
                 if (!salesRepository.existsByName(sales.getName())) {
                     salesRepository.save(sales);
+                    if (sales != sales3) {
+                        linkArtistsToSales(sales, artistForSales1);
+                    } else {
+                        linkArtistsToSales(sales, artistForSales2);
+                    }
                 }
             } catch (Exception e) {
                 log.error("DB Seeder 판매글 저장 중 예외 발생 - 판매글명: {}", sales.getName(), e);
                 throw new CustomException(ErrorCode.DB_SEEDER_SALES_SAVE_ERROR);
             }
+        });
+    }
+
+    private Sales createSales(User seller, SalesCategory category, String title, String description,
+                              SalesStatus salesStatus, String account, LocalDateTime startTime, LocalDateTime endTime, String imageUrl) {
+        return Sales.builder()
+                .users(seller)
+                .salesCategory(category)
+                .name(title)
+                .description(description)
+                .salesStatus(salesStatus)
+                .account(account)
+                .startTime(startTime)
+                .endTime(endTime)
+                .thumbnailImage(imageUrl)
+                .build();
+    }
+
+    private void linkArtistsToSales(Sales sales, List<Long> artistIds) {
+        artistIds.forEach(artistId -> {
+            artistRepository.findById(artistId).ifPresent(artist -> {
+                ArtistSales artistSales = ArtistSales.builder()
+                        .sales(sales)
+                        .artist(artist)
+                        .build();
+                artistSalesRepository.save(artistSales);
+            });
         });
     }
 }

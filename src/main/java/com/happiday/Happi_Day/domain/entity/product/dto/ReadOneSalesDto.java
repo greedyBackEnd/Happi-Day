@@ -2,6 +2,7 @@ package com.happiday.Happi_Day.domain.entity.product.dto;
 
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistSales;
 import com.happiday.Happi_Day.domain.entity.product.Sales;
 import com.happiday.Happi_Day.domain.entity.product.SalesHashtag;
 import com.happiday.Happi_Day.domain.entity.team.Team;
@@ -47,7 +48,7 @@ public class ReadOneSalesDto {
                 .products(productList)
                 .likeNum(sales.getSalesLikes().size())
                 .imageList(sales.getImageUrl())
-                .artists(sales.getArtists().stream().map(Artist::getName).collect(Collectors.toList()))
+                .artists(sales.getArtistSalesList().stream().map(ArtistSales::getArtist).map(Artist::getName).collect(Collectors.toList()))
                 .teams(sales.getTeams().stream().map(Team::getName).collect(Collectors.toList()))
                 .hashtags(sales.getSalesHashtags().stream().map(SalesHashtag::getHashtag).map(Hashtag::getTag).collect(Collectors.toList()))
                 .deliveries(deliveries)

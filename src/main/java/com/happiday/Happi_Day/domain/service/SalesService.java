@@ -2,6 +2,7 @@ package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.article.Hashtag;
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistSales;
 import com.happiday.Happi_Day.domain.entity.product.*;
 import com.happiday.Happi_Day.domain.entity.product.dto.*;
 import com.happiday.Happi_Day.domain.entity.team.Team;
@@ -36,6 +37,7 @@ public class SalesService {
     private final SalesRepository salesRepository;
     private final ProductRepository productRepository;
     private final ArtistRepository artistRepository;
+    private final ArtistSalesRepository artistSalesRepository;
     private final TeamRepository teamRepository;
     private final HashtagRepository hashtagRepository;
     private final FileUtils fileUtils;
@@ -65,7 +67,6 @@ public class SalesService {
                 .salesStatus(SalesStatus.ON_SALE)
                 .salesCategory(category)
                 .name(dto.getName())
-                .artists(processedTags.getLeft())
                 .teams(processedTags.getMiddle())
                 .salesHashtags(new ArrayList<>())
                 .description(dto.getDescription())
@@ -76,6 +77,17 @@ public class SalesService {
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
                 .build();
+
+        // 아티스트와 판매글의 관계 설정
+        List<Artist> artists = processedTags.getLeft();
+        for (Artist artist : artists) {
+            ArtistSales artistSales = ArtistSales.builder()
+                    .sales(newSales)
+                    .artist(artist)
+                    .build();
+            artistSalesRepository.save(artistSales);
+            newSales.getArtistSalesList().add(artistSales);
+        }
 
         List<SalesHashtag> salesHashtags = new ArrayList<>();
         List<Hashtag> hashtags = processedTags.getRight();
@@ -208,12 +220,24 @@ public class SalesService {
                 .users(user)
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .artists(processedTags.getLeft())
                 .teams(processedTags.getMiddle())
                 .account(dto.getAccount())
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
                 .build());
+
+        // 아티스트와 판매글의 관계 설정
+        List<Artist> artists = processedTags.getLeft();
+        artistSalesRepository.deleteBySales(sales);
+        sales.getArtistSalesList().clear();
+        for (Artist artist : artists) {
+            ArtistSales artistSales = ArtistSales.builder()
+                    .sales(sales)
+                    .artist(artist)
+                    .build();
+            artistSalesRepository.save(artistSales);
+            sales.getArtistSalesList().add(artistSales);
+        }
 
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
             if (sales.getThumbnailImage() != null && !sales.getThumbnailImage().isEmpty()) {

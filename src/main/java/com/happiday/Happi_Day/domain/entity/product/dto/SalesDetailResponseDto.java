@@ -1,6 +1,7 @@
 package com.happiday.Happi_Day.domain.entity.product.dto;
 
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistSales;
 import com.happiday.Happi_Day.domain.entity.product.Product;
 import com.happiday.Happi_Day.domain.entity.product.Sales;
 import com.happiday.Happi_Day.domain.entity.product.SalesCategory;
@@ -36,7 +37,7 @@ public class SalesDetailResponseDto {
                 .imageUrl(sales.getImageUrl())
                 .salesStatus(sales.getSalesStatus())
                 .products(sales.getProducts())
-                .artists(sales.getArtists())
+                .artists(sales.getArtistSalesList().stream().map(ArtistSales::getArtist).toList())
                 .teams(sales.getTeams())
                 .build();
     }

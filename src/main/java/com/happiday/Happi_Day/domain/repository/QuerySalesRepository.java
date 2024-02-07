@@ -150,7 +150,7 @@ public class QuerySalesRepository {
                 .map(Team::getId)
                 .toList();
 
-        return sales.artists.any().id.in(artistIds)
+        return sales.artistSalesList.any().id.in(artistIds)
                 .or(sales.teams.any().id.in(teamIds));
 
     }
