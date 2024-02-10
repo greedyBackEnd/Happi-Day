@@ -103,8 +103,8 @@ public class QueryArticleRepository {
                 .map(Team::getId)
                 .toList();
 
-        return article.artistArticleList.any().id.in(artistIds)
-                .or(article.teamArticleList.any().id.in(teamIds));
+        return article.artistArticleList.any().artist.id.in(artistIds)
+                .or(article.teamArticleList.any().team.id.in(teamIds));
 
     }
 }
