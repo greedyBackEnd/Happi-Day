@@ -2,7 +2,7 @@ package com.happiday.Happi_Day.domain.entity.product;
 
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
 import com.happiday.Happi_Day.domain.entity.artist.ArtistSales;
-import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamSales;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -87,13 +87,8 @@ public class Sales extends BaseEntity {
     private List<ArtistSales> artistSalesList = new ArrayList<>();
 
     // 팀-판매글 매핑
-    @ManyToMany
-    @JoinTable(
-            name = "sales_team",
-            joinColumns = @JoinColumn(name = "sales_id"),
-            inverseJoinColumns = @JoinColumn(name = "team_id")
-    )
-    private List<Team> teams = new ArrayList<>();
+    @OneToMany(mappedBy = "sales")
+    private List<TeamSales> teamSalesList = new ArrayList<>();
 
     // 해시태그 매핑
     @Setter
@@ -109,7 +104,7 @@ public class Sales extends BaseEntity {
         if (sales.getDescription() != null) this.description = sales.getDescription();
         if (sales.getSalesStatus() != null) this.salesStatus = sales.getSalesStatus();
         if (sales.getArtistSalesList() != null) this.artistSalesList = sales.getArtistSalesList();
-        if (sales.getTeams() != null) this.teams = sales.getTeams();
+        if (sales.getTeamSalesList() != null) this.teamSalesList = sales.getTeamSalesList();
         if (sales.getAccount() != null) this.account = sales.getAccount();
     }
 }

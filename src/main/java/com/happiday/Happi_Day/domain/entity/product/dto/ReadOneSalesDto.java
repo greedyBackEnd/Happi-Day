@@ -6,6 +6,7 @@ import com.happiday.Happi_Day.domain.entity.artist.ArtistSales;
 import com.happiday.Happi_Day.domain.entity.product.Sales;
 import com.happiday.Happi_Day.domain.entity.product.SalesHashtag;
 import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamSales;
 import lombok.Builder;
 import lombok.Data;
 
@@ -49,7 +50,7 @@ public class ReadOneSalesDto {
                 .likeNum(sales.getSalesLikes().size())
                 .imageList(sales.getImageUrl())
                 .artists(sales.getArtistSalesList().stream().map(ArtistSales::getArtist).map(Artist::getName).collect(Collectors.toList()))
-                .teams(sales.getTeams().stream().map(Team::getName).collect(Collectors.toList()))
+                .teams(sales.getTeamSalesList().stream().map(TeamSales::getTeam).map(Team::getName).collect(Collectors.toList()))
                 .hashtags(sales.getSalesHashtags().stream().map(SalesHashtag::getHashtag).map(Hashtag::getTag).collect(Collectors.toList()))
                 .deliveries(deliveries)
                 .startTime(sales.getStartTime())

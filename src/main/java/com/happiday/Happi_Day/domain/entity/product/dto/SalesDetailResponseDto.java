@@ -7,6 +7,7 @@ import com.happiday.Happi_Day.domain.entity.product.Sales;
 import com.happiday.Happi_Day.domain.entity.product.SalesCategory;
 import com.happiday.Happi_Day.domain.entity.product.SalesStatus;
 import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamSales;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,7 +39,7 @@ public class SalesDetailResponseDto {
                 .salesStatus(sales.getSalesStatus())
                 .products(sales.getProducts())
                 .artists(sales.getArtistSalesList().stream().map(ArtistSales::getArtist).toList())
-                .teams(sales.getTeams())
+                .teams(sales.getTeamSalesList().stream().map(TeamSales::getTeam).toList())
                 .build();
     }
 }

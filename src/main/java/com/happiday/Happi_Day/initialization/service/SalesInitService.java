@@ -6,6 +6,7 @@ import com.happiday.Happi_Day.domain.entity.product.Sales;
 import com.happiday.Happi_Day.domain.entity.product.SalesCategory;
 import com.happiday.Happi_Day.domain.entity.product.SalesStatus;
 import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamSales;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
@@ -29,22 +30,19 @@ public class SalesInitService {
     private final ArtistRepository artistRepository;
     private final ArtistSalesRepository artistSalesRepository;
     private final TeamRepository teamRepository;
+    private final TeamSalesRepository teamSalesRepository;
     private final DefaultImageUtils defaultImageUtils;
 
     public void initSales() {
         User seller = userRepository.findById(2L).orElse(null);
         SalesCategory category1 = salesCategoryRepository.findById(1L).orElse(null);
         SalesCategory category2 = salesCategoryRepository.findById(2L).orElse(null);
-        Artist artist1 = artistRepository.findById(1L).orElse(null);
-        Artist artist2 = artistRepository.findById(2L).orElse(null);
-        Artist artist3 = artistRepository.findById(3L).orElse(null);
-        Artist artist4 = artistRepository.findById(4L).orElse(null);
-        Team team1 = teamRepository.findById(1L).orElse(null);
-        Team team2 = teamRepository.findById(2L).orElse(null);
         String imageUrl = defaultImageUtils.getDefaultImageUrlSalesThumbnail();
 
-        List<Long> artistForSales1 = List.of(1L, 2L);
-        List<Long> artistForSales2 = List.of(3L, 4L);
+        List<Long> artistsForSales1 = List.of(1L, 2L);
+        List<Long> artistsForSales2 = List.of(3L, 4L);
+        List<Long> teamsForSales1 = List.of(1L);
+        List<Long> teamsForSales2 = List.of(2L);
 
         Sales sales1 = createSales(seller, category1, "동방신기 티셔츠 팔아요.",
                 "동방신기 콘서트 티셔츠 굿즈, 거의 새 것...",
@@ -71,9 +69,11 @@ public class SalesInitService {
                 if (!salesRepository.existsByName(sales.getName())) {
                     salesRepository.save(sales);
                     if (sales != sales3) {
-                        linkArtistsToSales(sales, artistForSales1);
+                        linkArtistsToSales(sales, artistsForSales1);
+                        linkTeamsToSales(sales, teamsForSales1);
                     } else {
-                        linkArtistsToSales(sales, artistForSales2);
+                        linkArtistsToSales(sales, artistsForSales2);
+                        linkTeamsToSales(sales, teamsForSales2);
                     }
                 }
             } catch (Exception e) {
@@ -106,6 +106,18 @@ public class SalesInitService {
                         .artist(artist)
                         .build();
                 artistSalesRepository.save(artistSales);
+            });
+        });
+    }
+
+    private void linkTeamsToSales(Sales sales, List<Long> teamIds) {
+        teamIds.forEach(teamId -> {
+            teamRepository.findById(teamId).ifPresent(team -> {
+                TeamSales teamSales = TeamSales.builder()
+                        .sales(sales)
+                        .team(team)
+                        .build();
+                teamSalesRepository.save(teamSales);
             });
         });
     }

@@ -6,6 +6,7 @@ import com.happiday.Happi_Day.domain.entity.artist.ArtistSales;
 import com.happiday.Happi_Day.domain.entity.product.*;
 import com.happiday.Happi_Day.domain.entity.product.dto.*;
 import com.happiday.Happi_Day.domain.entity.team.Team;
+import com.happiday.Happi_Day.domain.entity.team.TeamSales;
 import com.happiday.Happi_Day.domain.entity.user.User;
 import com.happiday.Happi_Day.domain.repository.*;
 import com.happiday.Happi_Day.exception.CustomException;
@@ -39,6 +40,7 @@ public class SalesService {
     private final ArtistRepository artistRepository;
     private final ArtistSalesRepository artistSalesRepository;
     private final TeamRepository teamRepository;
+    private final TeamSalesRepository teamSalesRepository;
     private final HashtagRepository hashtagRepository;
     private final FileUtils fileUtils;
     private final QuerySalesRepository querySalesRepository;
@@ -67,7 +69,8 @@ public class SalesService {
                 .salesStatus(SalesStatus.ON_SALE)
                 .salesCategory(category)
                 .name(dto.getName())
-                .teams(processedTags.getMiddle())
+                .artistSalesList(new ArrayList<>())
+                .teamSalesList(new ArrayList<>())
                 .salesHashtags(new ArrayList<>())
                 .description(dto.getDescription())
                 .products(productList)
@@ -87,6 +90,17 @@ public class SalesService {
                     .build();
             artistSalesRepository.save(artistSales);
             newSales.getArtistSalesList().add(artistSales);
+        }
+
+        // 팀과 판매글의 관계 설정
+        List<Team> teams = processedTags.getMiddle();
+        for (Team team : teams) {
+            TeamSales teamSales = TeamSales.builder()
+                    .sales(newSales)
+                    .team(team)
+                    .build();
+            teamSalesRepository.save(teamSales);
+            newSales.getTeamSalesList().add(teamSales);
         }
 
         List<SalesHashtag> salesHashtags = new ArrayList<>();
@@ -220,7 +234,6 @@ public class SalesService {
                 .users(user)
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .teams(processedTags.getMiddle())
                 .account(dto.getAccount())
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
@@ -237,6 +250,19 @@ public class SalesService {
                     .build();
             artistSalesRepository.save(artistSales);
             sales.getArtistSalesList().add(artistSales);
+        }
+
+        // 팀과 판매글의 관계 설정
+        List<Team> teams = processedTags.getMiddle();
+        teamSalesRepository.deleteBySales(sales);
+        sales.getTeamSalesList().clear();
+        for (Team team : teams) {
+            TeamSales teamSales = TeamSales.builder()
+                    .sales(sales)
+                    .team(team)
+                    .build();
+            teamSalesRepository.save(teamSales);
+            sales.getTeamSalesList().add(teamSales);
         }
 
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {

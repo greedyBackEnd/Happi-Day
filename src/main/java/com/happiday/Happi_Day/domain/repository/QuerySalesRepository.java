@@ -150,8 +150,8 @@ public class QuerySalesRepository {
                 .map(Team::getId)
                 .toList();
 
-        return sales.artistSalesList.any().id.in(artistIds)
-                .or(sales.teams.any().id.in(teamIds));
+        return sales.artistSalesList.any().artist.id.in(artistIds)
+                .or(sales.teamSalesList.any().team.id.in(teamIds));
 
     }
 }
