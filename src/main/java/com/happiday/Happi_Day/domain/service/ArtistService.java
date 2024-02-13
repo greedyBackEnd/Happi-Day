@@ -2,6 +2,7 @@ package com.happiday.Happi_Day.domain.service;
 
 import com.happiday.Happi_Day.domain.entity.artist.Artist;
 import com.happiday.Happi_Day.domain.entity.artist.ArtistEvent;
+import com.happiday.Happi_Day.domain.entity.artist.ArtistSales;
 import com.happiday.Happi_Day.domain.entity.artist.ArtistSubscription;
 import com.happiday.Happi_Day.domain.entity.artist.ArtistTeam;
 import com.happiday.Happi_Day.domain.entity.artist.dto.ArtistListResponseDto;
@@ -160,7 +161,8 @@ public class ArtistService {
                 .collect(Collectors.toList());
 
         // 관련 상품 조회
-        List<SalesListResponseDto> sales = artist.getSalesList().stream()
+        List<SalesListResponseDto> sales = artist.getArtistSalesList().stream()
+                .map(ArtistSales::getSales)
                 .map(SalesListResponseDto::of)
                 .collect(Collectors.toList());
 
@@ -196,7 +198,8 @@ public class ArtistService {
         Artist artist = artistRepository.findById(artistId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
 
-        return artist.getSalesList().stream()
+        return artist.getArtistSalesList().stream()
+                .map(ArtistSales::getSales)
                 .map(SalesListResponseDto::of)
                 .collect(Collectors.toList());
     }
