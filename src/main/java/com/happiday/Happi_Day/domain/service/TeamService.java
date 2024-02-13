@@ -5,6 +5,7 @@ import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.SalesListResponseDto;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import com.happiday.Happi_Day.domain.entity.team.TeamEvent;
+import com.happiday.Happi_Day.domain.entity.team.TeamSales;
 import com.happiday.Happi_Day.domain.entity.team.TeamSubscription;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamListResponseDto;
 import com.happiday.Happi_Day.domain.entity.team.dto.TeamRegisterDto;
@@ -119,7 +120,8 @@ public class TeamService {
                 .collect(Collectors.toList());
 
         // 관련 상품 조회
-        List<SalesListResponseDto> sales = team.getSalesList().stream()
+        List<SalesListResponseDto> sales = team.getTeamSalesList().stream()
+                .map(TeamSales::getSales)
                 .map(SalesListResponseDto::of)
                 .collect(Collectors.toList());
 
@@ -154,7 +156,8 @@ public class TeamService {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
-        return team.getSalesList().stream()
+        return team.getTeamSalesList().stream()
+                .map(TeamSales::getSales)
                 .map(SalesListResponseDto::of)
                 .collect(Collectors.toList());
     }
