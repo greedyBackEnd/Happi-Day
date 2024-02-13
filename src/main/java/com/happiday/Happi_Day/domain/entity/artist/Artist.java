@@ -1,6 +1,7 @@
 package com.happiday.Happi_Day.domain.entity.artist;
 
 import com.happiday.Happi_Day.domain.entity.BaseEntity;
+import com.happiday.Happi_Day.domain.entity.product.Sales;
 import com.happiday.Happi_Day.domain.entity.team.Team;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -33,13 +34,8 @@ public class Artist extends BaseEntity {
     private String profileUrl;
 
     // 팀-아티스트
-    @ManyToMany
-    @JoinTable(
-            name = "artist_team",
-            joinColumns = @JoinColumn(name = "artist_id"),
-            inverseJoinColumns = @JoinColumn(name = "team_id")
-    )
-    private List<Team> teams = new ArrayList<>();
+    @OneToMany(mappedBy = "artist")
+    private List<ArtistTeam> artistTeamList = new ArrayList<>();
 
     // 이벤트
     @OneToMany(mappedBy = "artist")
@@ -66,13 +62,15 @@ public class Artist extends BaseEntity {
         this.profileUrl = profileUrl;
     }
 
-    public void setTeams(List<Team> teams) {
-        if (this.teams == null) {
-            this.teams = new ArrayList<>();
+    public void setTeams(List<ArtistTeam> artistTeamList) {
+        if (this.artistTeamList == null) {
+            this.artistTeamList = new ArrayList<>();
+        } else {
+            this.artistTeamList.clear();
         }
-        this.teams.clear();
-        if (teams != null) {
-            this.teams.addAll(teams);
+
+        if (artistTeamList != null) {
+            this.artistTeamList.addAll(artistTeamList);
         }
     }
 }

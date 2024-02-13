@@ -1,5 +1,6 @@
 package com.happiday.Happi_Day.domain.service;
 
+import com.happiday.Happi_Day.domain.entity.artist.ArtistTeam;
 import com.happiday.Happi_Day.domain.entity.artist.dto.ArtistListResponseDto;
 import com.happiday.Happi_Day.domain.entity.event.dto.EventListResponseDto;
 import com.happiday.Happi_Day.domain.entity.product.dto.SalesListResponseDto;
@@ -92,7 +93,8 @@ public class TeamService {
         boolean isSubscribed = teamSubscriptionRepository.existsByUserAndTeam(user, team);
 
         // 팀에 소속된 아티스트 정보 가져오기
-        List<ArtistListResponseDto> artists = team.getArtists().stream()
+        List<ArtistListResponseDto> artists = team.getArtistTeamList().stream()
+                .map(ArtistTeam::getArtist)
                 .map(ArtistListResponseDto::of)
                 .collect(Collectors.toList());
         return TeamDetailResponseDto.of(team, isSubscribed, artists);
@@ -115,7 +117,8 @@ public class TeamService {
         boolean isSubscribed = teamSubscriptionRepository.existsByUserAndTeam(user, team);
 
         // 팀에 소속된 아티스트 정보 가져오기
-        List<ArtistListResponseDto> artists = team.getArtists().stream()
+        List<ArtistListResponseDto> artists = team.getArtistTeamList().stream()
+                .map(ArtistTeam::getArtist)
                 .map(ArtistListResponseDto::of)
                 .collect(Collectors.toList());
 
@@ -146,7 +149,8 @@ public class TeamService {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
-        return team.getArtists().stream()
+        return team.getArtistTeamList().stream()
+                .map(ArtistTeam::getArtist)
                 .map(ArtistListResponseDto::of)
                 .collect(Collectors.toList());
     }
