@@ -94,7 +94,7 @@ public class ArticleService {
 
         // 아티스트와 게시글 관계 설정
         List<Artist> artists = processedTags.getLeft();
-        for (Artist artist: artists) {
+        for (Artist artist : artists) {
             ArtistArticle artistArticle = ArtistArticle.builder()
                     .article(newArticle)
                     .artist(artist)
@@ -105,7 +105,7 @@ public class ArticleService {
 
         // 팀과 게시글 관계 설정
         List<Team> teams = processedTags.getMiddle();
-        for (Team team: teams) {
+        for (Team team : teams) {
             TeamArticle teamArticle = TeamArticle.builder()
                     .article(newArticle)
                     .team(team)
@@ -163,7 +163,7 @@ public class ArticleService {
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Article> articleList = queryArticleRepository.findArticleByFilterAndKeywordAndSubscribedArtists(pageable, filter, keyword, user);
+        Page<Article> articleList = queryArticleRepository.findArticleByFilterAndKeywordAndSubscribedArtists(pageable, id, filter, keyword, user);
 
         return articleList.map(ReadListArticleDto::fromEntity);
     }
@@ -214,7 +214,7 @@ public class ArticleService {
         List<Artist> artists = processedTags.getLeft();
         artistArticleRepository.deleteByArticle(article);
         article.getArtistArticleList().clear();
-        for (Artist artist: artists) {
+        for (Artist artist : artists) {
             ArtistArticle artistArticle = ArtistArticle.builder()
                     .article(article)
                     .artist(artist)
@@ -227,7 +227,7 @@ public class ArticleService {
         List<Team> teams = processedTags.getMiddle();
         teamArticleRepository.deleteByArticle(article);
         article.getTeamArticleList().clear();
-        for (Team team: teams) {
+        for (Team team : teams) {
             TeamArticle teamArticle = TeamArticle.builder()
                     .article(article)
                     .team(team)

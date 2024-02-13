@@ -141,7 +141,7 @@ public class SalesService {
         SalesCategory category = salesCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        Page<Sales> salesList = querySalesRepository.findSalesByFilterAndKeywordOngoing(pageable, filter, keyword);
+        Page<Sales> salesList = querySalesRepository.findSalesByFilterAndKeywordOngoing(pageable, categoryId, filter, keyword);
 
         return salesList.map(ReadListSalesDto::fromEntity);
     }
@@ -162,7 +162,7 @@ public class SalesService {
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Sales> salesList = querySalesRepository.findSalesByFilterAndKeywordAndSubscribedArtists(pageable, filter, keyword, user);
+        Page<Sales> salesList = querySalesRepository.findSalesByFilterAndKeywordAndSubscribedArtists(pageable, categoryId, filter, keyword, user);
 
         return salesList.map(ReadListSalesDto::fromEntity);
     }
@@ -173,7 +173,7 @@ public class SalesService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
         User user = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Sales> saleList = querySalesRepository.findSalesByFilterAndKeywordAndOngoingAndSubscribedArtists(pageable, filter, keyword, user);
+        Page<Sales> saleList = querySalesRepository.findSalesByFilterAndKeywordAndOngoingAndSubscribedArtists(pageable, categoryId, filter, keyword, user);
 
         return saleList.map(ReadListSalesDto::fromEntity);
     }
@@ -230,7 +230,7 @@ public class SalesService {
             }
         }
 
-            sales.updateSales(Sales.builder()
+        sales.updateSales(Sales.builder()
                 .users(user)
                 .name(dto.getName())
                 .description(dto.getDescription())
